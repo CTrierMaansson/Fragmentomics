@@ -526,40 +526,40 @@ mean_A549_TPM
 A_TPM <- mean_A549_TPM %>% arrange(-log2_TPM)
 A_TPM_zero <- mean_A549_TPM  %>% filter(log2_TPM == 0)
 
-A_top <- A_TPM$SYMBOL[1:30]
+A_top <- A_TPM$SYMBOL[1:15]
 A_zero <- A_TPM_zero$SYMBOL
 
 H_TPM <- mean_HCC827_TPM %>% arrange(-log2_TPM)
 H_TPM_zero <- mean_HCC827_TPM  %>% filter(log2_TPM == 0)
 
-H_top <- H_TPM$SYMBOL[1:30]
+H_top <- H_TPM$SYMBOL[1:15]
 H_zero <- H_TPM_zero$SYMBOL
 
-mean_A_R1_top <- fraction_A549_R1 %>% filter(genes %in% A_top) %>% 
-    summarise(mean(sub_fraction)) 
-mean_A_R2_top <- fraction_A549_R2 %>% filter(genes %in% A_top) %>% 
-    summarise(mean(sub_fraction)) 
-mean_A_R3_top <- fraction_A549_R3 %>% filter(genes %in% A_top) %>% 
-    summarise(mean(sub_fraction)) 
-mean_H_R1_top <- fraction_HCC827_R1 %>% filter(genes %in% H_top) %>% 
-    summarise(mean(sub_fraction)) 
-mean_H_R2_top <- fraction_HCC827_R2 %>% filter(genes %in% H_top) %>% 
-    summarise(mean(sub_fraction)) 
-mean_H_R3_top <- fraction_HCC827_R3 %>% filter(genes %in% H_top) %>% 
-    summarise(mean(sub_fraction)) 
+mean_A_R1_top <- A549_percent_R1 %>% filter(genes %in% A_top) %>% 
+    summarise(mean(percent)) 
+mean_A_R2_top <- A549_percent_R2 %>% filter(genes %in% A_top) %>% 
+    summarise(mean(percent)) 
+mean_A_R3_top <- A549_percent_R3 %>% filter(genes %in% A_top) %>% 
+    summarise(mean(percent)) 
+mean_H_R1_top <- HCC827_percent_R1 %>% filter(genes %in% H_top) %>% 
+    summarise(mean(percent)) 
+mean_H_R2_top <- HCC827_percent_R2 %>% filter(genes %in% H_top) %>% 
+    summarise(mean(percent)) 
+mean_H_R3_top <- HCC827_percent_R3 %>% filter(genes %in% H_top) %>% 
+    summarise(mean(percent)) 
 
-mean_A_R1_zero <- fraction_A549_R1 %>% filter(genes %in% A_zero) %>% 
-    summarise(mean(sub_fraction)) 
-mean_A_R2_zero <- fraction_A549_R2 %>% filter(genes %in% A_zero) %>% 
-    summarise(mean(sub_fraction)) 
-mean_A_R3_zero <- fraction_A549_R3 %>% filter(genes %in% A_zero) %>% 
-    summarise(mean(sub_fraction)) 
-mean_H_R1_zero <- fraction_HCC827_R1 %>% filter(genes %in% H_zero) %>% 
-    summarise(mean(sub_fraction)) 
-mean_H_R2_zero <- fraction_HCC827_R2 %>% filter(genes %in% H_zero) %>% 
-    summarise(mean(sub_fraction)) 
-mean_H_R3_zero <- fraction_HCC827_R3 %>% filter(genes %in% H_zero) %>% 
-    summarise(mean(sub_fraction)) 
+mean_A_R1_zero <- A549_percent_R1 %>% filter(genes %in% A_zero) %>% 
+    summarise(mean(percent)) 
+mean_A_R2_zero <- A549_percent_R2 %>% filter(genes %in% A_zero) %>% 
+    summarise(mean(percent)) 
+mean_A_R3_zero <- A549_percent_R3 %>% filter(genes %in% A_zero) %>% 
+    summarise(mean(percent)) 
+mean_H_R1_zero <- HCC827_percent_R1 %>% filter(genes %in% H_zero) %>% 
+    summarise(mean(percent)) 
+mean_H_R2_zero <- HCC827_percent_R2 %>% filter(genes %in% H_zero) %>% 
+    summarise(mean(percent)) 
+mean_H_R3_zero <- HCC827_percent_R3 %>% filter(genes %in% H_zero) %>% 
+    summarise(mean(percent)) 
 fraction_A549_R1
 mean_A_R1_top
 mean_A_R1_zero
@@ -582,7 +582,7 @@ df_top_zero <- data.frame(cell = c(rep("A549",3),
                                    rep("HCC827",3)),
                           Gene_activity = c(rep("Zero", 6),
                                             rep("High", 6)),
-                          sub_fraction = c(as.numeric(mean_A_R1_zero),
+                          percent = c(as.numeric(mean_A_R1_zero),
                                       as.numeric(mean_A_R2_zero),
                                       as.numeric(mean_A_R3_zero),
                                       as.numeric(mean_H_R1_zero),
@@ -593,8 +593,23 @@ df_top_zero <- data.frame(cell = c(rep("A549",3),
                                       as.numeric(mean_A_R3_top),
                                       as.numeric(mean_H_R1_top),
                                       as.numeric(mean_H_R2_top),
-                                      as.numeric(mean_H_R3_top)))
+                                      as.numeric(mean_H_R3_top)),
+                          pairing = rep(c(LETTERS[1],
+                                      LETTERS[2],
+                                      LETTERS[3],
+                                      LETTERS[4],
+                                      LETTERS[5],
+                                      LETTERS[6]),2))
 df_top_zero %>% group_by(Gene_activity) %>% 
     ggplot(aes(x = Gene_activity, y = sub_fraction,
                color = Gene_activity, shape = cell))+
-    geom_point()
+    geom_line(aes(group = pairing),
+              color = "black", size = 1)+
+    geom_point(size = 4)+
+    scale_color_manual("Gene activity", values = c("High" = "green4", 
+                                                  "Zero" = "firebrick"))+
+    theme_bw()+
+    labs(title ="Pippin % of input in active\nand inactive genes",
+         x = "",
+         y = "% of input")+
+    th
