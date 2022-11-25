@@ -743,7 +743,7 @@ SCLC_tot_enrichment_low %>% filter(genes == "CACNA1E")
 x #name of cfChIP BAM file
 y #Granges object returned by gr() for the 197 AVENIO target genes
 z #.txt file of the AVENIO genes with the number of bases sequenced in each gene. based on data.frame returned by coverages()
-i #name of input BMA file
+i #name of input BAM file
 h #data.frame object returned by healthy() for normilization to healthy. Otherwise NULL
 t #name of sample
 

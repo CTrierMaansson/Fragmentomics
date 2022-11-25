@@ -1,0 +1,451 @@
+mer_count_NAC.1_cfChIP <- mer_count(NAC.1_cfChIP,3)
+mer_count_NAC.2_cfChIP <- mer_count(NAC.2_cfChIP,3)
+mer_count_NAC.3_cfChIP <- mer_count(NAC.3_cfChIP,3)
+mer_count_NAC.4_cfChIP <- mer_count(NAC.4_cfChIP,3)
+mer_count_NSC.1_cfChIP <- mer_count(NSC.1_cfChIP,3)
+mer_count_NSC.2_cfChIP <- mer_count(NSC.2_cfChIP,3)
+mer_count_NSC.3_cfChIP <- mer_count(NSC.3_cfChIP,3)
+mer_count_NSC.4_cfChIP <- mer_count(NSC.4_cfChIP,3)
+mer_count_SSC.1_cfChIP <- mer_count(SSC.1_cfChIP,3)
+mer_count_SSC.2_cfChIP <- mer_count(SSC.2_cfChIP,3)
+mer_count_SSC.3_cfChIP <- mer_count(SSC.3_cfChIP,3)
+mer_count_SSC.4_cfChIP <- mer_count(SSC.4_cfChIP,3)
+mer_count_HC.1_cfChIP <- mer_count(HC.1_cfChIP, 3)
+mer_count_HC.2_cfChIP <- mer_count(HC.2_cfChIP, 3)
+mer_count_HC.3_cfChIP <- mer_count(HC.3_cfChIP, 3)
+mer_count_HC.4_cfChIP <- mer_count(HC.4_cfChIP, 3)
+
+mer_count_NAC.1_input <- mer_count(NAC.1_input,3)
+mer_count_NAC.2_input <- mer_count(NAC.2_input,3)
+mer_count_NAC.3_input <- mer_count(NAC.3_input,3)
+mer_count_NAC.4_input <- mer_count(NAC.4_input,3)
+mer_count_NSC.1_input <- mer_count(NSC.1_input,3)
+mer_count_NSC.2_input <- mer_count(NSC.2_input,3)
+mer_count_NSC.3_input <- mer_count(NSC.3_input,3)
+mer_count_NSC.4_input <- mer_count(NSC.4_input,3)
+mer_count_SSC.1_input <- mer_count(SSC.1_input,3)
+mer_count_SSC.2_input <- mer_count(SSC.2_input,3)
+mer_count_SSC.3_input <- mer_count(SSC.3_input,3)
+mer_count_SSC.4_input <- mer_count(SSC.4_input,3)
+mer_count_HC.1_input <- mer_count(HC.1_input, 3)
+mer_count_HC.2_input <- mer_count(HC.2_input, 3)
+mer_count_HC.3_input <- mer_count(HC.3_input, 3)
+mer_count_HC.4_input <- mer_count(HC.4_input, 3)
+
+prop_mer_NAC.1_cfChIP <- prop_df(mer_count_NAC.1_cfChIP)
+prop_mer_NAC.2_cfChIP <- prop_df(mer_count_NAC.2_cfChIP)
+prop_mer_NAC.3_cfChIP <- prop_df(mer_count_NAC.3_cfChIP)
+prop_mer_NAC.4_cfChIP <- prop_df(mer_count_NAC.4_cfChIP)
+prop_mer_NSC.1_cfChIP <- prop_df(mer_count_NSC.1_cfChIP)
+prop_mer_NSC.2_cfChIP <- prop_df(mer_count_NSC.2_cfChIP)
+prop_mer_NSC.3_cfChIP <- prop_df(mer_count_NSC.3_cfChIP)
+prop_mer_NSC.4_cfChIP <- prop_df(mer_count_NSC.4_cfChIP)
+prop_mer_SSC.1_cfChIP <- prop_df(mer_count_SSC.1_cfChIP)
+prop_mer_SSC.2_cfChIP <- prop_df(mer_count_SSC.2_cfChIP)
+prop_mer_SSC.3_cfChIP <- prop_df(mer_count_SSC.3_cfChIP)
+prop_mer_SSC.4_cfChIP <- prop_df(mer_count_SSC.4_cfChIP)
+prop_mer_HC.1_cfChIP <- prop_df(mer_count_HC.1_cfChIP)
+prop_mer_HC.2_cfChIP <- prop_df(mer_count_HC.2_cfChIP)
+prop_mer_HC.3_cfChIP <- prop_df(mer_count_HC.3_cfChIP)
+prop_mer_HC.4_cfChIP <- prop_df(mer_count_HC.4_cfChIP)
+
+prop_mer_NAC.1_input <- prop_df(mer_count_NAC.1_input)
+prop_mer_NAC.2_input <- prop_df(mer_count_NAC.2_input)
+prop_mer_NAC.3_input <- prop_df(mer_count_NAC.3_input)
+prop_mer_NAC.4_input <- prop_df(mer_count_NAC.4_input)
+prop_mer_NSC.1_input <- prop_df(mer_count_NSC.1_input)
+prop_mer_NSC.2_input <- prop_df(mer_count_NSC.2_input)
+prop_mer_NSC.3_input <- prop_df(mer_count_NSC.3_input)
+prop_mer_NSC.4_input <- prop_df(mer_count_NSC.4_input)
+prop_mer_SSC.1_input <- prop_df(mer_count_SSC.1_input)
+prop_mer_SSC.2_input <- prop_df(mer_count_SSC.2_input)
+prop_mer_SSC.3_input <- prop_df(mer_count_SSC.3_input)
+prop_mer_SSC.4_input <- prop_df(mer_count_SSC.4_input)
+prop_mer_HC.1_input <- prop_df(mer_count_HC.1_input)
+prop_mer_HC.2_input <- prop_df(mer_count_HC.2_input)
+prop_mer_HC.3_input <- prop_df(mer_count_HC.3_input)
+prop_mer_HC.4_input <- prop_df(mer_count_HC.4_input)
+library(dplyr)
+prop_mer_cfChIP <- prop_mer_NAC.1_cfChIP %>% 
+    left_join(prop_mer_NAC.2_cfChIP, by = "res") %>% 
+    left_join(prop_mer_NAC.3_cfChIP, by = "res") %>% 
+    left_join(prop_mer_NAC.4_cfChIP, by = "res") %>% 
+    left_join(prop_mer_NSC.1_cfChIP, by = "res") %>% 
+    left_join(prop_mer_NSC.2_cfChIP, by = "res") %>% 
+    left_join(prop_mer_NSC.3_cfChIP, by = "res") %>% 
+    left_join(prop_mer_NSC.4_cfChIP, by = "res") %>% 
+    left_join(prop_mer_SSC.1_cfChIP, by = "res") %>% 
+    left_join(prop_mer_SSC.2_cfChIP, by = "res") %>% 
+    left_join(prop_mer_SSC.3_cfChIP, by = "res") %>% 
+    left_join(prop_mer_SSC.4_cfChIP, by = "res") %>% 
+    left_join(prop_mer_HC.1_cfChIP, by = "res") %>%
+    left_join(prop_mer_HC.2_cfChIP, by = "res") %>%
+    left_join(prop_mer_HC.3_cfChIP, by = "res") %>%
+    left_join(prop_mer_HC.4_cfChIP, by = "res")
+prop_mer_input <- prop_mer_NAC.1_input %>% 
+    left_join(prop_mer_NAC.2_input, by = "res") %>% 
+    left_join(prop_mer_NAC.3_input, by = "res") %>% 
+    left_join(prop_mer_NAC.4_input, by = "res") %>% 
+    left_join(prop_mer_NSC.1_input, by = "res") %>% 
+    left_join(prop_mer_NSC.2_input, by = "res") %>% 
+    left_join(prop_mer_NSC.3_input, by = "res") %>% 
+    left_join(prop_mer_NSC.4_input, by = "res") %>% 
+    left_join(prop_mer_SSC.1_input, by = "res") %>% 
+    left_join(prop_mer_SSC.2_input, by = "res") %>% 
+    left_join(prop_mer_SSC.3_input, by = "res") %>% 
+    left_join(prop_mer_SSC.4_input, by = "res") %>% 
+    left_join(prop_mer_HC.1_input, by = "res") %>%
+    left_join(prop_mer_HC.2_input, by = "res") %>%
+    left_join(prop_mer_HC.3_input, by = "res") %>%
+    left_join(prop_mer_HC.4_input, by = "res")
+
+colnames(prop_mer_cfChIP) <- c("motif", 
+                               "NAC.1_cfChIP",
+                               "NAC.2_cfChIP",
+                               "NAC.3_cfChIP",
+                               "NAC.4_cfChIP",
+                               "NSC.1_cfChIP",
+                               "NSC.2_cfChIP",
+                               "NSC.3_cfChIP",
+                               "NSC.4_cfChIP",
+                               "SSC.1_cfChIP",
+                               "SSC.2_cfChIP",
+                               "SSC.3_cfChIP",
+                               "SSC.4_cfChIP",
+                               "HC.1_cfChIP",
+                               "HC.2_cfChIP",
+                               "HC.3_cfChIP",
+                               "HC.4_cfChIP")
+colnames(prop_mer_input) <- c("motif", 
+                              "NAC.1_input",
+                              "NAC.2_input",
+                              "NAC.3_input",
+                              "NAC.4_input",
+                              "NSC.1_input",
+                              "NSC.2_input",
+                              "NSC.3_input",
+                              "NSC.4_input",
+                              "SSC.1_input",
+                              "SSC.2_input",
+                              "SSC.3_input",
+                              "SSC.4_input",
+                              "HC.1_input",
+                              "HC.2_input",
+                              "HC.3_input",
+                              "HC.4_input")
+
+count_mer_NAC.1_cfChIP <- count_df(mer_count_NAC.1_cfChIP)
+count_mer_NAC.2_cfChIP <- count_df(mer_count_NAC.2_cfChIP)
+count_mer_NAC.3_cfChIP <- count_df(mer_count_NAC.3_cfChIP)
+count_mer_NAC.4_cfChIP <- count_df(mer_count_NAC.4_cfChIP)
+count_mer_NSC.1_cfChIP <- count_df(mer_count_NSC.1_cfChIP)
+count_mer_NSC.2_cfChIP <- count_df(mer_count_NSC.2_cfChIP)
+count_mer_NSC.3_cfChIP <- count_df(mer_count_NSC.3_cfChIP)
+count_mer_NSC.4_cfChIP <- count_df(mer_count_NSC.4_cfChIP)
+count_mer_SSC.1_cfChIP <- count_df(mer_count_SSC.1_cfChIP)
+count_mer_SSC.2_cfChIP <- count_df(mer_count_SSC.2_cfChIP)
+count_mer_SSC.3_cfChIP <- count_df(mer_count_SSC.3_cfChIP)
+count_mer_SSC.4_cfChIP <- count_df(mer_count_SSC.4_cfChIP)
+count_mer_HC.1_cfChIP <- count_df(mer_count_HC.1_cfChIP)
+count_mer_HC.2_cfChIP <- count_df(mer_count_HC.2_cfChIP)
+count_mer_HC.3_cfChIP <- count_df(mer_count_HC.3_cfChIP)
+count_mer_HC.4_cfChIP <- count_df(mer_count_HC.4_cfChIP)
+
+count_mer_NAC.1_input <- count_df(mer_count_NAC.1_input)
+count_mer_NAC.2_input <- count_df(mer_count_NAC.2_input)
+count_mer_NAC.3_input <- count_df(mer_count_NAC.3_input)
+count_mer_NAC.4_input <- count_df(mer_count_NAC.4_input)
+count_mer_NSC.1_input <- count_df(mer_count_NSC.1_input)
+count_mer_NSC.2_input <- count_df(mer_count_NSC.2_input)
+count_mer_NSC.3_input <- count_df(mer_count_NSC.3_input)
+count_mer_NSC.4_input <- count_df(mer_count_NSC.4_input)
+count_mer_SSC.1_input <- count_df(mer_count_SSC.1_input)
+count_mer_SSC.2_input <- count_df(mer_count_SSC.2_input)
+count_mer_SSC.3_input <- count_df(mer_count_SSC.3_input)
+count_mer_SSC.4_input <- count_df(mer_count_SSC.4_input)
+count_mer_HC.1_input <- count_df(mer_count_HC.1_input)
+count_mer_HC.2_input <- count_df(mer_count_HC.2_input)
+count_mer_HC.3_input <- count_df(mer_count_HC.3_input)
+count_mer_HC.4_input <- count_df(mer_count_HC.4_input)
+
+count_mer_cfChIP <- count_mer_NAC.1_cfChIP %>% 
+    left_join(count_mer_NAC.2_cfChIP, by = "res") %>% 
+    left_join(count_mer_NAC.3_cfChIP, by = "res") %>% 
+    left_join(count_mer_NAC.4_cfChIP, by = "res") %>% 
+    left_join(count_mer_NSC.1_cfChIP, by = "res") %>% 
+    left_join(count_mer_NSC.2_cfChIP, by = "res") %>% 
+    left_join(count_mer_NSC.3_cfChIP, by = "res") %>% 
+    left_join(count_mer_NSC.4_cfChIP, by = "res") %>% 
+    left_join(count_mer_SSC.1_cfChIP, by = "res") %>% 
+    left_join(count_mer_SSC.2_cfChIP, by = "res") %>% 
+    left_join(count_mer_SSC.3_cfChIP, by = "res") %>% 
+    left_join(count_mer_SSC.4_cfChIP, by = "res") %>% 
+    left_join(count_mer_HC.1_cfChIP, by = "res") %>%
+    left_join(count_mer_HC.2_cfChIP, by = "res") %>%
+    left_join(count_mer_HC.3_cfChIP, by = "res") %>%
+    left_join(count_mer_HC.4_cfChIP, by = "res")
+count_mer_input <- count_mer_NAC.1_input %>% 
+    left_join(count_mer_NAC.2_input, by = "res") %>% 
+    left_join(count_mer_NAC.3_input, by = "res") %>% 
+    left_join(count_mer_NAC.4_input, by = "res") %>% 
+    left_join(count_mer_NSC.1_input, by = "res") %>% 
+    left_join(count_mer_NSC.2_input, by = "res") %>% 
+    left_join(count_mer_NSC.3_input, by = "res") %>% 
+    left_join(count_mer_NSC.4_input, by = "res") %>% 
+    left_join(count_mer_SSC.1_input, by = "res") %>% 
+    left_join(count_mer_SSC.2_input, by = "res") %>% 
+    left_join(count_mer_SSC.3_input, by = "res") %>% 
+    left_join(count_mer_SSC.4_input, by = "res") %>% 
+    left_join(count_mer_HC.1_input, by = "res") %>%
+    left_join(count_mer_HC.2_input, by = "res") %>%
+    left_join(count_mer_HC.3_input, by = "res") %>%
+    left_join(count_mer_HC.4_input, by = "res")
+colnames(count_mer_cfChIP) <- c("motif", 
+                                "NAC.1_cfChIP",
+                                "NAC.2_cfChIP",
+                                "NAC.3_cfChIP",
+                                "NAC.4_cfChIP",
+                                "NSC.1_cfChIP",
+                                "NSC.2_cfChIP",
+                                "NSC.3_cfChIP",
+                                "NSC.4_cfChIP",
+                                "SSC.1_cfChIP",
+                                "SSC.2_cfChIP",
+                                "SSC.3_cfChIP",
+                                "SSC.4_cfChIP",
+                                "HC.1_cfChIP",
+                                "HC.2_cfChIP",
+                                "HC.3_cfChIP",
+                                "HC.4_cfChIP")
+colnames(count_mer_input) <- c("motif", 
+                               "NAC.1_input",
+                               "NAC.2_input",
+                               "NAC.3_input",
+                               "NAC.4_input",
+                               "NSC.1_input",
+                               "NSC.2_input",
+                               "NSC.3_input",
+                               "NSC.4_input",
+                               "SSC.1_input",
+                               "SSC.2_input",
+                               "SSC.3_input",
+                               "SSC.4_input",
+                               "HC.1_input",
+                               "HC.2_input",
+                               "HC.3_input",
+                               "HC.4_input")
+
+NAC.1_active_inactive_df <- end_motif_active_inactive("A-1279-cfChIP.bam",
+                                                      grs,
+                                                      "Coverage of AVENIO genes.txt",
+                                                      "PosDeduped-A-1279-input.bam",
+                                                      healthy_reads,3)
+NAC.2_active_inactive_df <- end_motif_active_inactive("B-1288-cfChIP.bam",
+                                                      grs,
+                                                      "Coverage of AVENIO genes.txt",
+                                                      "PosDeduped-B-1288-input.bam",
+                                                      healthy_reads,3)
+NAC.3_active_inactive_df <- end_motif_active_inactive("C-1475-cfChIP.bam",
+                                                      grs,
+                                                      "Coverage of AVENIO genes.txt",
+                                                      "PosDeduped-C-1475-input.bam",
+                                                      healthy_reads,3)
+
+NAC.4_active_inactive_df <- end_motif_active_inactive("D-1578-cfChIP.bam",
+                                                      grs,
+                                                      "Coverage of AVENIO genes.txt",
+                                                      "PosDeduped-D-1578-input.bam",
+                                                      healthy_reads,3)
+
+NSC.1_active_inactive_df <- end_motif_active_inactive("E-439-cfChIP.bam",
+                                                      grs,
+                                                      "Coverage of AVENIO genes.txt",
+                                                      "PosDeduped-E-439-input.bam",
+                                                      healthy_reads,3)
+
+NSC.2_active_inactive_df <- end_motif_active_inactive("F-1449-cfChIP.bam",
+                                                      grs,
+                                                      "Coverage of AVENIO genes.txt",
+                                                      "PosDeduped-F-1449-input.bam",
+                                                      healthy_reads,3)
+
+NSC.3_active_inactive_df <- end_motif_active_inactive("I-645-cfChIP.bam",
+                                                      grs,
+                                                      "Coverage of AVENIO genes.txt",
+                                                      "PosDeduped-I-645-input.bam",
+                                                      healthy_reads,3)
+
+NSC.4_active_inactive_df <- end_motif_active_inactive("J-1663-cfChIP.bam",
+                                                      grs,
+                                                      "Coverage of AVENIO genes.txt",
+                                                      "PosDeduped-J-1663-input.bam",
+                                                      healthy_reads,3)
+
+SSC.1_active_inactive_df <- end_motif_active_inactive("G-514-cfChIP.bam",
+                                                      grs,
+                                                      "Coverage of AVENIO genes.txt",
+                                                      "PosDeduped-G-514-input.bam",
+                                                      healthy_reads,3)
+
+SSC.2_active_inactive_df <- end_motif_active_inactive("H-1169-cfChIP.bam",
+                                                      grs,
+                                                      "Coverage of AVENIO genes.txt",
+                                                      "PosDeduped-H-1169-input.bam",
+                                                      healthy_reads,3)
+
+SSC.3_active_inactive_df <- end_motif_active_inactive("K-440-cfChIP.bam",
+                                                      grs,
+                                                      "Coverage of AVENIO genes.txt",
+                                                      "PosDeduped-K-440-input.bam",
+                                                      healthy_reads,3)
+
+SSC.4_active_inactive_df <- end_motif_active_inactive("L-1100-cfChIP.bam",
+                                                      grs,
+                                                      "Coverage of AVENIO genes.txt",
+                                                      "PosDeduped-L-1100-input.bam",
+                                                      healthy_reads,3)
+HC.1_active_inactive_df <- end_motif_active_inactive(x = "Rask_kontrol1_cfChIP.bam",
+                                                     y = grs,
+                                                     z = "Coverage of AVENIO genes.txt",
+                                                     i = "PosDeduped-Rask_kontrol_1_input.bam",
+                                                     h = NULL,
+                                                     m = 3)
+HC.2_active_inactive_df <- end_motif_active_inactive(x = "Rask_kontrol2_cfChIP.bam",
+                                                     y = grs,
+                                                     z = "Coverage of AVENIO genes.txt",
+                                                     i = "PosDeduped-Rask_kontrol_2_input.bam",
+                                                     h = NULL,
+                                                     m = 3)
+HC.3_active_inactive_df <- end_motif_active_inactive(x = "Rask_kontrol3_cfChIP.bam",
+                                                     y = grs,
+                                                     z = "Coverage of AVENIO genes.txt",
+                                                     i = "PosDeduped-Rask_kontrol_3_input.bam",
+                                                     h = NULL,
+                                                     m = 3)
+HC.4_active_inactive_df <- end_motif_active_inactive(x = "Rask_kontrol4_cfChIP.bam",
+                                                     y = grs,
+                                                     z = "Coverage of AVENIO genes.txt",
+                                                     i = "PosDeduped-Rask_kontrol_4_input.bam",
+                                                     h = NULL,
+                                                     m = 3)
+
+collected_active_inactive_df <- NAC.1_active_inactive_df %>% 
+    left_join(NAC.2_active_inactive_df, by = "motif") %>%
+    left_join(NAC.3_active_inactive_df, by = "motif") %>%
+    left_join(NAC.4_active_inactive_df, by = "motif") %>%
+    left_join(NSC.1_active_inactive_df, by = "motif") %>%
+    left_join(NSC.2_active_inactive_df, by = "motif") %>%
+    left_join(NSC.3_active_inactive_df, by = "motif") %>%
+    left_join(NSC.4_active_inactive_df, by = "motif") %>%
+    left_join(SSC.1_active_inactive_df, by = "motif") %>%
+    left_join(SSC.2_active_inactive_df, by = "motif") %>%
+    left_join(SSC.3_active_inactive_df, by = "motif") %>%
+    left_join(SSC.4_active_inactive_df, by = "motif")
+
+colnames(collected_active_inactive_df) <- c("motif",
+                                            "NAC.1_active", "NAC.1_inactive",
+                                            "NAC.2_active", "NAC.2_inactive",
+                                            "NAC.3_active", "NAC.3_inactive",
+                                            "NAC.4_active", "NAC.4_inactive",
+                                            "NSC.1_active", "NSC.1_inactive",
+                                            "NSC.2_active", "NSC.2_inactive",
+                                            "NSC.3_active", "NSC.3_inactive",
+                                            "NSC.4_active", "NSC.4_inactive",
+                                            "SSC.1_active", "SSC.1_inactive",
+                                            "SSC.2_active", "SSC.2_inactive",
+                                            "SSC.3_active", "SSC.3_inactive",
+                                            "SSC.4_active", "SSC.4_inactive",
+                                            "HC.1_active", "HC.1_inactive",
+                                            "HC.2_active", "HC.2_inactive",
+                                            "HC.3_active", "HC.3_inactive",
+                                            "HC.4_active", "HC.4_inactive")
+
+setwd("C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver")
+NAC.1_active_fraction <- read.table("NAC.1 active motif fraction.txt", header = T)
+NAC.2_active_fraction <- motif_fraction(NAC.2_input, grs, active_motifs)
+NAC.3_active_fraction <- motif_fraction(NAC.3_input, grs, active_motifs)
+NAC.4_active_fraction <- motif_fraction(NAC.4_input, grs, active_motifs)
+NSC.1_active_fraction <- motif_fraction(NSC.1_input, grs, active_motifs)
+NSC.2_active_fraction <- motif_fraction(NSC.2_input, grs, active_motifs)
+NSC.3_active_fraction <- motif_fraction(NSC.3_input, grs, active_motifs)
+NSC.4_active_fraction <- motif_fraction(NSC.4_input, grs, active_motifs)
+SSC.1_active_fraction <- motif_fraction(SSC.1_input, grs, active_motifs)
+SSC.2_active_fraction <- motif_fraction(SSC.2_input, grs, active_motifs)
+SSC.3_active_fraction <- motif_fraction(SSC.3_input, grs, active_motifs)
+SSC.4_active_fraction <- motif_fraction(SSC.4_input, grs, active_motifs)
+setwd("D:/Lung cancer cfChIP/Deduped")
+Adeno1 <- gene_count("A-1279-cfChIP.bam",grs)
+Adeno2 <- gene_count("B-1288-cfChIP.bam", grs)
+Adeno3 <- gene_count("C-1475-cfChIP.bam", grs)
+Adeno4 <- gene_count("D-1578-cfChIP.bam", grs)
+Plano1 <- gene_count("E-439-cfChIP.bam", grs)
+Plano2 <- gene_count("F-1449-cfChIP.bam", grs)
+Plano3 <- gene_count("I-645-cfChIP.bam",grs)
+Plano4 <- gene_count("J-1663-cfChIP.bam",grs)
+SCLC1 <- gene_count("G-514-cfChIP.bam", grs)
+SCLC2 <- gene_count("H-1169-cfChIP.bam", grs)
+SCLC3 <- gene_count("K-440-cfChIP.bam", grs)
+SCLC4 <- gene_count("L-1100-cfChIP.bam", grs)
+setwd("C:/Users/Christoffer/OneDrive/1PhD/R files/Important excel and text documents")
+NAC.1_enrichment <- e.score(Adeno1, "Coverage of AVENIO genes.txt",gr("AVENIO_genes.txt"))
+NAC.2_enrichment <- e.score(Adeno2, "Coverage of AVENIO genes.txt",gr("AVENIO_genes.txt"))
+NAC.3_enrichment <- e.score(Adeno3, "Coverage of AVENIO genes.txt",gr("AVENIO_genes.txt"))
+NAC.4_enrichment <- e.score(Adeno4, "Coverage of AVENIO genes.txt",gr("AVENIO_genes.txt"))
+NSC.1_enrichment <- e.score(Plano1, "Coverage of AVENIO genes.txt",gr("AVENIO_genes.txt"))
+NSC.2_enrichment <- e.score(Plano2, "Coverage of AVENIO genes.txt",gr("AVENIO_genes.txt"))
+NSC.3_enrichment <- e.score(Plano3, "Coverage of AVENIO genes.txt",gr("AVENIO_genes.txt"))
+NSC.4_enrichment <- e.score(Plano4, "Coverage of AVENIO genes.txt",gr("AVENIO_genes.txt"))
+SSC.1_enrichment <- e.score(SCLC1, "Coverage of AVENIO genes.txt",gr("AVENIO_genes.txt"))
+SSC.2_enrichment <- e.score(SCLC2, "Coverage of AVENIO genes.txt",gr("AVENIO_genes.txt"))
+SSC.3_enrichment <- e.score(SCLC3, "Coverage of AVENIO genes.txt",gr("AVENIO_genes.txt"))
+SSC.4_enrichment <- e.score(SCLC4, "Coverage of AVENIO genes.txt",gr("AVENIO_genes.txt"))
+enrichment_df <- NAC.1_enrichment %>%
+    left_join(NAC.2_enrichment, by = "genes") %>%
+    left_join(NAC.3_enrichment, by = "genes") %>%
+    left_join(NAC.4_enrichment, by = "genes") %>%
+    left_join(NSC.1_enrichment, by = "genes") %>%
+    left_join(NSC.2_enrichment, by = "genes") %>%
+    left_join(NSC.3_enrichment, by = "genes") %>%
+    left_join(NSC.4_enrichment, by = "genes") %>%
+    left_join(SSC.1_enrichment, by = "genes") %>%
+    left_join(SSC.2_enrichment, by = "genes") %>%
+    left_join(SSC.3_enrichment, by = "genes") %>%
+    left_join(SSC.4_enrichment, by = "genes")
+colnames(enrichment_df) <- c("genes","NAC.1",
+                             "NAC.2",
+                             "NAC.3",
+                             "NAC.4",
+                             "NSC.1",
+                             "NSC.2",
+                             "NSC.3",
+                             "NSC.4",
+                             "SSC.1",
+                             "SSC.2",
+                             "SSC.3",
+                             "SSC.4")
+enrichment_df
+active_motif_fraction_df <- NAC.1_active_fraction %>%
+    left_join(NAC.2_active_fraction, by = "genes") %>%
+    left_join(NAC.3_active_fraction, by = "genes") %>%
+    left_join(NAC.4_active_fraction, by = "genes") %>%
+    left_join(NSC.1_active_fraction, by = "genes") %>%
+    left_join(NSC.2_active_fraction, by = "genes") %>%
+    left_join(NSC.3_active_fraction, by = "genes") %>%
+    left_join(NSC.4_active_fraction, by = "genes") %>%
+    left_join(SSC.1_active_fraction, by = "genes") %>%
+    left_join(SSC.2_active_fraction, by = "genes") %>%
+    left_join(SSC.3_active_fraction, by = "genes") %>%
+    left_join(SSC.4_active_fraction, by = "genes")
+colnames(active_motif_fraction_df) <- c("genes",
+                                        "NAC.1",
+                                        "NAC.2",
+                                        "NAC.3",
+                                        "NAC.4",
+                                        "NSC.1",
+                                        "NSC.2",
+                                        "NSC.3",
+                                        "NSC.4",
+                                        "SSC.1",
+                                        "SSC.2",
+                                        "SSC.3",
+                                        "SSC.4")
