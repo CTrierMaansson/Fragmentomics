@@ -14,6 +14,7 @@ mer_count_HC.1_cfChIP <- mer_count(HC.1_cfChIP, 3)
 mer_count_HC.2_cfChIP <- mer_count(HC.2_cfChIP, 3)
 mer_count_HC.3_cfChIP <- mer_count(HC.3_cfChIP, 3)
 mer_count_HC.4_cfChIP <- mer_count(HC.4_cfChIP, 3)
+gc()
 
 mer_count_NAC.1_input <- mer_count(NAC.1_input,3)
 mer_count_NAC.2_input <- mer_count(NAC.2_input,3)
@@ -31,6 +32,7 @@ mer_count_HC.1_input <- mer_count(HC.1_input, 3)
 mer_count_HC.2_input <- mer_count(HC.2_input, 3)
 mer_count_HC.3_input <- mer_count(HC.3_input, 3)
 mer_count_HC.4_input <- mer_count(HC.4_input, 3)
+gc()
 
 prop_mer_NAC.1_cfChIP <- prop_df(mer_count_NAC.1_cfChIP)
 prop_mer_NAC.2_cfChIP <- prop_df(mer_count_NAC.2_cfChIP)
@@ -133,6 +135,13 @@ colnames(prop_mer_input) <- c("motif",
                               "HC.2_input",
                               "HC.3_input",
                               "HC.4_input")
+prop_mer_input
+setwd("C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver")
+
+write.table(prop_mer_cfChIP, file = "fragment end motif proportions cfChIP.txt", 
+            sep = "\t",col.names = T)
+write.table(prop_mer_input, file = "fragment end motif proportions input.txt", 
+            sep = "\t",col.names = T)
 
 count_mer_NAC.1_cfChIP <- count_df(mer_count_NAC.1_cfChIP)
 count_mer_NAC.2_cfChIP <- count_df(mer_count_NAC.2_cfChIP)
@@ -234,6 +243,10 @@ colnames(count_mer_input) <- c("motif",
                                "HC.2_input",
                                "HC.3_input",
                                "HC.4_input")
+write.table(count_mer_cfChIP, file = "fragment end motif count cfChIP.txt", 
+            sep = "\t",col.names = T)
+write.table(count_mer_input, file = "fragment end motif count input.txt", 
+            sep = "\t",col.names = T)
 
 NAC.1_active_inactive_df <- end_motif_active_inactive("A-1279-cfChIP.bam",
                                                       grs,
@@ -449,3 +462,136 @@ colnames(active_motif_fraction_df) <- c("genes",
                                         "SSC.2",
                                         "SSC.3",
                                         "SSC.4")
+
+NAC.1_short_long_fractions <- short_long_fragments_motifs(NAC.1_input, y = 150, m = 3)
+gc()
+NAC.2_short_long_fractions <- short_long_fragments_motifs(NAC.2_input, y = 150, m = 3)
+gc()
+NAC.3_short_long_fractions <- short_long_fragments_motifs(NAC.3_input, y = 150, m = 3)
+gc()
+NAC.4_short_long_fractions <- short_long_fragments_motifs(NAC.4_input, y = 150, m = 3)
+gc()
+NSC.1_short_long_fractions <- short_long_fragments_motifs(NSC.1_input, y = 150, m = 3)
+gc()
+NSC.2_short_long_fractions <- short_long_fragments_motifs(NSC.2_input, y = 150, m = 3)
+gc()
+NSC.3_short_long_fractions <- short_long_fragments_motifs(NSC.3_input, y = 150, m = 3)
+gc()
+NSC.4_short_long_fractions <- short_long_fragments_motifs(NSC.4_input, y = 150, m = 3)
+gc()
+SSC.1_short_long_fractions <- short_long_fragments_motifs(SSC.1_input, y = 150, m = 3)
+gc()
+SSC.2_short_long_fractions <- short_long_fragments_motifs(SSC.2_input, y = 150, m = 3)
+gc()
+SSC.3_short_long_fractions <- short_long_fragments_motifs(SSC.3_input, y = 150, m = 3)
+gc()
+SSC.4_short_long_fractions <- short_long_fragments_motifs(SSC.4_input, y = 150, m = 3)
+gc()
+
+short_long_fraction_df <- NAC.1_short_long_fractions %>% 
+    left_join(NAC.2_short_long_fractions, by = "motif") %>%
+    left_join(NAC.3_short_long_fractions, by = "motif") %>%
+    left_join(NAC.4_short_long_fractions, by = "motif") %>%
+    left_join(NSC.1_short_long_fractions, by = "motif") %>% 
+    left_join(NSC.2_short_long_fractions, by = "motif") %>%
+    left_join(NSC.3_short_long_fractions, by = "motif") %>%
+    left_join(NSC.4_short_long_fractions, by = "motif") %>%
+    left_join(SSC.1_short_long_fractions, by = "motif") %>% 
+    left_join(SSC.2_short_long_fractions, by = "motif") %>%
+    left_join(SSC.3_short_long_fractions, by = "motif") %>%
+    left_join(SSC.4_short_long_fractions, by = "motif")
+colnames(short_long_fraction_df) <- c("motif",
+                                      "NAC.1_long",
+                                      "NAC.1_short",
+                                      "NAC.2_long",
+                                      "NAC.2_short",
+                                      "NAC.3_long",
+                                      "NAC.3_short",
+                                      "NAC.4_long",
+                                      "NAC.4_short",
+                                      "NSC.1_long",
+                                      "NSC.1_short",
+                                      "NSC.2_long",
+                                      "NSC.2_short",
+                                      "NSC.3_long",
+                                      "NSC.3_short",
+                                      "NSC.4_long",
+                                      "NSC.4_short",
+                                      "SSC.1_long",
+                                      "SSC.1_short",
+                                      "SSC.2_long",
+                                      "SSC.2_short",
+                                      "SSC.3_long",
+                                      "SSC.3_short",
+                                      "SSC.4_long",
+                                      "SSC.4_short")
+short_long_fraction_df
+getwd()
+
+NAC.1_active_short_long <- 
+    active_short_long_fragments_motifs(enrichment_df, "NAC.1",
+                                       NAC.1_input, grs, y = 150, m = 3)
+NAC.2_active_short_long <- 
+    active_short_long_fragments_motifs(enrichment_df, "NAC.2",
+                                       NAC.2_input, grs, y = 150, m = 3)
+NAC.3_active_short_long <- 
+    active_short_long_fragments_motifs(enrichment_df, "NAC.3",
+                                       NAC.3_input, grs, y = 150, m = 3)
+NAC.4_active_short_long <- 
+    active_short_long_fragments_motifs(enrichment_df, "NAC.4",
+                                       NAC.4_input, grs, y = 150, m = 3)
+NSC.1_active_short_long <- 
+    active_short_long_fragments_motifs(enrichment_df, "NSC.1",
+                                       NSC.1_input, grs, y = 150, m = 3)
+NSC.2_active_short_long <- 
+    active_short_long_fragments_motifs(enrichment_df, "NSC.2",
+                                       NSC.2_input, grs, y = 150, m = 3)
+NSC.3_active_short_long <- 
+    active_short_long_fragments_motifs(enrichment_df, "NSC.3",
+                                       NSC.3_input, grs, y = 150, m = 3)
+NSC.4_active_short_long <- 
+    active_short_long_fragments_motifs(enrichment_df, "NSC.4",
+                                       NSC.4_input, grs, y = 150, m = 3)
+SSC.1_active_short_long <- 
+    active_short_long_fragments_motifs(enrichment_df, "SSC.1",
+                                       SSC.1_input, grs, y = 150, m = 3)
+SSC.2_active_short_long <- 
+    active_short_long_fragments_motifs(enrichment_df, "SSC.2",
+                                       SSC.2_input, grs, y = 150, m = 3)
+SSC.3_active_short_long <- 
+    active_short_long_fragments_motifs(enrichment_df, "SSC.3",
+                                       SSC.3_input, grs, y = 150, m = 3)
+SSC.4_active_short_long <- 
+    active_short_long_fragments_motifs(enrichment_df, "SSC.4",
+                                       SSC.4_input, grs, y = 150, m = 3)
+
+active_long_short_df <- NAC.1_active_short_long %>% 
+    left_join(NAC.2_active_short_long, by = "motif") %>% 
+    left_join(NAC.3_active_short_long, by = "motif") %>% 
+    left_join(NAC.4_active_short_long, by = "motif") %>% 
+    left_join(NSC.1_active_short_long, by = "motif") %>% 
+    left_join(NSC.2_active_short_long, by = "motif") %>% 
+    left_join(NSC.3_active_short_long, by = "motif") %>% 
+    left_join(NSC.4_active_short_long, by = "motif") %>% 
+    left_join(SSC.1_active_short_long, by = "motif") %>% 
+    left_join(SSC.2_active_short_long, by = "motif") %>% 
+    left_join(SSC.3_active_short_long, by = "motif") %>% 
+    left_join(SSC.4_active_short_long, by = "motif")
+
+colnames(active_long_short_df) <- c("motif",
+                                    "NAC.1_bottom_long","NAC.1_bottom_short","NAC.1_top_long","NAC.1_top_short",
+                                    "NAC.2_bottom_long","NAC.2_bottom_short","NAC.2_top_long","NAC.2_top_short",
+                                    "NAC.3_bottom_long","NAC.3_bottom_short","NAC.3_top_long","NAC.3_top_short",
+                                    "NAC.4_bottom_long","NAC.4_bottom_short","NAC.4_top_long","NAC.4_top_short",
+                                    "NSC.1_bottom_long","NSC.1_bottom_short","NSC.1_top_long","NSC.1_top_short",
+                                    "NSC.2_bottom_long","NSC.2_bottom_short","NSC.2_top_long","NSC.2_top_short",
+                                    "NSC.3_bottom_long","NSC.3_bottom_short","NSC.3_top_long","NSC.3_top_short",
+                                    "NSC.4_bottom_long","NSC.4_bottom_short","NSC.4_top_long","NSC.4_top_short",
+                                    "SSC.1_bottom_long","SSC.1_bottom_short","SSC.1_top_long","SSC.1_top_short",
+                                    "SSC.2_bottom_long","SSC.2_bottom_short","SSC.2_top_long","SSC.2_top_short",
+                                    "SSC.3_bottom_long","SSC.3_bottom_short","SSC.3_top_long","SSC.3_top_short",
+                                    "SSC.4_bottom_long","SSC.4_bottom_short","SSC.4_top_long","SSC.4_top_short")
+write.table(active_long_short_df, file = "Fragment end motif fractions of short and long fragments in active and inactive genes.txt", 
+            sep = "\t",col.names = T) 
+
+    
