@@ -248,98 +248,94 @@ write.table(count_mer_cfChIP, file = "fragment end motif count cfChIP.txt",
 write.table(count_mer_input, file = "fragment end motif count input.txt", 
             sep = "\t",col.names = T)
 
-NAC.1_active_inactive_df <- end_motif_active_inactive("A-1279-cfChIP.bam",
+NAC.1_active_inactive_df <- end_motif_active_inactive(enrichment_df,
                                                       grs,
-                                                      "Coverage of AVENIO genes.txt",
-                                                      "PosDeduped-A-1279-input.bam",
-                                                      healthy_reads,3)
-NAC.2_active_inactive_df <- end_motif_active_inactive("B-1288-cfChIP.bam",
+                                                      "NAC.1",
+                                                      "D:/Lung cancer input/PosDeduped/PosDeduped-A-1279-input.bam",
+                                                      3)
+NAC.2_active_inactive_df <- end_motif_active_inactive(enrichment_df,
                                                       grs,
-                                                      "Coverage of AVENIO genes.txt",
-                                                      "PosDeduped-B-1288-input.bam",
-                                                      healthy_reads,3)
-NAC.3_active_inactive_df <- end_motif_active_inactive("C-1475-cfChIP.bam",
+                                                      "NAC.2",
+                                                      "D:/Lung cancer input/PosDeduped/PosDeduped-B-1288-input.bam",
+                                                      3)
+NAC.3_active_inactive_df <- end_motif_active_inactive(enrichment_df,
                                                       grs,
-                                                      "Coverage of AVENIO genes.txt",
-                                                      "PosDeduped-C-1475-input.bam",
-                                                      healthy_reads,3)
+                                                      "NAC.3",
+                                                      "D:/Lung cancer input/PosDeduped/PosDeduped-C-1475-input.bam",
+                                                      3)
 
-NAC.4_active_inactive_df <- end_motif_active_inactive("D-1578-cfChIP.bam",
+NAC.4_active_inactive_df <- end_motif_active_inactive(enrichment_df,
                                                       grs,
-                                                      "Coverage of AVENIO genes.txt",
-                                                      "PosDeduped-D-1578-input.bam",
-                                                      healthy_reads,3)
+                                                      "NAC.4",
+                                                      "D:/Lung cancer input/PosDeduped/PosDeduped-D-1578-input.bam",
+                                                      3)
 
-NSC.1_active_inactive_df <- end_motif_active_inactive("E-439-cfChIP.bam",
+NSC.1_active_inactive_df <- end_motif_active_inactive(enrichment_df,
                                                       grs,
-                                                      "Coverage of AVENIO genes.txt",
-                                                      "PosDeduped-E-439-input.bam",
-                                                      healthy_reads,3)
+                                                      "NSC.1",
+                                                      "D:/Lung cancer input/PosDeduped/PosDeduped-E-439-input.bam",
+                                                      3)
 
-NSC.2_active_inactive_df <- end_motif_active_inactive("F-1449-cfChIP.bam",
+NSC.2_active_inactive_df <- end_motif_active_inactive(enrichment_df,
                                                       grs,
-                                                      "Coverage of AVENIO genes.txt",
-                                                      "PosDeduped-F-1449-input.bam",
-                                                      healthy_reads,3)
+                                                      "NSC.2",
+                                                      "D:/Lung cancer input/PosDeduped/PosDeduped-F-1449-input.bam",
+                                                      3)
 
-NSC.3_active_inactive_df <- end_motif_active_inactive("I-645-cfChIP.bam",
+NSC.3_active_inactive_df <- end_motif_active_inactive(enrichment_df,
                                                       grs,
-                                                      "Coverage of AVENIO genes.txt",
-                                                      "PosDeduped-I-645-input.bam",
-                                                      healthy_reads,3)
+                                                      "NSC.3",
+                                                      "D:/Lung cancer input/PosDeduped/PosDeduped-I-645-input.bam",
+                                                      3)
 
-NSC.4_active_inactive_df <- end_motif_active_inactive("J-1663-cfChIP.bam",
+NSC.4_active_inactive_df <- end_motif_active_inactive(enrichment_df,
                                                       grs,
-                                                      "Coverage of AVENIO genes.txt",
-                                                      "PosDeduped-J-1663-input.bam",
-                                                      healthy_reads,3)
+                                                      "NSC.4",
+                                                      "D:/Lung cancer input/PosDeduped/PosDeduped-J-1663-input.bam",
+                                                      3)
 
-SSC.1_active_inactive_df <- end_motif_active_inactive("G-514-cfChIP.bam",
+SSC.1_active_inactive_df <- end_motif_active_inactive(enrichment_df,
                                                       grs,
-                                                      "Coverage of AVENIO genes.txt",
-                                                      "PosDeduped-G-514-input.bam",
-                                                      healthy_reads,3)
+                                                      "SSC.1",
+                                                      "D:/Lung cancer input/PosDeduped/PosDeduped-G-514-input.bam",
+                                                      3)
 
-SSC.2_active_inactive_df <- end_motif_active_inactive("H-1169-cfChIP.bam",
+SSC.2_active_inactive_df <- end_motif_active_inactive(enrichment_df,
                                                       grs,
-                                                      "Coverage of AVENIO genes.txt",
-                                                      "PosDeduped-H-1169-input.bam",
-                                                      healthy_reads,3)
+                                                      "SSC.2",
+                                                      "D:/Lung cancer input/PosDeduped/PosDeduped-H-1169-input.bam",
+                                                      3)
 
-SSC.3_active_inactive_df <- end_motif_active_inactive("K-440-cfChIP.bam",
+SSC.3_active_inactive_df <- end_motif_active_inactive(enrichment_df,
                                                       grs,
-                                                      "Coverage of AVENIO genes.txt",
-                                                      "PosDeduped-K-440-input.bam",
-                                                      healthy_reads,3)
+                                                      "SSC.3",
+                                                      "D:/Lung cancer input/PosDeduped/PosDeduped-K-440-input.bam",
+                                                      3)
 
-SSC.4_active_inactive_df <- end_motif_active_inactive("L-1100-cfChIP.bam",
+SSC.4_active_inactive_df <- end_motif_active_inactive(enrichment_df,
                                                       grs,
-                                                      "Coverage of AVENIO genes.txt",
-                                                      "PosDeduped-L-1100-input.bam",
-                                                      healthy_reads,3)
-HC.1_active_inactive_df <- end_motif_active_inactive(x = "Rask_kontrol1_cfChIP.bam",
+                                                      "SSC.4",
+                                                      "D:/Lung cancer input/PosDeduped/PosDeduped-L-1100-input.bam",
+                                                      3)
+HC.1_active_inactive_df <- end_motif_active_inactive(x = enrichment_df,
                                                      y = grs,
-                                                     z = "Coverage of AVENIO genes.txt",
-                                                     i = "PosDeduped-Rask_kontrol_1_input.bam",
-                                                     h = NULL,
+                                                     z = "HC.1",
+                                                     i = "D:/Healthy input/PosDeduped/PosDeduped-Rask_kontrol_1_input.bam",
                                                      m = 3)
-HC.2_active_inactive_df <- end_motif_active_inactive(x = "Rask_kontrol2_cfChIP.bam",
+HC.2_active_inactive_df <- end_motif_active_inactive(x = enrichment_df,
                                                      y = grs,
-                                                     z = "Coverage of AVENIO genes.txt",
-                                                     i = "PosDeduped-Rask_kontrol_2_input.bam",
-                                                     h = NULL,
+                                                     z = "HC.2",
+                                                     i = "D:/Healthy input/PosDeduped/PosDeduped-Rask_kontrol_2_input.bam",
                                                      m = 3)
-HC.3_active_inactive_df <- end_motif_active_inactive(x = "Rask_kontrol3_cfChIP.bam",
+HC.3_active_inactive_df <- end_motif_active_inactive(x = enrichment_df,
                                                      y = grs,
-                                                     z = "Coverage of AVENIO genes.txt",
-                                                     i = "PosDeduped-Rask_kontrol_3_input.bam",
-                                                     h = NULL,
+                                                     z = "HC.3",
+                                                     i = "D:/Healthy input/PosDeduped/PosDeduped-Rask_kontrol_3_input.bam",
                                                      m = 3)
-HC.4_active_inactive_df <- end_motif_active_inactive(x = "Rask_kontrol4_cfChIP.bam",
+HC.4_active_inactive_df <- end_motif_active_inactive(x = enrichment_df,
                                                      y = grs,
-                                                     z = "Coverage of AVENIO genes.txt",
-                                                     i = "PosDeduped-Rask_kontrol_4_input.bam",
-                                                     h = NULL,
+                                                     z = "HC.4",
+                                                     i = "D:/Healthy input/PosDeduped/PosDeduped-Rask_kontrol_4_input.bam",
                                                      m = 3)
 
 collected_active_inactive_df <- NAC.1_active_inactive_df %>% 
@@ -353,7 +349,11 @@ collected_active_inactive_df <- NAC.1_active_inactive_df %>%
     left_join(SSC.1_active_inactive_df, by = "motif") %>%
     left_join(SSC.2_active_inactive_df, by = "motif") %>%
     left_join(SSC.3_active_inactive_df, by = "motif") %>%
-    left_join(SSC.4_active_inactive_df, by = "motif")
+    left_join(SSC.4_active_inactive_df, by = "motif") %>% 
+    left_join(HC.1_active_inactive_df, by = "motif") %>%
+    left_join(HC.2_active_inactive_df, by = "motif") %>%
+    left_join(HC.3_active_inactive_df, by = "motif") %>%
+    left_join(HC.4_active_inactive_df, by = "motif")
 
 colnames(collected_active_inactive_df) <- c("motif",
                                             "NAC.1_active", "NAC.1_inactive",
@@ -373,15 +373,18 @@ colnames(collected_active_inactive_df) <- c("motif",
                                             "HC.3_active", "HC.3_inactive",
                                             "HC.4_active", "HC.4_inactive")
 
-setwd("C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver")
-NAC.1_active_fraction <- read.table("NAC.1 active motif fraction.txt", header = T)
+collected_active_inactive_df
+
+NAC.1_active_fraction <- motif_fraction(NAC.1_input, grs, active_motifs)
 NAC.2_active_fraction <- motif_fraction(NAC.2_input, grs, active_motifs)
 NAC.3_active_fraction <- motif_fraction(NAC.3_input, grs, active_motifs)
 NAC.4_active_fraction <- motif_fraction(NAC.4_input, grs, active_motifs)
+gc()
 NSC.1_active_fraction <- motif_fraction(NSC.1_input, grs, active_motifs)
 NSC.2_active_fraction <- motif_fraction(NSC.2_input, grs, active_motifs)
 NSC.3_active_fraction <- motif_fraction(NSC.3_input, grs, active_motifs)
 NSC.4_active_fraction <- motif_fraction(NSC.4_input, grs, active_motifs)
+gc()
 SSC.1_active_fraction <- motif_fraction(SSC.1_input, grs, active_motifs)
 SSC.2_active_fraction <- motif_fraction(SSC.2_input, grs, active_motifs)
 SSC.3_active_fraction <- motif_fraction(SSC.3_input, grs, active_motifs)
@@ -436,6 +439,7 @@ colnames(enrichment_df) <- c("genes","NAC.1",
                              "SSC.2",
                              "SSC.3",
                              "SSC.4")
+
 enrichment_df
 active_motif_fraction_df <- NAC.1_active_fraction %>%
     left_join(NAC.2_active_fraction, by = "genes") %>%
@@ -462,6 +466,10 @@ colnames(active_motif_fraction_df) <- c("genes",
                                         "SSC.2",
                                         "SSC.3",
                                         "SSC.4")
+setwd("C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver")
+
+write.table(active_motif_fraction_df, file = "active motif fraction.txt", 
+            sep = "\t",col.names = T)
 
 NAC.1_short_long_fractions <- short_long_fragments_motifs(NAC.1_input, y = 150, m = 3)
 gc()
@@ -527,6 +535,8 @@ colnames(short_long_fraction_df) <- c("motif",
                                       "SSC.4_short")
 short_long_fraction_df
 getwd()
+write.table(short_long_fraction_df, file = "Fragment end motif fractions of short and long fragments.txt", 
+            sep = "\t",col.names = T)
 
 NAC.1_active_short_long <- 
     active_short_long_fragments_motifs(enrichment_df, "NAC.1",
@@ -594,4 +604,70 @@ colnames(active_long_short_df) <- c("motif",
 write.table(active_long_short_df, file = "Fragment end motif fractions of short and long fragments in active and inactive genes.txt", 
             sep = "\t",col.names = T) 
 
-    
+
+NAC.1_fragment_length_active_inactive <- fragment_length_active_inactive_df(enrichment_df,
+                                                                            grs,
+                                                                            "NAC.1",
+                                                                            "D:/Lung cancer input/PosDeduped/PosDeduped-A-1279-input.bam")
+NAC.2_fragment_length_active_inactive <- fragment_length_active_inactive_df(enrichment_df,
+                                                                            grs,
+                                                                            "NAC.2",
+                                                                            "D:/Lung cancer input/PosDeduped/PosDeduped-B-1288-input.bam")
+NAC.3_fragment_length_active_inactive <- fragment_length_active_inactive_df(enrichment_df,
+                                                                            grs,
+                                                                            "NAC.3",
+                                                                            "D:/Lung cancer input/PosDeduped/PosDeduped-C-1475-input.bam")
+NAC.4_fragment_length_active_inactive <- fragment_length_active_inactive_df(enrichment_df,
+                                                                            grs,
+                                                                            "NAC.4",
+                                                                            "D:/Lung cancer input/PosDeduped/PosDeduped-D-1578-input.bam")
+NSC.1_fragment_length_active_inactive <- fragment_length_active_inactive_df(enrichment_df,
+                                                                            grs,
+                                                                            "NSC.1",
+                                                                            "D:/Lung cancer input/PosDeduped/PosDeduped-E-439-input.bam")
+NSC.2_fragment_length_active_inactive <- fragment_length_active_inactive_df(enrichment_df,
+                                                                            grs,
+                                                                            "NSC.2",
+                                                                            "D:/Lung cancer input/PosDeduped/PosDeduped-F-1449-input.bam")
+NSC.3_fragment_length_active_inactive <- fragment_length_active_inactive_df(enrichment_df,
+                                                                            grs,
+                                                                            "NSC.3",
+                                                                            "D:/Lung cancer input/PosDeduped/PosDeduped-I-645-input.bam")
+NSC.4_fragment_length_active_inactive <- fragment_length_active_inactive_df(enrichment_df,
+                                                                            grs,
+                                                                            "NSC.4",
+                                                                            "D:/Lung cancer input/PosDeduped/PosDeduped-J-1663-input.bam")
+SSC.1_fragment_length_active_inactive <- fragment_length_active_inactive_df(enrichment_df,
+                                                                            grs,
+                                                                            "SSC.1",
+                                                                            "D:/Lung cancer input/PosDeduped/PosDeduped-G-514-input.bam")
+SSC.2_fragment_length_active_inactive <- fragment_length_active_inactive_df(enrichment_df,
+                                                                            grs,
+                                                                            "SSC.2",
+                                                                            "D:/Lung cancer input/PosDeduped/PosDeduped-H-1169-input.bam")
+SSC.3_fragment_length_active_inactive <- fragment_length_active_inactive_df(enrichment_df,
+                                                                            grs,
+                                                                            "SSC.3",
+                                                                            "D:/Lung cancer input/PosDeduped/PosDeduped-K-440-input.bam")
+SSC.4_fragment_length_active_inactive <- fragment_length_active_inactive_df(enrichment_df,
+                                                                            grs,
+                                                                            "SSC.4",
+                                                                            "D:/Lung cancer input/PosDeduped/PosDeduped-L-1100-input.bam")
+collected_fragment_length_active_inactive <- rbind(NAC.1_fragment_length_active_inactive,
+      NAC.2_fragment_length_active_inactive,
+      NAC.3_fragment_length_active_inactive,
+      NAC.4_fragment_length_active_inactive,
+      NSC.1_fragment_length_active_inactive,
+      NSC.2_fragment_length_active_inactive,
+      NSC.3_fragment_length_active_inactive,
+      NSC.4_fragment_length_active_inactive,
+      SSC.1_fragment_length_active_inactive,
+      SSC.2_fragment_length_active_inactive,
+      SSC.3_fragment_length_active_inactive,
+      SSC.4_fragment_length_active_inactive)
+write.table(collected_fragment_length_active_inactive, file = "Fragment lengths active inactive.txt", 
+            sep = "\t",col.names = T)
+fr_df <- read.table("Fragment lengths active inactive.txt", header = T)
+
+write.table(df, file = "Sub150 fraction in cfChIP quatiles.txt", 
+            sep = "\t",col.names = T)

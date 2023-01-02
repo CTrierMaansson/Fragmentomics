@@ -24,8 +24,9 @@ bamfile <- function(x,z){
         pairedEndReads = F,
         remove.duplicate.reads = T, 
         blacklist = NULL,
-        what = c("mapq", "isize", "seq"))
-}    
+        what = c("mapq","isize","pos","cigar","seq"))
+}
+?readBamFileAsGRanges
 x # BAM file returned by bamfile()
 m #number of bases to be evaluated in each fragment end
 mer_count <- function(x,m){
@@ -175,6 +176,7 @@ n #Number of neighbors
 t #Type of plot. For healthy and cancer type "both" (default), for cancer = "cancer", for healthy = "healthy"
 umap_moitf <- function(x,y, p, q, s, n, t = "both"){
     library(umap)
+    library(ggrepel)
     set.seed(s)
     rownames(x) <- x$motif
     rownames(y) <- y$motif
@@ -192,7 +194,7 @@ umap_moitf <- function(x,y, p, q, s, n, t = "both"){
         gg <- ggplot(data = umap_df, aes(x = V1, y = V2, color = V5,
                                          shape = V5, group = V5))+
             geom_point(size = 5)+
-            labs(title = "Input and cfChIP",
+            labs(title = paste(p, "and", q),
                  x = "UMAP-1", y = "UMAP-2")+
             scale_color_manual(name = "Sample",
                                labels = c("Cancer input", "Cancer cfChIP",
@@ -208,7 +210,7 @@ umap_moitf <- function(x,y, p, q, s, n, t = "both"){
     if(t == "cancer"){
         gg <- ggplot(data = umap_df, aes(x = V1, y = V2, color = V3))+
             geom_point(size = 5)+
-            labs(title = "Input and cfChIP",
+            labs(title = paste(p, "and", q),
                  x = "UMAP-1", y = "UMAP-2")+
             scale_color_manual(name = "Sample",
                                labels = c("Cancer input", "Cancer cfChIP"),
@@ -219,7 +221,7 @@ umap_moitf <- function(x,y, p, q, s, n, t = "both"){
     if(t == "healthy"){
         gg <- ggplot(data = umap_df, aes(x = V1, y = V2, color = V3))+
             geom_point(size = 5)+
-            labs(title = "Input and cfChIP",
+            labs(title = paste(p, "and", q),
                  x = "UMAP-1", y = "UMAP-2")+
             scale_color_manual(name = "Sample",
                                labels = c("Healthy input", "Healthy cfChIP"),
@@ -227,69 +229,85 @@ umap_moitf <- function(x,y, p, q, s, n, t = "both"){
             theme_bw()+
             th
     }
+    if(t == "Activity"){
+        umap_df[,4] <- c(rep(c(rep("Cancer", 12), rep("Healthy", 4)),2))
+        umap_df[,5] <- paste(umap_df$V4, umap_df$V3)
+        umap_df[,6] <- rep(c(colnames(x)[-1],colnames(y)[-17]))
+        gg <- ggplot(data = umap_df, aes(x = V1, y = V2, color = V5,
+                                         shape = V5, group = V5))+
+            geom_point(size = 5)+
+            labs(title = paste(p, "and", q),
+                 x = "UMAP-1", y = "UMAP-2")+
+            scale_color_manual(name = "Sample",
+                               labels = c("Cancer active", "Cancer inactive",
+                                          "Healthy active", "Healthy inactive"),
+                               values = c("#6a00fc","#ffa10c","#6a00fc","#ffa10c"))+
+            scale_shape_manual(name = "Sample",
+                               labels = c("Cancer active", "Cancer inactive",
+                                          "Healthy active","Healthy inactive"),
+                               values = c(19,19,17,17))+
+            theme_bw()+
+            geom_label_repel(
+                aes(label=V6),
+                segment.color="black",
+                color="black",
+                nudge_x = 0,
+                label.size = NA,
+                size = 2.5,
+                fill = alpha(c("white"),0),
+                parse = F,
+                max.overlaps = 100)+
+            th
+    }
     
     return(gg)
 }
 
-x #name of cfChIP BAM file
+x #enrichment data.frame 
 y #Granges object returned by gr() for the 197 AVENIO target genes
-z #.txt file of the AVENIO genes with the number of bases sequenced in each gene. based on data.frame returned by coverages()
+z #name of sample to isolate from enrichment data.frame
 i #name of input BAM file
-h #data.frame object returned by healthy() for normilization to healthy. Otherwise NULL
 m #number of bases to be evaluated in each fragment end
-
-end_motif_active_inactive <- function(x,y,z,i,h,m){
-    or_wd <- getwd()
-    setwd("D:/Healthy cfChIP/Deduped")
-    c <- gene_count(x,y)
-    setwd("C:/Users/Christoffer/OneDrive/1PhD/R files/Important excel and text documents")
-    e <- e.score(c,z,y,h)
+end_motif_active_inactive <- function(x,y,z,i,m){
+    library(Rsamtools)
+    df_sample <- x[c("genes",z)]
+    df_sample <- df_sample[order(df_sample[,2]),]
+    e <- df_sample
+    return(e)
     top15 <- e$genes[(length(e$genes)-14):length(e$genes)]
     bottom15 <- e$genes[1:15]
+    return(list(top15, bottom15))
     which <- grs[elementMetadata(y)[,1] %in% c(top15)]
     index1 <- match(top15,elementMetadata(which)[,1])
     which <- which[index1]
     what <- c("seq", "strand")
     param <- ScanBamParam(which = which, what = what)
-    setwd("D:/Healthy input/PosDeduped")
     bam <- scanBam(i, param = param)
-    seqs_top15 <- unname(unlist(lapply(bam,function(x) as.data.frame(x$seq))))
-    strand_top15 <- unname(unlist(lapply(bam,function(x) as.data.frame(x$strand))))
-    df_top15 <- data.frame(seq = seqs_top15, 
+    seqs_top15 <- unname(unlist(lapply(bam,function(x) x$seq)))
+    strand_top15 <- unname(unlist(lapply(bam,function(x) x$strand)))
+    grang_top15 <- GRanges(seqnames = "chr1", ranges = IRanges(start = 1,
+                                                               end = 2),
                            strand = strand_top15)
-    df_top15 <- na.omit(df_top15)
+    mcols(grang_top15)$seq <- DNAStringSet(do.call(c,unlist(seqs_top15)))
     which <- grs[elementMetadata(y)[,1] %in% c(bottom15)]
     index1 <- match(bottom15,elementMetadata(which)[,1])
     which <- which[index1]
     what <- c("seq", "strand")
     param <- ScanBamParam(which = which, what = what)
     bam <- scanBam(i, param = param)
-    seqs_bottom15 <- unname(unlist(lapply(bam,function(x) as.data.frame(x$seq))))
-    strand_bottom15 <- unname(unlist(lapply(bam,function(x) as.data.frame(x$strand))))
-    df_bottom15 <- data.frame(seq = seqs_bottom15, 
-                              strand = strand_bottom15)
-    df_bottom15 <- na.omit(df_bottom15)
-    mer_fun <- function(def){
-        if (def[2] == "+"){
-            seqs <- substring(def[1], 1, m)
-        }
-        if (def[2] == "-"){
-            seqs <- substring(def[1],(nchar(def[1])-m+1) , nchar(def[1]))
-        }
-        if (grepl("N", seqs)){
-            seqs <- NA
-        }
-        return(seqs)
-    }
-    top15_mers <- apply(df_top15, MARGIN = 1, FUN = mer_fun)
-    top15_mers <- top15_mers[!is.na(top15_mers)]
-    top15_mer_df <- as.data.frame.table(proportions(table(top15_mers)))
-    bottom15_mers <- apply(df_bottom15, MARGIN = 1, FUN = mer_fun)
-    bottom15_mers <- bottom15_mers[!is.na(bottom15_mers)]
-    bottom15_mer_df <- as.data.frame.table(proportions(table(bottom15_mers)))
-    df_res <- top15_mer_df %>% left_join(bottom15_mer_df, by = c("top15_mers" = "bottom15_mers"))
+    seqs_bottom15 <- unname(unlist(lapply(bam,function(x) x$seq)))
+    strand_bottom15 <- unname(unlist(lapply(bam,function(x) x$strand)))
+    grang_bottom15 <- GRanges(seqnames = "chr1", ranges = IRanges(start = 1,
+                                                               end = 2),
+                           strand = strand_bottom15)
+    mcols(grang_bottom15)$seq <- DNAStringSet(do.call(c,unlist(seqs_bottom15)))
+    
+    top15_mers <- mer_count(grang_top15)
+    top15_mer_df <- prop_df(top15_mers)
+    bottom15_mers <- mer_count(grang_bottom15)
+    bottom15_mer_df <- prop_df(bottom15_mers)
+    df_res <- top15_mer_df %>% left_join(bottom15_mer_df, by = "res")
     colnames(df_res) <- c("motif", "Active", "Inactive")
-    setwd(or_wd)
     return(df_res)
 }
 
@@ -377,15 +395,16 @@ x #bam.file returned by bamfile()
 y #genomic ranges of AVENIO genes returned by gr()
 z #character vector of motifs to get fraction of
 motif_fraction <- function(x, y, z){
+    library(Biostrings)
     fractions <- c()
     y <- y[mcols(y)$SYMBOL != "DLGAP2"]
     for (i in 1:length(y)){
         print(round(i/length(y)*100,2))
         sub <- subsetByOverlaps(x, y[i],ignore.strand=TRUE)
         tab <- mer_count(sub, 3)
-        df <- as.data.frame.table(tab)
+        df <- prop_df(tab)
         sig_df <- df %>% filter(res %in% z)
-        res <- sum(sig_df$Freq)/sum(df$Freq) * 100
+        res <- sum(sig_df$Freq)
         fractions[i] <- res
     }
     res_df <- data.frame(genes = mcols(y)$SYMBOL,
@@ -393,8 +412,6 @@ motif_fraction <- function(x, y, z){
     return(res_df)
 }
                                         
-write.table(NAC.1_active_fraction, file = "NAC.1 active motif fraction.txt", 
-            sep = "\t",col.names = T)
 
 x #name on .txt file containing each gene, the number of times each gene is sequenced and the distance each target is from TSS
 y #cutoff of distance from TSS which is too long
@@ -440,6 +457,7 @@ motif_fraction_vs_enrichment <- function(x,y,z,b = NULL, r = NULL){
     }
     df <- x2 %>% left_join(y2, by = "genes")
     colnames(df) <- c("genes", "fractions", "enrichment")
+    df$fractions <- df$fractions * 100
     linear <- lm(enrichment~fractions, data=df)
     coef <- as.numeric(linear$coefficients[2])
     res <- cor.test(df$enrichment, df$fractions, method = "spearman")
@@ -460,7 +478,7 @@ motif_fraction_vs_enrichment <- function(x,y,z,b = NULL, r = NULL){
                     aes(x=fractions, y = enrichment),
                     method = "lm", se = F, color = "black")+
         labs(title = paste(z, "for", tit), 
-             x = "Fraction of active motifs", y = "cfChIP enrichment",
+             x = "Fraction of active motifs (%)", y = "cfChIP enrichment",
              subtitle = paste("Spearman's rho =", round(rhos,3), 
                               as.character(p),", alpha = ",round(coef,2)))+
         th
@@ -740,39 +758,7 @@ diff_gene_epigenetic_analysis <- function(x,g,l,y,m){
     fragment_df <- data.frame(sub150 = fragment_res)
     return(list(fragment_df,df))
 }
-cancer_input <- list(NAC.1_input, NAC.2_input,
-                     NAC.3_input, NAC.4_input,
-                     NSC.1_input, NSC.2_input,
-                     NSC.3_input, NSC.4_input,
-                     SSC.1_input, SSC.2_input,
-                     SSC.3_input, SSC.4_input)
-healthy_input <- list(HC.1_input, HC.2_input,
-                      HC.3_input, HC.4_input)
 
-healthy_upregulated_cancer_files <- diff_gene_epigenetic_analysis(healthy_upregulated, 
-                                                                  grs, 
-                                                                  cancer_input,
-                                                                  150,
-                                                                  3)
-healthy_upregulated_healthy_files <- diff_gene_epigenetic_analysis(healthy_upregulated, 
-                                                                   grs, 
-                                                                   healthy_input,
-                                                                   150,
-                                                                   3)
-cancer_upregulated_cancer_files <- diff_gene_epigenetic_analysis(cancer_upregulated, 
-                                                                 grs, 
-                                                                 cancer_input,
-                                                                 150,
-                                                                 3)
-cancer_upregulated_healthy_files <- diff_gene_epigenetic_analysis(cancer_upregulated, 
-                                                                  grs, 
-                                                                  healthy_input,
-                                                                  150,
-                                                                  3)
-colnames(cancer_upregulated_cancer_files[[2]])[1] <- "motif"
-colnames(cancer_upregulated_healthy_files[[2]])[1] <- "motif"
-colnames(healthy_upregulated_cancer_files[[2]])[1] <- "motif"
-colnames(healthy_upregulated_healthy_files[[2]])[1] <- "motif"
 x #data.frame returned by diff_gene_epigenetic_analysis()[[2]] for sample 1
 y #data.frame returned by diff_gene_epigenetic_analysis()[[2]] for sample 2
 diff_gene_motiv_analysis <- function(x, y){
@@ -818,3 +804,818 @@ volcano_motif("Healthy","Cancer",
               diff_gene_motiv_analysis(cancer_upregulated_healthy_files[[2]],cancer_upregulated_cancer_files[[2]]))
 volcano_motif("Healthy","Cancer",
               diff_gene_motiv_analysis(healthy_upregulated_healthy_files[[2]],healthy_upregulated_cancer_files[[2]]))
+
+x #Data.frame of sample 1
+y #data.frame of sample 2
+z #Character vecotr of sample names
+clusters <- function(x,y,z){
+    library(plotly)
+    rownames(x) <- x$motif
+    rownames(y) <- y$motif
+    x1 <- x %>% dplyr::select(-"motif")
+    y1 <- y %>% dplyr::select(-"motif")
+    x2 <- as.data.frame(t(x1))
+    y2 <- as.data.frame(t(y1))
+    df <- rbind(x2,y2)
+    mat1 <- as.matrix(x2)
+    mat2 <- as.matrix(y2)
+    lgd_ = rep(NA, 11)
+    lgd_[c(1,3,5,7,9,11)] = c(0.0,0.2,0.4,0.6,0.8,1.0)
+    col <- colorRampPalette(c("black","#ffa10c"))
+    heatmap(cor(mat1,mat2, method = "spearman"), 
+                  col = col(11), symm = T, cexRow = 0.5,
+                  cexCol = 0.5, xlab = z[1], ylab = z[2])
+    legend(x =0.85, y = 0.9,legend=rev(lgd_),
+           fill=rev(col(11)),
+           title = "Correlation \n",
+           horiz = F,
+           bty = "n",
+           cex = 0.75,
+           title.adj = 2,
+           y.intersp = 0.5)
+   res <- heatmap(cor(mat1,mat2, method = "spearman"), 
+            col = col(11), symm = T, cexRow = 0.5,
+            cexCol = 0.5, xlab = z[1], ylab = z[2])
+   return(colnames(mat1)[res$colInd])
+}
+
+x #list of bamfiles returned by bamfile()
+y #list of character vectors with motifs to group fragments by
+z #Name of groups
+t #title of plot
+fragment_length_motif_plot <- function(x, y, z, t){
+    library(Biostrings)
+    for(i in 1:length(x)){
+        print(i)
+        positive <- x[[i]][strand(x[[i]]) == "+"]
+        positive_g1 <- positive[as.character(subseq(mcols(positive)$seq,1,3)) %in% y[[1]]]
+        positive_g2 <- positive[as.character(subseq(mcols(positive)$seq,1,3)) %in% y[[2]]]
+        negative <- x[[i]][strand(x[[i]]) == "-"]
+        rev_strands <- DNAStringSet(stringi::stri_reverse(mcols(negative)$seq))
+        negative_g1 <- negative[as.character(subseq(rev_strands,1,3)) %in% y[[1]]]
+        negative_g2 <- negative[as.character(subseq(rev_strands,1,3)) %in% y[[2]]]
+        g1_length_positive <- mcols(positive_g1)$isize
+        g2_length_positive <- mcols(positive_g2)$isize
+        g1_length_negative <- abs(mcols(negative_g1)$isize)
+        g2_length_negative <- abs(mcols(negative_g2)$isize)
+        g1_length <- c(g1_length_positive, g1_length_negative)
+        g2_length <- c(g2_length_positive, g2_length_negative)
+        g1_length <- g1_length[g1_length > 0]
+        g1_length <- g1_length[!is.na(g1_length)]
+        g2_length <- g2_length[g2_length > 0]
+        g2_length <- g2_length[!is.na(g2_length)]
+        df <- data.frame(len = c(g1_length,g2_length),
+                         Sample = c(rep(z[1],length(g1_length)),rep(z[2],length(g2_length))))
+        if(i == 1){
+            df1 <- df
+        }
+        else{
+            df1 <- rbind(df1,df)
+        }
+    }
+    g1 <- df1 %>% filter(Sample == z[1])
+    g2 <- df1 %>% filter(Sample == z[2])
+    g2_median <- median(g2$len)
+    g1_median <- median(g1$len)
+    print("Analysis done, printing plot")
+    gg <- ggplot(data = df1, aes(x = len, color = Sample))+
+        geom_density(size = 1)+
+        geom_vline(xintercept = g1_median, color="#ffa10c",
+                   linetype="dashed", size = 1)+
+        geom_vline(xintercept = g2_median, color="#6a00fc",
+                   linetype="dashed", size = 1)+
+        theme_bw(base_size = 15)+
+        scale_color_manual(values = c("#6a00fc","#ffa10c"),
+                           name = "Group")+
+        labs(title = t, y = "Density", x = "Fragment length (bp)")+
+        scale_x_continuous(breaks = seq(0,400,50), limits = c(0,400))+
+        th
+    return(gg)
+}
+x #Numeric vector of the motif proportions
+entrop <- function(x){
+    res <- -sum(x * log2(x))
+    return(res)
+}
+x #Proportion of fragment end motifs for sample 1
+y #Proportion of fragment end motifs for sample 2
+shannon_entropy_plot <- function(x,y){
+    library(dplyr)
+    library(tidyr)
+    library(ggpubr)
+    library(ggplot2)
+    x <- x %>% dplyr::select(-motif)
+    y <- y %>% dplyr::select(-motif)
+    e_1 <- c()
+    e_2 <- c()
+    for (i in 1:length(x)){
+        e_1[i] <- entrop(x[,i])
+        e_2[i] <- entrop(y[,i])
+    }
+    name_1 <- strsplit(colnames(x)[1], "_")[[1]][2]
+    name_2 <- strsplit(colnames(y)[1], "_")[[1]][2]
+    df <- data.frame(type = c(rep(name_1,length(x)),
+                              rep(name_2,length(y))),
+                     entropy = c(e_1, e_2),
+                     pairs = rep(seq(1:length(x)),2))
+    gg <- ggplot(df,aes(x = type, y = entropy, fill = type))+
+        geom_boxplot(outlier.alpha = 0)+
+        geom_point(alpha = 0.5)+
+        labs(x = "",
+             y = "Shannon entropy (H)")+
+        geom_line(aes(group=pairs)) +
+        scale_fill_manual(values = c("#6a00fc","#ffa10c"),
+                          name = "Sample")+
+        stat_compare_means(aes(x = type, y = entropy),
+                           method = "t.test",
+                           label = "p.format")+
+        theme_bw()+
+        th
+    return(gg)
+    
+}
+x #Proportion of fragment end motifs for sample 1
+y #Proportion of fragment end motifs for sample 2
+transposed_shannon_entropy_plot <- function(x,y){
+    library(ggrepel)
+    rownames(x) <- x$motif
+    rownames(y) <- y$motif
+    x <- x %>% dplyr::select(-motif)
+    y <- y %>% dplyr::select(-motif)
+    x1 <- as.data.frame(t(x))
+    y1 <- as.data.frame(t(y))
+    e_1 <- c()
+    e_2 <- c()
+    fc <- c()
+    for (i in 1:length(x1)){
+        e_1[i] <- entrop(x1[,i])
+        e_2[i] <- entrop(y1[,i])
+        fc[i] <- log2(entrop(x1[,i])/entrop(y1[,i]))
+    }
+    name_1 <- strsplit(rownames(x1)[1], "_")[[1]][2]
+    name_2 <- strsplit(rownames(y1)[1], "_")[[1]][2]
+    df <- data.frame(type = c(rep(name_1,length(x1)),
+                              rep(name_2,length(y1))),
+                     entropy = c(e_1, e_2),
+                     fc = rep(fc,2),
+                     pairs = rep(seq(1:length(x1)),2),
+                     motif = rep(colnames(x1),2)) %>% 
+        mutate(sig = ifelse(fc < -0.40 | fc > 0.4, TRUE,FALSE))
+    gg <- ggplot(df,aes(x = type, y = entropy, fill = type))+
+    geom_boxplot(outlier.alpha = 0)+
+    geom_point(alpha = 0.5)+
+    labs(x = "",
+         y = "Shannon entropy (H)")+
+    geom_line(aes(group=pairs,
+                  color = sig)) +
+    scale_fill_manual(values = c("#6a00fc","#ffa10c"),
+                      name = "Sample")+
+    scale_color_manual(values = c("TRUE"="black", "FALSE"="grey"))+
+    stat_compare_means(aes(x = type, y = entropy),
+                       method = "t.test",
+                       label = "p.format")+
+    geom_label_repel(
+        aes(label=ifelse(sig == TRUE, as.character(motif),"")),
+        segment.color="black",
+        color="black",
+        nudge_x = 0,
+        label.size = NA,
+        size = 2.5,
+        fill = alpha(c("white"),0),
+        parse = F,
+        max.overlaps = 100)+
+    theme_bw()+
+    th
+    return(gg)
+}
+
+x #list of motifs to separate motifs into
+y #list of data.frames to to get information from
+z #character vector with names of samples
+stack_bar <- function(x,y,z,m){
+    df <- data.frame(samples = z)
+    for(i in 1:length(x)){
+        seqs <- x[[i]]
+        ress <- c()
+        for (j in 1:length(y)){
+            ddf <- y[[j]] %>% filter(motif %in% seqs) %>%
+                select(-motif)
+            frac <- colSums(ddf)
+            res <- mean(frac)
+            ress[j] <- res
+            
+        }
+        df[ , ncol(df) + 1] <- ress
+    }
+    df <- df %>% pivot_longer(contains("V")) %>% 
+        mutate(name = rep(c(paste(m[1]), paste(m[2]), paste(m[3])), length(z))) %>% 
+        mutate(samples = as.factor(samples))
+    gg <- ggplot(df, 
+                 aes(fill = name, y = value, x = as.factor(samples),
+                     label = round(value,3)))+
+        geom_bar(position = "stack", stat = "identity")+
+        labs(x = "Sample",
+             y = "Motif fraction",
+             caption = paste0(m[1], ": ", 
+                              paste(x[[1]], sep = "", collapse = ", "),
+                              "\n",
+                             m[2], ": ", 
+                             paste(x[[2]], sep = "", collapse = ", "),
+                             "\n",
+                             m[3], ": ", 
+                             paste(x[[3]], sep = "", collapse = ", ")))+
+        theme_bw()+
+        scale_fill_manual(name = "Group",
+                          values = c("#6a00fc","grey", "#ffa10c"))+
+        geom_text(size = 3, position = position_stack(vjust = 0.5))+ 
+        theme(plot.caption.position = "plot",
+              plot.caption = element_text(hjust = 0))+   
+        th
+    return(gg)
+}
+
+x #list of BAMfiles returned by bamfile() for group 1
+y #list of BAMfiles returned by bamfile() for group 2
+z #vector of names for group 1 and 2
+p #Title of plot
+fragment_length <- function(x,y,z,p){
+    library(ggplot2)
+    library(tidyr)
+    len1 <- c()
+    len2 <- c()
+    for (i in 1:length(x)){
+        len <- mcols(x[[i]])$isize
+        len <- len[len >0]
+        len <- len[!is.na(len)]
+        len1 <- c(len1,len)
+    }
+    for (i in 1:length(y)){
+        len <- mcols(y[[i]])$isize
+        len <- len[len >0]
+        len <- len[!is.na(len)]
+        len2 <- c(len2,len)
+    }
+    df <- data.frame(len = c(len1,len2),
+                     Sample = factor(c(rep(z[1],length(len1)),
+                                       rep(z[2],length(len2))),
+                                     levels = c(z[1], z[2])))
+    mu <- ddply(df, "Sample", summarise, grp.median=median(len))
+    gg <- ggplot(data = df, aes(x = len, color = Sample))+
+        geom_density(size = 1)+
+        geom_vline(data=mu, aes(xintercept=grp.median, color=Sample),
+                   linetype="dashed", size = 1)+
+        theme_bw(base_size = 15)+
+        scale_color_manual(values = c("#6a00fc","#ffa10c"))+
+        labs(title = p, y = "Density", x = "Fragment length (bp)")+
+        scale_x_continuous(breaks = seq(0,400,50), limits = c(0,400))+
+        th
+    return(gg)
+}
+
+x #BAM file returned by bamfile()
+y #cutoff for fragment length
+proportion_sub <- function(x,y){
+    library(Rsamtools)
+    len <- mcols(x)$isize
+    len <- len[len >0]
+    len <- len[!is.na(len)]
+    bam_lengths_sub150 <- len[len<y]
+    res <- length(bam_lengths_sub150)/length(len)
+    return(res)
+}
+proportion_sub(NAC.1_cfChIP, 150)
+
+x #list of bam files returned by bamfile() for group 1
+y #cutoff for fragment length
+z #name of samples
+proportion_sub_df <- function(x, y, z){
+    res <- c()
+    for (i in 1:length(x)){
+        res[i] <- proportion_sub(x[[i]], y)
+    }
+    df <- data.frame(sample = z,
+                     sub_fraction = res)
+    return(df)
+}
+
+x #list of proportion sub data.frame returned by proportion_sub_df() for samples
+z #Name of samples
+p #If samples are paired p = "Paired (default), otherwise p = "Unpaired"
+proportion_sub_boxplot <- function(x, z, p = "Paired"){
+    library(ggpubr)
+    if(p == "Unpaired"){
+        if (length(z) < 3){
+            df <- data.frame(sub_fraction = c(x[[1]]$sub_fraction,
+                                              x[[2]]$sub_fraction),
+                             sample = factor(c(rep(z[1], nrow(x[[1]])),
+                                        rep(z[2], nrow(x[[2]]))),
+                                        levels = c(z[1], z[2])))
+            gg <- df %>% ggplot(aes(x=sample, y=sub_fraction, fill=sample)) + 
+                geom_boxplot(outlier.alpha = 0)+
+                geom_jitter(alpha = 0.5, width = 0.1)+
+                labs(x = "",
+                     y = "Fraction under 150 bp")+
+                scale_fill_manual("Sample",
+                                  values = c("#ffa10c","#6a00fc"))+
+                stat_compare_means(method = "t.test",
+                                   comparisons = list(c(z[1], z[2])))+
+                theme_bw()+
+                th
+        }
+        else{
+            df <- data.frame(sub_fraction = c(x[[1]]$sub_fraction,
+                                              x[[2]]$sub_fraction,
+                                              x[[3]]$sub_fraction),
+                             sample = factor(c(rep(z[1], nrow(x[[1]])),
+                                        rep(z[2], nrow(x[[2]])),
+                                        rep(z[3], nrow(x[[3]]))),
+                                        levels = c(z[1], z[2], z[3])))
+            gg <- df %>% ggplot(aes(x=sample, y=sub_fraction, fill=sample)) + 
+                geom_boxplot(outlier.alpha = 0)+
+                geom_jitter(alpha = 0.5, width = 0.1)+
+                labs(x = "",
+                     y = "Fraction under 150 bp")+
+                scale_fill_manual("Sample",
+                                  values = c("#ffa10c","firebrick","#6a00fc"))+
+                stat_compare_means(method = "t.test",
+                                   comparisons = list(c(z[1],z[2]),
+                                                      c(z[1],z[3]),
+                                                      c(z[2],z[3])))+
+                theme_bw()+
+                th
+        }
+    }
+    else{
+        df <- data.frame(sub_fraction = c(x[[1]]$sub_fraction,
+                                          x[[2]]$sub_fraction),
+                         sample = factor(c(rep(z[1], nrow(x[[1]])),
+                                    rep(z[2], nrow(x[[2]]))), 
+                                    levels = c(z[1], z[2])),
+                         pairs = rep(seq(1,nrow(x[[1]])),2))
+        gg <- df %>% ggplot(aes(x=sample, y=sub_fraction, fill=sample)) + 
+            geom_boxplot(outlier.alpha = 0)+
+            geom_line(aes(group=pairs))+
+            geom_point(alpha = 0.5)+
+            labs(x = "",
+                 y = "Fraction under 150 bp")+
+            scale_fill_manual("Sample",
+                              values = c("#ffa10c","#6a00fc"))+
+            stat_compare_means(method = "t.test",
+                               paired = TRUE,
+                               comparisons = list(c(z[1], z[2])))+
+            theme_bw()+
+            th
+    }
+    return(gg)
+}
+x #Table consisting of BAM file names (name used when bamfile() is used),
+  #genes mutated and the position of the mutation
+y #Named list of samples used
+fragment_length_wt_ctdna_df <- function(x,y){
+    library(Rsamtools)
+    library(tidyr)
+    library(GenomicAlignments)
+    or_wd <- getwd()
+    `%ni%` <- Negate(`%in%`)
+    df <- read.table(x,header = T)
+    df <- df[!is.na(df$genes),]
+    df6 <- data.frame(len = c(),
+                      Sample = c())
+    n_samples <- length(df$file)
+    for (i in 1:n_samples){
+        genes <- strsplit(df$genes[i],split = ",")[[1]]
+        n_genes <- length(genes)
+        positions <- strsplit(df$positions[i],split = ",")[[1]]
+        types <- strsplit(df$Type[i],split = ",")[[1]]
+        string <- strsplit(positions,split = ":")[1:n_genes]
+        reads <- y[df$name[i]][[1]]
+        chr <- unlist(lapply(string, FUN = function(x){return(x[1])}))
+        pos <- as.numeric(unlist(lapply(string, FUN = function(x){return(x[2])})))
+        for(j in 1:n_genes){
+            mut_pos <- pos[j]
+            mut_chr <- chr[j]
+            g <- GRanges(mut_chr,IRanges(start = mut_pos, end = mut_pos),
+                         strand = "*")
+            sub <- subsetByOverlaps(reads,g)
+            type <- types[j]
+            len <- mcols(sub)$isize
+            cig <- mcols(sub)$cigar
+            cig <- cig[len >0]
+            len <- len[len >0]
+            cig <- cig[!is.na(len)]
+            len <- len[!is.na(len)]
+            if(grepl("indel",type)){
+                indel <- strsplit(type,split = "-")[[1]][2]
+                ct_len <- len[grepl(indel,cig)]
+                wt_len <- len[!grepl(indel,cig)]
+                df1 <- data.frame(len = c(ct_len,wt_len),
+                                 Sample = c(rep("ctDNA",length(ct_len)),
+                                            rep("WT", length(wt_len))))
+                df6 <- rbind(df6,df1)
+            }
+            else{
+                param = ScanBamParam(which = g, what = c("mapq", "isize","pos", "cigar"),
+                                     tag = "MD")
+                setwd("D:/Lung cancer input/PosDeduped")
+                bam <- scanBam(df$file[i],
+                               param = param)
+                setwd(or_wd)
+                bam_pos <- as.numeric(unlist(bam[[1]][1]))
+                bam_size <- as.numeric(unlist(bam[[1]][4]))
+                bam_cigar <- unlist(bam[[1]][3])
+                bam_MD <- unlist(bam[[1]][5])
+                df1 <- data.frame(position = bam_pos,
+                                  size = bam_size,
+                                  cigar = bam_cigar,
+                                  MD = bam_MD)
+                df1 <- df1[df1$size >0,]
+                df1 <- df1[!is.na(df1$position),]
+                base <- strsplit(type,split = "-")[[1]][2]
+                ct_len <- df1$size[grepl(base,df1$MD)]
+                wt_len <- df1$size[!grepl(base,df1$MD)]
+                df4 <- data.frame(len = c(ct_len,wt_len),
+                                  Sample = c(rep("ctDNA",length(ct_len)),
+                                             rep("WT", length(wt_len))))
+                df6 <- rbind(df6,df4)
+                print(i)
+            }
+        }    
+    }
+    return(df6)
+}
+
+x #data.frame returned by fragment_length_wt_ctdna_df()
+fragment_length_wt_ctdna_plot <- function(x){
+    library(ggplot2)
+    library(tidyr)
+    library(plyr)
+    colnames(x) <- c("len", "Sample")
+    x$Sample <- factor(x$Sample, levels = c("ctDNA", "WT"))
+    mu <- ddply(x, "Sample", summarise, grp.median=median(len))
+    gg <- ggplot(data = x, aes(x = len, color = Sample))+
+        geom_density(size = 1)+
+        geom_vline(data=mu, aes(xintercept=grp.median, color=Sample),
+                   linetype="dashed", size = 1)+
+        theme_bw(base_size = 15)+
+        scale_color_manual(values = c("#6a00fc","#ffa10c"))+
+        labs(title = "ctDNA and WT", y = "Density", x = "Fragment length (bp)")+
+        scale_x_continuous(breaks = seq(0,400,50), limits = c(0,400))+
+        th
+    return(gg)
+}
+
+MAF_in_bins <- function(x){
+    intervals <- seq(50,400,10)
+    colnames(x) <- c("len", "Sample")
+    x$Sample <- factor(x$Sample, levels = c("ctDNA", "WT"))
+    x_mark <- c()
+    df_wt <- x %>% filter(Sample == "WT")
+    df_ct <- x %>% filter(Sample == "ctDNA")
+    or_MAF <- nrow(df_ct)/(nrow(df_ct)+nrow(df_wt))*100
+    MAF <- c()
+    for (i in 1:(length(intervals)-1)){
+        lower <- intervals[i]
+        upper <- intervals[i+1]
+        x_mark[i] <- lower + 5
+        df <- x %>% filter(lower < len & len <= upper)
+        df_wt <- df %>% filter(Sample == "WT")
+        df_ct <- df %>% filter(Sample == "ctDNA")
+        MAF[i] <- nrow(df_ct)/(nrow(df_ct)+nrow(df_wt))*100
+    }
+    rects <- data.frame(xstart = c(50,150,230,340), xend = c(150,230,340,400), 
+                        col = factor(c("Mutant","WT","Mutant","WT"),
+                                        levels = c("Mutant", "WT")))
+    df1 <- data.frame(len = x_mark,
+                      MAF = MAF) %>% 
+    mutate(enrichment = MAF/or_MAF)
+    gg <- ggplot()+
+        geom_rect(data = rects, aes(xmin = xstart, xmax = xend, 
+                                    ymin = -Inf, ymax = Inf, fill = col),
+                  alpha = 0.4)+
+        scale_fill_manual("Enrichment",
+                          values = c("#6a00fc","#ffa10c"))+ 
+        geom_point(data = df1, aes(x = len, y = enrichment),
+                   color = "black",
+                   size = 2)+
+        labs(x = "Fragment (bp)",
+             y = "MAF enrichment")+
+        geom_hline(yintercept = 1,
+                   color = "black",
+                   size = 1)+
+        geom_smooth(data = df1, aes(x = len, y = enrichment),
+                    method = "loess",
+                    span = 0.5, se = F,
+                    color = "black",
+                    size = 1.2)+
+        geom_vline(xintercept = c(50,150,230,340,400),
+                   color = "black",
+                   linetype = "dashed",
+                   size = 0.5)+
+        annotate(geom = "text",
+                 x = c(58,160,240,350,410),
+                 y = c(2.4,2.4,2.4,2.4,2.4),
+                 label = c("50", "150", "230", "340", "400"),
+                 color = "black",fontface = "bold",
+                 size = 4)+
+        scale_y_continuous(limits = c(0.4,2.4))+
+        scale_x_continuous(limits = c(0,450),breaks = seq(0,450,50))+
+        theme_bw()+
+        th
+    return(gg)
+}
+
+x #Table consisting of BAM file names (name used when bamfile() is used),
+#genes mutated and the position of the mutation
+y #Named list of the patient sample (length = 1)
+fragment_length_wt_ctdna_patient <- function(x,y){
+    library(Rsamtools)
+    library(tidyr)
+    library(GenomicAlignments)
+    or_wd <- getwd()
+    `%ni%` <- Negate(`%in%`)
+    df <- read.table(x,header = T)
+    df <- df[!is.na(df$genes),]
+    df6 <- data.frame(len = c(),
+                      Sample = c())
+    df <- df %>% filter(name %in% names(y))
+    if(isEmpty(df)){
+        return("No mutations")
+    }
+    genes <- strsplit(df$genes,split = ",")[[1]]
+    n_genes <- length(genes)
+    positions <- strsplit(df$positions,split = ",")[[1]]
+    types <- strsplit(df$Type,split = ",")[[1]]
+    string <- strsplit(positions,split = ":")[1:n_genes]
+    reads <- y[df$name][[1]]
+    chr <- unlist(lapply(string, FUN = function(x){return(x[1])}))
+    pos <- as.numeric(unlist(lapply(string, FUN = function(x){return(x[2])})))
+        for(j in 1:n_genes){
+            mut_pos <- pos[j]
+            mut_chr <- chr[j]
+            g <- GRanges(mut_chr,IRanges(start = mut_pos, end = mut_pos),
+                         strand = "*")
+            sub <- subsetByOverlaps(reads,g)
+            type <- types[j]
+            len <- mcols(sub)$isize
+            cig <- mcols(sub)$cigar
+            cig <- cig[len >0]
+            len <- len[len >0]
+            cig <- cig[!is.na(len)]
+            len <- len[!is.na(len)]
+            if(grepl("indel",type)){
+                indel <- strsplit(type,split = "-")[[1]][2]
+                ct_len <- len[grepl(indel,cig)]
+                wt_len <- len[!grepl(indel,cig)]
+                df1 <- data.frame(len = c(ct_len,wt_len),
+                                  Sample = c(rep("ctDNA",length(ct_len)),
+                                             rep("WT", length(wt_len))))
+                df6 <- rbind(df6,df1)
+            }
+            else{
+                param = ScanBamParam(which = g, what = c("mapq", "isize","pos", "cigar"),
+                                     tag = "MD")
+                setwd("D:/Lung cancer input/PosDeduped")
+                bam <- scanBam(df$file,
+                               param = param)
+                setwd(or_wd)
+                bam_pos <- as.numeric(unlist(bam[[1]][1]))
+                bam_size <- as.numeric(unlist(bam[[1]][4]))
+                bam_cigar <- unlist(bam[[1]][3])
+                bam_MD <- unlist(bam[[1]][5])
+                df1 <- data.frame(position = bam_pos,
+                                  size = bam_size,
+                                  cigar = bam_cigar,
+                                  MD = bam_MD)
+                df1 <- df1[df1$size >0,]
+                df1 <- df1[!is.na(df1$position),]
+                base <- strsplit(type,split = "-")[[1]][2]
+                ct_len <- df1$size[grepl(base,df1$MD)]
+                wt_len <- df1$size[!grepl(base,df1$MD)]
+                df4 <- data.frame(len = c(ct_len,wt_len),
+                                  Sample = c(rep("ctDNA",length(ct_len)),
+                                             rep("WT", length(wt_len))))
+                df6 <- rbind(df6,df4)
+            }
+        }    
+    return(df6)
+}
+
+x #List of patient data.frames with fragment lengths of WT and ctDNA
+fragment_length_wt_ctdna_boxplot <- function(x){
+    x <- lapply(x,FUN = function(x){if(isa(x,"data.frame")){return(x)}
+        else{return(NA)}})
+    x <- x[!is.na(x)]
+    ct_frac <- c()
+    wt_frac <- c()
+    for (i in 1:length(x)){
+        df_ct <- x[[i]] %>% filter(Sample == "ctDNA")
+        df_wt <- x[[i]] %>% filter(Sample == "WT")
+        df_ct_sub <- df_ct %>% filter(len < 150)
+        df_wt_sub <- df_wt %>% filter(len < 150)
+        ct_frac[i] <- nrow(df_ct_sub)/nrow(df_ct)
+        wt_frac[i] <- nrow(df_wt_sub)/nrow(df_wt)
+    }
+    df <- data.frame(sub_fraction = c(wt_frac,ct_frac),
+                     sample = factor(c(rep("WT",length(x)),
+                              rep("ctDNA", length(x))),
+                                     levels = c("WT", "ctDNA")),
+                     pairs = rep(1:length(x),2))
+    gg <- df %>% ggplot(aes(x=sample, y=sub_fraction, fill=sample)) + 
+        geom_boxplot(outlier.alpha = 0)+
+        geom_line(aes(group=pairs))+
+        geom_point(alpha = 0.5)+
+        labs(x = "",
+             y = "Fraction under 150 bp")+
+        scale_fill_manual("Fragments",
+                          values = c("#ffa10c","#6a00fc"))+
+        stat_compare_means(method = "t.test",
+                           paired = TRUE,
+                           comparisons = list(c("WT", "ctDNA")))+
+        theme_bw()+
+        th
+    return(gg)
+}
+x #enrichment data.frame 
+y #Granges object returned by gr() for the 197 AVENIO target genes
+z #name of sample to isolate from enrichment data.frame
+i #name of input BAM file
+fragment_length_active_inactive_df <- function(x,y,z,i){
+    library(Rsamtools)
+    df_sample <- x[c("genes",z)]
+    df_sample <- df_sample[order(df_sample[,2]),]
+    e <- df_sample
+    top15 <- e$genes[(length(e$genes)-14):length(e$genes)]
+    bottom15 <- e$genes[1:15]
+    which <- y[elementMetadata(y)[,1] %in% c(top15)]
+    index1 <- match(top15,elementMetadata(which)[,1])
+    which <- which[index1]
+    what <- c("mapq", "isize")
+    param <- ScanBamParam(which = which, what = what)
+    bam <- scanBam(i, param = param)
+    length_top15 <- unname(unlist(lapply(bam,function(x) x$isize)))
+    length_top15 <- length_top15[length_top15 >0]
+    length_top15 <- length_top15[!is.na(length_top15)]
+    which <- grs[elementMetadata(y)[,1] %in% c(bottom15)]
+    index1 <- match(bottom15,elementMetadata(which)[,1])
+    which <- which[index1]
+    param <- ScanBamParam(which = which, what = what)
+    bam <- scanBam(i, param = param)
+    length_bottom15 <- unname(unlist(lapply(bam,function(x) x$isize)))
+    length_bottom15 <- length_bottom15[length_bottom15 >0]
+    length_bottom15 <- length_bottom15[!is.na(length_bottom15)]
+    df <- data.frame(len = c(length_top15,length_bottom15),
+                     Sample = c(rep("Active",length(length_top15)),
+                                rep("Inactive",length(length_bottom15))))
+    return(df)
+}
+fragment_length_active_inactive_df(enrichment_df,
+                                   grs,
+                                   "NAC.1",
+                                   "D:/Lung cancer input/PosDeduped/PosDeduped-A-1279-input.bam")
+x #Data.frame with two columns. One with fragment lengths and the other determining whether the fragment originates from an active or inactive gene
+p #Title of plot
+fragment_length_active_inactive_plot <- function(x,p){
+    library(ggplot2)
+    library(tidyr)
+    library(plyr)
+    df <- x
+    mu <- ddply(df, "Sample", summarise, grp.median=median(len))
+    gg <- ggplot(data = df, aes(x = len, color = Sample))+
+        geom_density(size = 1)+
+        geom_vline(data=mu, aes(xintercept=grp.median, color=Sample),
+                   linetype="dashed", size = 1)+
+        theme_bw(base_size = 15)+
+        scale_color_manual(values = c("#6a00fc","#ffa10c"),
+                           name = "Gene activity")+
+        labs(title = p, y = "Density", x = "Fragment length (bp)")+
+        scale_x_continuous(breaks = seq(0,400,50), limits = c(0,400))+
+        th
+    return(gg)
+}
+
+x #list of fragment length data.frames returned by fragment_length_active_inactive_df()
+y #fragment length cutoff
+z #name of samples
+a #Definition of whether "Active" or "Inactive" genes are analyzed
+fragment_length_active_inactive_sub_df <- function(x,y,a,z){
+    res <- c()
+    for (i in 1:length(x)){
+        ddf <- x[[i]]
+        ddf <- ddf %>% filter(Sample == a)
+        bam_lengths_sub150 <- ddf$len[ddf$len<y]
+        ress <- length(bam_lengths_sub150)/length(ddf$len)
+        res[i] <- ress
+    }
+    df <- data.frame(sample = z,
+                     sub_fraction = res)
+    return(df)
+}
+x #enrichment data.frame 
+y #Granges object returned by gr() for the 197 AVENIO target genes
+z #name of sample to isolate from enrichment data.frame
+j #name of input BAM file
+p #cutoff for fragment length
+sub_150_in_cfChIP_quartiles <- function(x,y,z,j,p){
+    library(Rsamtools)
+    df_sample <- x[c("genes",z)]
+    df_sample <- df_sample[order(df_sample[,2]),]
+    e <- df_sample
+    number_high <- 19
+    number_low <- 1
+    res <- c()
+    for (i in 1:10){
+        if(i < 5){
+            genes <- e$genes[number_low:number_high]
+            number_low <- number_low + 19
+            number_high <- number_high + 19
+            which <- y[elementMetadata(y)[,1] %in% genes]
+            index1 <- match(genes,elementMetadata(which)[,1])
+            which <- which[index1]
+            what <- c("mapq", "isize")
+            param <- ScanBamParam(which = which, what = what)
+            bam <- scanBam(j, param = param)
+            len <- unname(unlist(lapply(bam,function(x) x$isize)))
+            len <- len[len >0]
+            len <- len[!is.na(len)]
+            bam_lengths_sub150 <- len[len<p]
+            ress <- length(bam_lengths_sub150)/length(len)
+            res[i] <- ress
+            if(i == 4){
+                number_high <- number_high + 1
+            }
+        }
+        else{
+            genes <- e$genes[number_low:number_high]
+            number_low <- number_low + 20
+            number_high <- number_high + 20
+            which <- y[elementMetadata(y)[,1] %in% genes]
+            index1 <- match(genes,elementMetadata(which)[,1])
+            which <- which[index1]
+            what <- c("mapq", "isize")
+            param <- ScanBamParam(which = which, what = what)
+            bam <- scanBam(j, param = param)
+            len <- unname(unlist(lapply(bam,function(x) x$isize)))
+            len <- len[len >0]
+            len <- len[!is.na(len)]
+            bam_lengths_sub150 <- len[len<p]
+            ress <- length(bam_lengths_sub150)/length(len)
+            res[i] <- ress
+        }
+    }
+    df <- data.frame(quartile = c("Q1", "Q2", "Q3", "Q4",
+                                  "Q5", "Q6", "Q7", "Q8",
+                                  "Q9", "Q10"),
+                     sub_fraction = res,
+                     sample = rep(z,10))
+    return(df)
+}
+
+x #data.frame with quartiles, sub150 fraction of the quartiles and the sample
+sub150_fraction_quartiles_plot <- function(x){
+    ddf <- data.frame(quartile = c(),
+                      sub_fraction = c(),
+                      sample = c(),
+                      norm_fraction = c())
+    for(i in 1:length(unique(x$sample))){
+        sam <- unique(x$sample)[i]
+        df <- x %>% filter(sample == sam)
+        base_fraction <- df$sub_fraction[1]
+        df <- df %>% mutate(norm_fraction = sub_fraction/base_fraction)
+        ddf <- rbind(ddf,df)
+    }
+    ddf <- ddf %>% 
+        mutate(quartile = factor(quartile,
+                                 level = c("Q1", "Q2", "Q3", "Q4",
+                                           "Q5", "Q6", "Q7", "Q8",
+                                           "Q9", "Q10")))
+    gg <- ddf %>% ggplot(aes(x = quartile, y = norm_fraction))+
+        geom_boxplot(outlier.alpha = 0,
+                     fill = "#6a00fc")+
+        geom_jitter(alpha = 0.5, width = 0.1)+
+        theme_bw()+
+        stat_compare_means(method = "anova", label.y = 0.9,
+                           label.x = 8)+ 
+        stat_compare_means(aes(label = after_stat(p.signif)),
+                           method = "t.test",
+                           paired = TRUE,
+                           ref.group = "Q1",
+                           size = 4.5)+
+        labs(x = "Quartiles",
+             y = "Normalized fraction under 150 bp")+
+        scale_y_continuous(limits = c(0.9,1.5))+
+        th
+    
+    return(gg)
+    
+}
+sub150_fraction_quartiles_plot(collected_sub150_fraction_quartiles)
+?geom_boxplot()
+comparisons = list(c("Q1", "Q2"),
+                   c("Q1", "Q3"),
+                   c("Q1", "Q4"),
+                   c("Q1", "Q5"),
+                   c("Q1", "Q6"),
+                   c("Q1", "Q7"),
+                   c("Q1", "Q8"),
+                   c("Q1", "Q9"),
+                   c("Q1", "Q10"))
