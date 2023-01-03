@@ -1572,6 +1572,7 @@ sub_150_in_cfChIP_quartiles <- function(x,y,z,j,p){
 
 x #data.frame with quartiles, sub150 fraction of the quartiles and the sample
 sub150_fraction_quartiles_plot <- function(x){
+    library(ggpubr)
     ddf <- data.frame(quartile = c(),
                       sub_fraction = c(),
                       sample = c(),
@@ -1606,16 +1607,231 @@ sub150_fraction_quartiles_plot <- function(x){
         th
     
     return(gg)
-    
 }
-sub150_fraction_quartiles_plot(collected_sub150_fraction_quartiles)
-?geom_boxplot()
-comparisons = list(c("Q1", "Q2"),
-                   c("Q1", "Q3"),
-                   c("Q1", "Q4"),
-                   c("Q1", "Q5"),
-                   c("Q1", "Q6"),
-                   c("Q1", "Q7"),
-                   c("Q1", "Q8"),
-                   c("Q1", "Q9"),
-                   c("Q1", "Q10"))
+x #enrichment data.frame 
+y #Granges object returned by gr() for the 197 AVENIO target genes
+z #name of sample to isolate from enrichment data.frame
+j #name of input BAM file
+m #number of bases to be evaluated in each fragment end
+a #character vector of motifs defined as "Active motifs"
+active_motif_quartiles_df <- function(x,y,z,j,m,a){
+    library(Rsamtools)
+    df_sample <- x[c("genes",z)]
+    df_sample <- df_sample[order(df_sample[,2]),]
+    e <- df_sample
+    number_high <- 19
+    number_low <- 1
+    res <- c()
+    for (i in 1:10){
+        print(i)
+        if(i < 5){
+            genes <- e$genes[number_low:number_high]
+            number_low <- number_low + 19
+            number_high <- number_high + 19
+            which <- y[elementMetadata(y)[,1] %in% genes]
+            index1 <- match(genes,elementMetadata(which)[,1])
+            which <- which[index1]
+            what <- c("seq", "strand")
+            param <- ScanBamParam(which = which, what = what)
+            bam <- scanBam(j, param = param)
+            seqs <- unname(unlist(lapply(bam,function(x) x$seq)))
+            strand <- unname(unlist(lapply(bam,function(x) x$strand)))
+            grang <- GRanges(seqnames = "chr1", ranges = IRanges(start = 1,
+                                                                       end = 2),
+                                   strand = strand)
+            mcols(grang)$seq <- DNAStringSet(do.call(c,unlist(seqs)))
+            mers <- mer_count(grang,m)
+            prop_mers <- prop_df(mers)
+            mers_active <- prop_mers %>% filter(res %in% a)
+            ress <- sum(mers_active$Freq)
+            res[i] <- ress
+            if(i == 4){
+                number_high <- number_high + 1
+            }
+        }
+        else{
+            genes <- e$genes[number_low:number_high]
+            number_low <- number_low + 20
+            number_high <- number_high + 20
+            which <- y[elementMetadata(y)[,1] %in% genes]
+            index1 <- match(genes,elementMetadata(which)[,1])
+            which <- which[index1]
+            what <- c("seq", "strand")
+            param <- ScanBamParam(which = which, what = what)
+            bam <- scanBam(j, param = param)
+            seqs <- unname(unlist(lapply(bam,function(x) x$seq)))
+            strand <- unname(unlist(lapply(bam,function(x) x$strand)))
+            grang <- GRanges(seqnames = "chr1", ranges = IRanges(start = 1,
+                                                                 end = 2),
+                             strand = strand)
+            mcols(grang)$seq <- DNAStringSet(do.call(c,unlist(seqs)))
+            mers <- mer_count(grang,m)
+            prop_mers <- prop_df(mers)
+            mers_active <- prop_mers %>% filter(res %in% a)
+            ress <- sum(mers_active$Freq)
+            res[i] <- ress
+        }
+    }
+    df <- data.frame(quartile = c("Q1", "Q2", "Q3", "Q4",
+                                  "Q5", "Q6", "Q7", "Q8",
+                                  "Q9", "Q10"),
+                     active_fraction = res,
+                     sample = rep(z,10))
+    return(df)
+}
+
+active_motif_fraction_quartiles_plot <- function(x){
+    library(ggpubr)
+    ddf <- data.frame(quartile = c(),
+                      active_fraction = c(),
+                      sample = c(),
+                      norm_fraction = c())
+    for(i in 1:length(unique(x$sample))){
+        sam <- unique(x$sample)[i]
+        df <- x %>% filter(sample == sam)
+        base_fraction <- df$active_fraction[1]
+        df <- df %>% mutate(norm_fraction = active_fraction/base_fraction)
+        ddf <- rbind(ddf,df)
+    }
+    ddf <- ddf %>% 
+        mutate(quartile = factor(quartile,
+                                 level = c("Q1", "Q2", "Q3", "Q4",
+                                           "Q5", "Q6", "Q7", "Q8",
+                                           "Q9", "Q10")))
+    gg <- ddf %>% ggplot(aes(x = quartile, y = norm_fraction))+
+        geom_boxplot(outlier.alpha = 0,
+                     fill = "#6a00fc")+
+        geom_jitter(alpha = 0.5, width = 0.1)+
+        theme_bw()+
+        stat_compare_means(method = "anova", label.y = 0.8,
+                           label.x = 8.2)+ 
+        stat_compare_means(aes(label = after_stat(p.signif)),
+                           method = "t.test",
+                           paired = TRUE,
+                           ref.group = "Q1",
+                           size = 4.5)+
+        labs(x = "Quartiles",
+             y = "Normalized active motif fraction")+
+        th
+    
+    return(gg)
+}
+x #enrichment data.frame 
+y #Granges object returned by gr() for the 197 AVENIO target genes
+z #name of sample to isolate from enrichment data.frame
+j #name of input BAM file
+p #cutoff for fragment length
+m #number of bases to be evaluated in each fragment end
+a #character vector of motifs defined as "Active motifs"
+sub150_active_motif_fraction_quartiles_df <- function(x,y,z,j,p,m,a){
+    library(Rsamtools)
+    df_sample <- x[c("genes",z)]
+    df_sample <- df_sample[order(df_sample[,2]),]
+    e <- df_sample
+    number_high <- 19
+    number_low <- 1
+    res <- c()
+    for (i in 1:10){
+        print(i)
+        if(i < 5){
+            genes <- e$genes[number_low:number_high]
+            number_low <- number_low + 19
+            number_high <- number_high + 19
+            which <- y[elementMetadata(y)[,1] %in% genes]
+            index1 <- match(genes,elementMetadata(which)[,1])
+            which <- which[index1]
+            what <- c("seq", "strand", "isize")
+            param <- ScanBamParam(which = which, what = what)
+            bam <- scanBam(j, param = param)
+            seqs <- unname(unlist(lapply(bam,function(x) x$seq)))
+            strand <- unname(unlist(lapply(bam,function(x) x$strand)))
+            len <- unname(unlist(lapply(bam,function(x) x$isize)))
+            grang <- GRanges(seqnames = "chr1", ranges = IRanges(start = 1,
+                                                                 end = 2),
+                             strand = strand)
+            mcols(grang)$len <- len
+            mcols(grang)$seq <- DNAStringSet(do.call(c,unlist(seqs)))
+            grang <- grang[!is.na(mcols(grang)$len)]
+            grang <- grang[mcols(grang)$len > 0]
+            grang_sub <- grang[mcols(grang)$ len < p]
+            mers <- mer_count(grang_sub,m)
+            mers_active <- mers[names(mers) %in% a]
+            ress <- sum(mers_active)/length(strand(grang))
+            res[i] <- ress
+            if(i == 4){
+                number_high <- number_high + 1
+            }
+        }
+        else{
+            genes <- e$genes[number_low:number_high]
+            number_low <- number_low + 20
+            number_high <- number_high + 20
+            which <- y[elementMetadata(y)[,1] %in% genes]
+            index1 <- match(genes,elementMetadata(which)[,1])
+            which <- which[index1]
+            what <- c("seq", "strand", "isize")
+            param <- ScanBamParam(which = which, what = what)
+            bam <- scanBam(j, param = param)
+            seqs <- unname(unlist(lapply(bam,function(x) x$seq)))
+            strand <- unname(unlist(lapply(bam,function(x) x$strand)))
+            len <- unname(unlist(lapply(bam,function(x) x$isize)))
+            grang <- GRanges(seqnames = "chr1", ranges = IRanges(start = 1,
+                                                                 end = 2),
+                             strand = strand)
+            mcols(grang)$len <- len
+            mcols(grang)$seq <- DNAStringSet(do.call(c,unlist(seqs)))
+            grang <- grang[!is.na(mcols(grang)$len)]
+            grang <- grang[mcols(grang)$len > 0]
+            grang_sub <- grang[mcols(grang)$ len < p]
+            mers <- mer_count(grang_sub,m)
+            mers_active <- mers[names(mers) %in% a]
+            ress <- sum(mers_active)/length(strand(grang))
+            res[i] <- ress
+        }
+    }
+    df <- data.frame(quartile = c("Q1", "Q2", "Q3", "Q4",
+                                  "Q5", "Q6", "Q7", "Q8",
+                                  "Q9", "Q10"),
+                     fraction = res,
+                     sample = rep(z,10))
+    return(df)
+}
+
+
+sub150_active_motif_fraction_quartiles_plot <- function(x){
+    library(ggpubr)
+    ddf <- data.frame(quartile = c(),
+                      fraction = c(),
+                      sample = c(),
+                      norm_fraction = c())
+    for(i in 1:length(unique(x$sample))){
+        sam <- unique(x$sample)[i]
+        df <- x %>% filter(sample == sam)
+        base_fraction <- df$fraction[1]
+        df <- df %>% mutate(norm_fraction = fraction/base_fraction)
+        ddf <- rbind(ddf,df)
+    }
+    ddf <- ddf %>% 
+        mutate(quartile = factor(quartile,
+                                 level = c("Q1", "Q2", "Q3", "Q4",
+                                           "Q5", "Q6", "Q7", "Q8",
+                                           "Q9", "Q10")))
+    gg <- ddf %>% ggplot(aes(x = quartile, y = norm_fraction))+
+        geom_boxplot(outlier.alpha = 0,
+                     fill = "#6a00fc")+
+        geom_jitter(alpha = 0.5, width = 0.1)+
+        theme_bw()+
+        stat_compare_means(method = "anova", label.y = 0.8,
+                           label.x = 8.2)+ 
+        stat_compare_means(aes(label = after_stat(p.signif)),
+                           method = "t.test",
+                           paired = TRUE,
+                           ref.group = "Q1",
+                           size = 4.5)+
+        labs(x = "Quartiles",
+             y = "Normalized sub 150 active motif fraction")+
+        th
+    
+    return(gg)
+}
+sub150_active_motif_fraction_quartiles_plot(collected_sub150_active_motif_fraction_quartiles)

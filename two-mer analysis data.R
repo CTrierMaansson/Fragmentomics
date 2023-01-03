@@ -778,7 +778,15 @@ collected_sub150_fraction_quartiles <- read.table("Sub150 fraction in cfChIP qua
 
 sub150_fraction_quartiles_plot(collected_sub150_fraction_quartiles)
 
-ggsave(filename = "Sub 150 fraction Cancer cfChIP quartiles.png",
+
+
+collected_active_motif_fraction_quartiles <- read.table("Active motif fraction in cfChIP quatiles.txt", header = T)
+
+active_motif_fraction_quartiles_plot(collected_active_motif_fraction_quartiles)
+
+collected_sub150_active_motif_fraction_quartiles <- read.table("Sub 150 with active motif fraction in cfChIP quatiles.txt", header = T)
+
+ggsave(filename = "Sub150 active motif fraction Cancer cfChIP quartiles.png",
        width = 10000, height = 7500, units = "px",
        path = "C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots",
        dpi = 1200,
