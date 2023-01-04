@@ -653,6 +653,31 @@ SSC.4_fragment_length_active_inactive <- fragment_length_active_inactive_df(enri
                                                                             grs,
                                                                             "SSC.4",
                                                                             "D:/Lung cancer input/PosDeduped/PosDeduped-L-1100-input.bam")
+HC.1_fragment_length_active_inactive <- fragment_length_active_inactive_df(enrichment_df,
+                                                                            grs,
+                                                                            "HC.1",
+                                                                            "D:/Healthy input/PosDeduped/PosDeduped-Rask_kontrol_1_input.bam")
+
+HC.2_fragment_length_active_inactive <- fragment_length_active_inactive_df(enrichment_df,
+                                                                           grs,
+                                                                           "HC.2",
+                                                                           "D:/Healthy input/PosDeduped/PosDeduped-Rask_kontrol_2_input.bam")
+
+HC.3_fragment_length_active_inactive <- fragment_length_active_inactive_df(enrichment_df,
+                                                                           grs,
+                                                                           "HC.3",
+                                                                           "D:/Healthy input/PosDeduped/PosDeduped-Rask_kontrol_3_input.bam")
+
+HC.4_fragment_length_active_inactive <- fragment_length_active_inactive_df(enrichment_df,
+                                                                           grs,
+                                                                           "HC.4",
+                                                                           "D:/Healthy input/PosDeduped/PosDeduped-Rask_kontrol_4_input.bam")
+
+collected_fragment_length_active_inactive_healthy <- rbind(HC.1_fragment_length_active_inactive,
+                                                           HC.2_fragment_length_active_inactive,
+                                                           HC.3_fragment_length_active_inactive,
+                                                           HC.4_fragment_length_active_inactive)
+
 collected_fragment_length_active_inactive <- rbind(NAC.1_fragment_length_active_inactive,
       NAC.2_fragment_length_active_inactive,
       NAC.3_fragment_length_active_inactive,
@@ -666,34 +691,142 @@ collected_fragment_length_active_inactive <- rbind(NAC.1_fragment_length_active_
       SSC.3_fragment_length_active_inactive,
       SSC.4_fragment_length_active_inactive)
 
-write.table(df, file = "Sub150 fraction in cfChIP quatiles.txt", 
+collected_fragment_length_active_inactive_healthy <- rbind(HC.1_fragment_length_active_inactive,
+                                                           HC.2_fragment_length_active_inactive,
+                                                           HC.3_fragment_length_active_inactive,
+                                                           HC.4_fragment_length_active_inactive)
+
+write.table(collected_fragment_length_active_inactive_healthy, file = "Fragment lengths active inactive healthy.txt", 
             sep = "\t",col.names = T)
 
-NAC.1_active_motif_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"NAC.1","D:/Lung cancer input/PosDeduped/PosDeduped-A-1279-input.bam",3,active_motifs)
-NAC.2_active_motif_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"NAC.2","D:/Lung cancer input/PosDeduped/PosDeduped-B-1288-input.bam",3,active_motifs)
-NAC.3_active_motif_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"NAC.3","D:/Lung cancer input/PosDeduped/PosDeduped-C-1475-input.bam",3,active_motifs)
-NAC.4_active_motif_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"NAC.4","D:/Lung cancer input/PosDeduped/PosDeduped-D-1578-input.bam",3,active_motifs)
-NSC.1_active_motif_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"NSC.1","D:/Lung cancer input/PosDeduped/PosDeduped-E-439-input.bam",3,active_motifs)
-NSC.2_active_motif_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"NSC.2","D:/Lung cancer input/PosDeduped/PosDeduped-F-1449-input.bam",3,active_motifs)
-NSC.3_active_motif_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"NSC.3","D:/Lung cancer input/PosDeduped/PosDeduped-I-645-input.bam",3,active_motifs)
-NSC.4_active_motif_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"NSC.4","D:/Lung cancer input/PosDeduped/PosDeduped-J-1663-input.bam",3,active_motifs)
-SSC.1_active_motif_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"SSC.1","D:/Lung cancer input/PosDeduped/PosDeduped-G-514-input.bam",3,active_motifs)
-SSC.2_active_motif_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"SSC.2","D:/Lung cancer input/PosDeduped/PosDeduped-H-1169-input.bam",3,active_motifs)
-SSC.3_active_motif_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"SSC.3","D:/Lung cancer input/PosDeduped/PosDeduped-K-440-input.bam",3,active_motifs)
-SSC.4_active_motif_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"SSC.4","D:/Lung cancer input/PosDeduped/PosDeduped-L-1100-input.bam",3,active_motifs)
+NAC.1_active_motif_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"NAC.1","D:/Lung cancer input/PosDeduped/PosDeduped-A-1279-input.bam",3,active_motifs_cancer)
+NAC.2_active_motif_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"NAC.2","D:/Lung cancer input/PosDeduped/PosDeduped-B-1288-input.bam",3,active_motifs_cancer)
+NAC.3_active_motif_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"NAC.3","D:/Lung cancer input/PosDeduped/PosDeduped-C-1475-input.bam",3,active_motifs_cancer)
+NAC.4_active_motif_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"NAC.4","D:/Lung cancer input/PosDeduped/PosDeduped-D-1578-input.bam",3,active_motifs_cancer)
+NSC.1_active_motif_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"NSC.1","D:/Lung cancer input/PosDeduped/PosDeduped-E-439-input.bam",3,active_motifs_cancer)
+NSC.2_active_motif_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"NSC.2","D:/Lung cancer input/PosDeduped/PosDeduped-F-1449-input.bam",3,active_motifs_cancer)
+NSC.3_active_motif_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"NSC.3","D:/Lung cancer input/PosDeduped/PosDeduped-I-645-input.bam",3,active_motifs_cancer)
+NSC.4_active_motif_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"NSC.4","D:/Lung cancer input/PosDeduped/PosDeduped-J-1663-input.bam",3,active_motifs_cancer)
+SSC.1_active_motif_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"SSC.1","D:/Lung cancer input/PosDeduped/PosDeduped-G-514-input.bam",3,active_motifs_cancer)
+SSC.2_active_motif_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"SSC.2","D:/Lung cancer input/PosDeduped/PosDeduped-H-1169-input.bam",3,active_motifs_cancer)
+SSC.3_active_motif_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"SSC.3","D:/Lung cancer input/PosDeduped/PosDeduped-K-440-input.bam",3,active_motifs_cancer)
+SSC.4_active_motif_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"SSC.4","D:/Lung cancer input/PosDeduped/PosDeduped-L-1100-input.bam",3,active_motifs_cancer)
 
-NAC.1_sub150_active_motif_quartiles <- sub150_active_motif_fraction_quartiles_df(enrichment_df,grs,"NAC.1","D:/Lung cancer input/PosDeduped/PosDeduped-A-1279-input.bam",150,3,active_motifs)
-NAC.2_sub150_active_motif_quartiles <- sub150_active_motif_fraction_quartiles_df(enrichment_df,grs,"NAC.2","D:/Lung cancer input/PosDeduped/PosDeduped-B-1288-input.bam",150,3,active_motifs)
-NAC.3_sub150_active_motif_quartiles <- sub150_active_motif_fraction_quartiles_df(enrichment_df,grs,"NAC.3","D:/Lung cancer input/PosDeduped/PosDeduped-C-1475-input.bam",150,3,active_motifs)
-NAC.4_sub150_active_motif_quartiles <- sub150_active_motif_fraction_quartiles_df(enrichment_df,grs,"NAC.4","D:/Lung cancer input/PosDeduped/PosDeduped-D-1578-input.bam",150,3,active_motifs)
-NSC.1_sub150_active_motif_quartiles <- sub150_active_motif_fraction_quartiles_df(enrichment_df,grs,"NSC.1","D:/Lung cancer input/PosDeduped/PosDeduped-E-439-input.bam",150,3,active_motifs)
-NSC.2_sub150_active_motif_quartiles <- sub150_active_motif_fraction_quartiles_df(enrichment_df,grs,"NSC.2","D:/Lung cancer input/PosDeduped/PosDeduped-F-1449-input.bam",150,3,active_motifs)
-NSC.3_sub150_active_motif_quartiles <- sub150_active_motif_fraction_quartiles_df(enrichment_df,grs,"NSC.3","D:/Lung cancer input/PosDeduped/PosDeduped-I-645-input.bam",150,3,active_motifs)
-NSC.4_sub150_active_motif_quartiles <- sub150_active_motif_fraction_quartiles_df(enrichment_df,grs,"NSC.4","D:/Lung cancer input/PosDeduped/PosDeduped-J-1663-input.bam",150,3,active_motifs)
-SSC.1_sub150_active_motif_quartiles <- sub150_active_motif_fraction_quartiles_df(enrichment_df,grs,"SSC.1","D:/Lung cancer input/PosDeduped/PosDeduped-G-514-input.bam",150,3,active_motifs)
-SSC.2_sub150_active_motif_quartiles <- sub150_active_motif_fraction_quartiles_df(enrichment_df,grs,"SSC.2","D:/Lung cancer input/PosDeduped/PosDeduped-H-1169-input.bam",150,3,active_motifs)
-SSC.3_sub150_active_motif_quartiles <- sub150_active_motif_fraction_quartiles_df(enrichment_df,grs,"SSC.3","D:/Lung cancer input/PosDeduped/PosDeduped-K-440-input.bam",150,3,active_motifs)
-SSC.4_sub150_active_motif_quartiles <- sub150_active_motif_fraction_quartiles_df(enrichment_df,grs,"SSC.4","D:/Lung cancer input/PosDeduped/PosDeduped-L-1100-input.bam",150,3,active_motifs)
+NAC.1_inactive_motif_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"NAC.1","D:/Lung cancer input/PosDeduped/PosDeduped-A-1279-input.bam",3,inactive_motifs_cancer)
+NAC.2_inactive_motif_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"NAC.2","D:/Lung cancer input/PosDeduped/PosDeduped-B-1288-input.bam",3,inactive_motifs_cancer)
+NAC.3_inactive_motif_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"NAC.3","D:/Lung cancer input/PosDeduped/PosDeduped-C-1475-input.bam",3,inactive_motifs_cancer)
+NAC.4_inactive_motif_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"NAC.4","D:/Lung cancer input/PosDeduped/PosDeduped-D-1578-input.bam",3,inactive_motifs_cancer)
+NSC.1_inactive_motif_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"NSC.1","D:/Lung cancer input/PosDeduped/PosDeduped-E-439-input.bam",3,inactive_motifs_cancer)
+NSC.2_inactive_motif_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"NSC.2","D:/Lung cancer input/PosDeduped/PosDeduped-F-1449-input.bam",3,inactive_motifs_cancer)
+NSC.3_inactive_motif_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"NSC.3","D:/Lung cancer input/PosDeduped/PosDeduped-I-645-input.bam",3,inactive_motifs_cancer)
+NSC.4_inactive_motif_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"NSC.4","D:/Lung cancer input/PosDeduped/PosDeduped-J-1663-input.bam",3,inactive_motifs_cancer)
+SSC.1_inactive_motif_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"SSC.1","D:/Lung cancer input/PosDeduped/PosDeduped-G-514-input.bam",3,inactive_motifs_cancer)
+SSC.2_inactive_motif_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"SSC.2","D:/Lung cancer input/PosDeduped/PosDeduped-H-1169-input.bam",3,inactive_motifs_cancer)
+SSC.3_inactive_motif_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"SSC.3","D:/Lung cancer input/PosDeduped/PosDeduped-K-440-input.bam",3,inactive_motifs_cancer)
+SSC.4_inactive_motif_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"SSC.4","D:/Lung cancer input/PosDeduped/PosDeduped-L-1100-input.bam",3,inactive_motifs_cancer)
+
+df <- rbind(NAC.1_inactive_motif_quartiles,
+            NAC.2_inactive_motif_quartiles,
+            NAC.3_inactive_motif_quartiles,
+            NAC.4_inactive_motif_quartiles,
+            NSC.1_inactive_motif_quartiles,
+            NSC.2_inactive_motif_quartiles,
+            NSC.3_inactive_motif_quartiles,
+            NSC.4_inactive_motif_quartiles,
+            SSC.1_inactive_motif_quartiles,
+            SSC.2_inactive_motif_quartiles,
+            SSC.3_inactive_motif_quartiles,
+            SSC.4_inactive_motif_quartiles)
+
+write.table(df, file = "Inactive motif cancer fraction in cfChIP quatiles.txt", 
+            sep = "\t",col.names = T)
+
+df <- rbind(NAC.1_active_motif_quartiles,
+            NAC.2_active_motif_quartiles,
+            NAC.3_active_motif_quartiles,
+            NAC.4_active_motif_quartiles,
+            NSC.1_active_motif_quartiles,
+            NSC.2_active_motif_quartiles,
+            NSC.3_active_motif_quartiles,
+            NSC.4_active_motif_quartiles,
+            SSC.1_active_motif_quartiles,
+            SSC.2_active_motif_quartiles,
+            SSC.3_active_motif_quartiles,
+            SSC.4_active_motif_quartiles)
+
+write.table(df, file = "Active motif cancer fraction in cfChIP quatiles.txt", 
+            sep = "\t",col.names = T)
+
+NAC.1_active_active_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"NAC.1","D:/Lung cancer input/PosDeduped/PosDeduped-A-1279-input.bam",3,active_active)
+NAC.2_active_active_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"NAC.2","D:/Lung cancer input/PosDeduped/PosDeduped-B-1288-input.bam",3,active_active)
+NAC.3_active_active_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"NAC.3","D:/Lung cancer input/PosDeduped/PosDeduped-C-1475-input.bam",3,active_active)
+NAC.4_active_active_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"NAC.4","D:/Lung cancer input/PosDeduped/PosDeduped-D-1578-input.bam",3,active_active)
+NSC.1_active_active_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"NSC.1","D:/Lung cancer input/PosDeduped/PosDeduped-E-439-input.bam",3,active_active)
+NSC.2_active_active_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"NSC.2","D:/Lung cancer input/PosDeduped/PosDeduped-F-1449-input.bam",3,active_active)
+NSC.3_active_active_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"NSC.3","D:/Lung cancer input/PosDeduped/PosDeduped-I-645-input.bam",3,active_active)
+NSC.4_active_active_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"NSC.4","D:/Lung cancer input/PosDeduped/PosDeduped-J-1663-input.bam",3,active_active)
+SSC.1_active_active_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"SSC.1","D:/Lung cancer input/PosDeduped/PosDeduped-G-514-input.bam",3,active_active)
+SSC.2_active_active_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"SSC.2","D:/Lung cancer input/PosDeduped/PosDeduped-H-1169-input.bam",3,active_active)
+SSC.3_active_active_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"SSC.3","D:/Lung cancer input/PosDeduped/PosDeduped-K-440-input.bam",3,active_active)
+SSC.4_active_active_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"SSC.4","D:/Lung cancer input/PosDeduped/PosDeduped-L-1100-input.bam",3,active_active)
+
+df <- rbind(NAC.1_active_active_quartiles,
+            NAC.2_active_active_quartiles,
+            NAC.3_active_active_quartiles,
+            NAC.4_active_active_quartiles,
+            NSC.1_active_active_quartiles,
+            NSC.2_active_active_quartiles,
+            NSC.3_active_active_quartiles,
+            NSC.4_active_active_quartiles,
+            SSC.1_active_active_quartiles,
+            SSC.2_active_active_quartiles,
+            SSC.3_active_active_quartiles,
+            SSC.4_active_active_quartiles)
+
+write.table(df, file = "Active active fraction in cfChIP quatiles.txt", 
+            sep = "\t",col.names = T)
+
+NAC.1_inactive_inactive_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"NAC.1","D:/Lung cancer input/PosDeduped/PosDeduped-A-1279-input.bam",3,inactive_inactive)
+NAC.2_inactive_inactive_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"NAC.2","D:/Lung cancer input/PosDeduped/PosDeduped-B-1288-input.bam",3,inactive_inactive)
+NAC.3_inactive_inactive_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"NAC.3","D:/Lung cancer input/PosDeduped/PosDeduped-C-1475-input.bam",3,inactive_inactive)
+NAC.4_inactive_inactive_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"NAC.4","D:/Lung cancer input/PosDeduped/PosDeduped-D-1578-input.bam",3,inactive_inactive)
+NSC.1_inactive_inactive_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"NSC.1","D:/Lung cancer input/PosDeduped/PosDeduped-E-439-input.bam",3,inactive_inactive)
+NSC.2_inactive_inactive_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"NSC.2","D:/Lung cancer input/PosDeduped/PosDeduped-F-1449-input.bam",3,inactive_inactive)
+NSC.3_inactive_inactive_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"NSC.3","D:/Lung cancer input/PosDeduped/PosDeduped-I-645-input.bam",3,inactive_inactive)
+NSC.4_inactive_inactive_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"NSC.4","D:/Lung cancer input/PosDeduped/PosDeduped-J-1663-input.bam",3,inactive_inactive)
+SSC.1_inactive_inactive_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"SSC.1","D:/Lung cancer input/PosDeduped/PosDeduped-G-514-input.bam",3,inactive_inactive)
+SSC.2_inactive_inactive_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"SSC.2","D:/Lung cancer input/PosDeduped/PosDeduped-H-1169-input.bam",3,inactive_inactive)
+SSC.3_inactive_inactive_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"SSC.3","D:/Lung cancer input/PosDeduped/PosDeduped-K-440-input.bam",3,inactive_inactive)
+SSC.4_inactive_inactive_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"SSC.4","D:/Lung cancer input/PosDeduped/PosDeduped-L-1100-input.bam",3,inactive_inactive)
+
+df <- rbind(NAC.1_inactive_inactive_quartiles,
+            NAC.2_inactive_inactive_quartiles,
+            NAC.3_inactive_inactive_quartiles,
+            NAC.4_inactive_inactive_quartiles,
+            NSC.1_inactive_inactive_quartiles,
+            NSC.2_inactive_inactive_quartiles,
+            NSC.3_inactive_inactive_quartiles,
+            NSC.4_inactive_inactive_quartiles,
+            SSC.1_inactive_inactive_quartiles,
+            SSC.2_inactive_inactive_quartiles,
+            SSC.3_inactive_inactive_quartiles,
+            SSC.4_inactive_inactive_quartiles)
+
+write.table(df, file = "Inactive inactive fraction in cfChIP quatiles.txt", 
+            sep = "\t",col.names = T)
+
+NAC.1_sub150_active_motif_quartiles <- sub150_active_motif_fraction_quartiles_df(enrichment_df,grs,"NAC.1","D:/Lung cancer input/PosDeduped/PosDeduped-A-1279-input.bam",150,3,active_motifs_cancer)
+NAC.2_sub150_active_motif_quartiles <- sub150_active_motif_fraction_quartiles_df(enrichment_df,grs,"NAC.2","D:/Lung cancer input/PosDeduped/PosDeduped-B-1288-input.bam",150,3,active_motifs_cancer)
+NAC.3_sub150_active_motif_quartiles <- sub150_active_motif_fraction_quartiles_df(enrichment_df,grs,"NAC.3","D:/Lung cancer input/PosDeduped/PosDeduped-C-1475-input.bam",150,3,active_motifs_cancer)
+NAC.4_sub150_active_motif_quartiles <- sub150_active_motif_fraction_quartiles_df(enrichment_df,grs,"NAC.4","D:/Lung cancer input/PosDeduped/PosDeduped-D-1578-input.bam",150,3,active_motifs_cancer)
+NSC.1_sub150_active_motif_quartiles <- sub150_active_motif_fraction_quartiles_df(enrichment_df,grs,"NSC.1","D:/Lung cancer input/PosDeduped/PosDeduped-E-439-input.bam",150,3,active_motifs_cancer)
+NSC.2_sub150_active_motif_quartiles <- sub150_active_motif_fraction_quartiles_df(enrichment_df,grs,"NSC.2","D:/Lung cancer input/PosDeduped/PosDeduped-F-1449-input.bam",150,3,active_motifs_cancer)
+NSC.3_sub150_active_motif_quartiles <- sub150_active_motif_fraction_quartiles_df(enrichment_df,grs,"NSC.3","D:/Lung cancer input/PosDeduped/PosDeduped-I-645-input.bam",150,3,active_motifs_cancer)
+NSC.4_sub150_active_motif_quartiles <- sub150_active_motif_fraction_quartiles_df(enrichment_df,grs,"NSC.4","D:/Lung cancer input/PosDeduped/PosDeduped-J-1663-input.bam",150,3,active_motifs_cancer)
+SSC.1_sub150_active_motif_quartiles <- sub150_active_motif_fraction_quartiles_df(enrichment_df,grs,"SSC.1","D:/Lung cancer input/PosDeduped/PosDeduped-G-514-input.bam",150,3,active_motifs_cancer)
+SSC.2_sub150_active_motif_quartiles <- sub150_active_motif_fraction_quartiles_df(enrichment_df,grs,"SSC.2","D:/Lung cancer input/PosDeduped/PosDeduped-H-1169-input.bam",150,3,active_motifs_cancer)
+SSC.3_sub150_active_motif_quartiles <- sub150_active_motif_fraction_quartiles_df(enrichment_df,grs,"SSC.3","D:/Lung cancer input/PosDeduped/PosDeduped-K-440-input.bam",150,3,active_motifs_cancer)
+SSC.4_sub150_active_motif_quartiles <- sub150_active_motif_fraction_quartiles_df(enrichment_df,grs,"SSC.4","D:/Lung cancer input/PosDeduped/PosDeduped-L-1100-input.bam",150,3,active_motifs_cancer)
 
 df <- rbind(NAC.1_sub150_active_motif_quartiles,
             NAC.2_sub150_active_motif_quartiles,
@@ -708,6 +841,34 @@ df <- rbind(NAC.1_sub150_active_motif_quartiles,
             SSC.3_sub150_active_motif_quartiles,
             SSC.4_sub150_active_motif_quartiles)
 
-write.table(df, file = "Sub 150 with active motif fraction in cfChIP quatiles.txt", 
+write.table(df, file = "Sub 150 with active motif cancer fraction in cfChIP quatiles.txt", 
             sep = "\t",col.names = T)
-df
+
+NAC.1_sub150_active_active_quartiles <- sub150_active_motif_fraction_quartiles_df(enrichment_df,grs,"NAC.1","D:/Lung cancer input/PosDeduped/PosDeduped-A-1279-input.bam",150,3,active_active)
+NAC.2_sub150_active_active_quartiles <- sub150_active_motif_fraction_quartiles_df(enrichment_df,grs,"NAC.2","D:/Lung cancer input/PosDeduped/PosDeduped-B-1288-input.bam",150,3,active_active)
+NAC.3_sub150_active_active_quartiles <- sub150_active_motif_fraction_quartiles_df(enrichment_df,grs,"NAC.3","D:/Lung cancer input/PosDeduped/PosDeduped-C-1475-input.bam",150,3,active_active)
+NAC.4_sub150_active_active_quartiles <- sub150_active_motif_fraction_quartiles_df(enrichment_df,grs,"NAC.4","D:/Lung cancer input/PosDeduped/PosDeduped-D-1578-input.bam",150,3,active_active)
+NSC.1_sub150_active_active_quartiles <- sub150_active_motif_fraction_quartiles_df(enrichment_df,grs,"NSC.1","D:/Lung cancer input/PosDeduped/PosDeduped-E-439-input.bam",150,3,active_active)
+NSC.2_sub150_active_active_quartiles <- sub150_active_motif_fraction_quartiles_df(enrichment_df,grs,"NSC.2","D:/Lung cancer input/PosDeduped/PosDeduped-F-1449-input.bam",150,3,active_active)
+NSC.3_sub150_active_active_quartiles <- sub150_active_motif_fraction_quartiles_df(enrichment_df,grs,"NSC.3","D:/Lung cancer input/PosDeduped/PosDeduped-I-645-input.bam",150,3,active_active)
+NSC.4_sub150_active_active_quartiles <- sub150_active_motif_fraction_quartiles_df(enrichment_df,grs,"NSC.4","D:/Lung cancer input/PosDeduped/PosDeduped-J-1663-input.bam",150,3,active_active)
+SSC.1_sub150_active_active_quartiles <- sub150_active_motif_fraction_quartiles_df(enrichment_df,grs,"SSC.1","D:/Lung cancer input/PosDeduped/PosDeduped-G-514-input.bam",150,3,active_active)
+SSC.2_sub150_active_active_quartiles <- sub150_active_motif_fraction_quartiles_df(enrichment_df,grs,"SSC.2","D:/Lung cancer input/PosDeduped/PosDeduped-H-1169-input.bam",150,3,active_active)
+SSC.3_sub150_active_active_quartiles <- sub150_active_motif_fraction_quartiles_df(enrichment_df,grs,"SSC.3","D:/Lung cancer input/PosDeduped/PosDeduped-K-440-input.bam",150,3,active_active)
+SSC.4_sub150_active_active_quartiles <- sub150_active_motif_fraction_quartiles_df(enrichment_df,grs,"SSC.4","D:/Lung cancer input/PosDeduped/PosDeduped-L-1100-input.bam",150,3,active_active)
+
+df <- rbind(NAC.1_sub150_active_active_quartiles,
+            NAC.2_sub150_active_active_quartiles,
+            NAC.3_sub150_active_active_quartiles,
+            NAC.4_sub150_active_active_quartiles,
+            NSC.1_sub150_active_active_quartiles,
+            NSC.2_sub150_active_active_quartiles,
+            NSC.3_sub150_active_active_quartiles,
+            NSC.4_sub150_active_active_quartiles,
+            SSC.1_sub150_active_active_quartiles,
+            SSC.2_sub150_active_active_quartiles,
+            SSC.3_sub150_active_active_quartiles,
+            SSC.4_sub150_active_active_quartiles)
+
+write.table(df, file = "Sub 150 with active active fraction in cfChIP quatiles.txt", 
+            sep = "\t",col.names = T)

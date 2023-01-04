@@ -485,6 +485,12 @@ colnames(cancer_upregulated_healthy_files[[2]])[1] <- "motif"
 colnames(healthy_upregulated_cancer_files[[2]])[1] <- "motif"
 colnames(healthy_upregulated_healthy_files[[2]])[1] <- "motif"
 
+volcano_motif("Healthy","Cancer",
+              diff_gene_motiv_analysis(cancer_upregulated_healthy_files[[2]],cancer_upregulated_cancer_files[[2]]))
+volcano_motif("Healthy","Cancer",
+              diff_gene_motiv_analysis(healthy_upregulated_healthy_files[[2]],healthy_upregulated_cancer_files[[2]]))
+
+
 shannon_entropy_plot(prop_mer_active,
                      prop_mer_inactive)
 ggsave(filename = "Shannon entropy active inactive.png",
@@ -742,13 +748,16 @@ fragment_length_wt_ctdna_boxplot(ct_wt_input_list)
 
 collected_fragment_length_active_inactive <- read.table("Fragment lengths active inactive.txt", header = T)
 collected_fragment_length_active_inactive
+collected_fragment_length_active_inactive_healthy <- read.table("Fragment lengths active inactive healthy.txt", header = T)
 
 fragment_length_active_inactive_plot(collected_fragment_length_active_inactive,
-                                     "Active vs. Inactive") 
+                                     "Cancer")
+fragment_length_active_inactive_plot(collected_fragment_length_active_inactive_healthy,
+                                     "Healthy")
 
 
 
-length_list_active_inactive <- list(fragment_length_active_inactive_df(enrichment_df,grs,"NAC.1","D:/Lung cancer input/PosDeduped/PosDeduped-A-1279-input.bam"),
+length_list_active_inactive_cancer <- list(fragment_length_active_inactive_df(enrichment_df,grs,"NAC.1","D:/Lung cancer input/PosDeduped/PosDeduped-A-1279-input.bam"),
      fragment_length_active_inactive_df(enrichment_df,grs,"NAC.2","D:/Lung cancer input/PosDeduped/PosDeduped-B-1288-input.bam"),
      fragment_length_active_inactive_df(enrichment_df,grs,"NAC.3","D:/Lung cancer input/PosDeduped/PosDeduped-C-1475-input.bam"),
      fragment_length_active_inactive_df(enrichment_df,grs,"NAC.4","D:/Lung cancer input/PosDeduped/PosDeduped-D-1578-input.bam"),
@@ -761,17 +770,32 @@ length_list_active_inactive <- list(fragment_length_active_inactive_df(enrichmen
      fragment_length_active_inactive_df(enrichment_df,grs,"SSC.3","D:/Lung cancer input/PosDeduped/PosDeduped-K-440-input.bam"),
      fragment_length_active_inactive_df(enrichment_df,grs,"SSC.4","D:/Lung cancer input/PosDeduped/PosDeduped-L-1100-input.bam"))
 
-fragment_length_inactive <- fragment_length_active_inactive_sub_df(length_list_active_inactive, 150, "Inactive",
+length_list_active_inactive_healthy <- list(fragment_length_active_inactive_df(enrichment_df,grs,"HC.1","D:/Healthy input/PosDeduped/PosDeduped-Rask_kontrol_1_input.bam"),
+                                           fragment_length_active_inactive_df(enrichment_df,grs,"HC.2","D:/Healthy input/PosDeduped/PosDeduped-Rask_kontrol_2_input.bam"),
+                                           fragment_length_active_inactive_df(enrichment_df,grs,"HC.3","D:/Healthy input/PosDeduped/PosDeduped-Rask_kontrol_3_input.bam"),
+                                           fragment_length_active_inactive_df(enrichment_df,grs,"HC.4","D:/Healthy input/PosDeduped/PosDeduped-Rask_kontrol_4_input.bam"))
+                                           
+
+fragment_length_inactive_cancer <- fragment_length_active_inactive_sub_df(length_list_active_inactive_cancer, 150, "Inactive",
                                                                    c("NAC.1","NAC.2","NAC.3","NAC.4",
                                                                      "NSC.1","NSC.2","NSC.3","NSC.4",
                                                                      "SSC.1","SSC.2","SSC.3","SSC.4"))
-fragment_length_active <- fragment_length_active_inactive_sub_df(length_list_active_inactive, 150, "Active",
+fragment_length_active_cancer <- fragment_length_active_inactive_sub_df(length_list_active_inactive_cancer, 150, "Active",
                                                                  c("NAC.1","NAC.2","NAC.3","NAC.4",
                                                                    "NSC.1","NSC.2","NSC.3","NSC.4",
                                                                    "SSC.1","SSC.2","SSC.3","SSC.4"))
 
-proportion_sub_boxplot(list(fragment_length_inactive,fragment_length_active),
-                       c("Inactive", "Active"),
+proportion_sub_boxplot(list(fragment_length_inactive_cancer,fragment_length_active_cancer),
+                       c("Cancer Inactive", "Cancer Active"),
+                       "Paired")
+
+fragment_length_inactive_healthy <- fragment_length_active_inactive_sub_df(length_list_active_inactive_healthy, 150, "Inactive",
+                                                                   c("HC.1","HC.2","HC.3","HC.4"))
+fragment_length_active_healthy <- fragment_length_active_inactive_sub_df(length_list_active_inactive_healthy, 150, "Active",
+                                                                           c("HC.1","HC.2","HC.3","HC.4"))
+
+proportion_sub_boxplot(list(fragment_length_inactive_healthy,fragment_length_active_healthy),
+                       c("Healthy Inactive", "healthy Active"),
                        "Paired")
 
 collected_sub150_fraction_quartiles <- read.table("Sub150 fraction in cfChIP quatiles.txt", header = T)
@@ -779,15 +803,52 @@ collected_sub150_fraction_quartiles <- read.table("Sub150 fraction in cfChIP qua
 sub150_fraction_quartiles_plot(collected_sub150_fraction_quartiles)
 
 
+####input vs. cfChIP####
+active_motifs_cancer <- sequence_end_motif(dif_motif_prop(prop_mer_input_cancer, prop_mer_cfChIP_cancer), 0.05, "positive")
+active_motifs_cancer
+inactive_motifs_cancer <- sequence_end_motif(dif_motif_prop(prop_mer_input_cancer, prop_mer_cfChIP_cancer), 0.05, "negative")
+inactive_motifs_cancer
 
-collected_active_motif_fraction_quartiles <- read.table("Active motif fraction in cfChIP quatiles.txt", header = T)
+collected_active_motif_fraction_quartiles <- read.table("Active motif cancer fraction in cfChIP quatiles.txt", header = T)
 
-active_motif_fraction_quartiles_plot(collected_active_motif_fraction_quartiles)
+active_motif_fraction_quartiles_plot(collected_active_motif_fraction_quartiles, "Active")
 
-collected_sub150_active_motif_fraction_quartiles <- read.table("Sub 150 with active motif fraction in cfChIP quatiles.txt", header = T)
+collected_inactive_motif_fraction_quartiles <- read.table("Inactive motif cancer fraction in cfChIP quatiles.txt", header = T)
+
+active_motif_fraction_quartiles_plot(collected_inactive_motif_fraction_quartiles, "Inactive")
+
+####Active vs. inactive####
+
+active_active <- sequence_end_motif(dif_motif_prop(prop_mer_inactive, prop_mer_active), 0.05, "positive")
+active_active
+inactive_inactive <- sequence_end_motif(dif_motif_prop(prop_mer_inactive, prop_mer_active), 0.05, "negative")
+inactive_inactive
+
+collected_active_active_fraction_quartiles <- read.table("Active active fraction in cfChIP quatiles.txt", header = T)
+
+active_motif_fraction_quartiles_plot(collected_active_active_fraction_quartiles, "Active")
+
+collected_inactive_inactive_fraction_quartiles <- read.table("Inactive inactive fraction in cfChIP quatiles.txt", header = T)
+
+active_motif_fraction_quartiles_plot(collected_inactive_inactive_fraction_quartiles, "Inactive")
+
+####Combining length and motif####
+
+#input vs. cfChIP
+collected_sub150_active_motif_fraction_quartiles <- read.table("Sub 150 with active motif cancer fraction in cfChIP quatiles.txt", header = T)
+
+sub150_active_motif_fraction_quartiles_plot(collected_sub150_active_motif_fraction_quartiles, "Active")
+
+#Active vs. inactive
+collected_sub150_active_active_fraction_quartiles <- read.table("Sub 150 with active active fraction in cfChIP quatiles.txt", header = T)
+
+sub150_active_motif_fraction_quartiles_plot(collected_sub150_active_active_fraction_quartiles, "Active")
+
 
 ggsave(filename = "Sub150 active motif fraction Cancer cfChIP quartiles.png",
        width = 10000, height = 7500, units = "px",
        path = "C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots",
        dpi = 1200,
        device = "png")
+
+

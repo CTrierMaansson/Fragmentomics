@@ -26,9 +26,8 @@ bamfile <- function(x,z){
         blacklist = NULL,
         what = c("mapq","isize","pos","cigar","seq"))
 }
-?readBamFileAsGRanges
-x # BAM file returned by bamfile()
-m #number of bases to be evaluated in each fragment end
+#x BAM file returned by bamfile()
+#m #number of bases to be evaluated in each fragment end
 mer_count <- function(x,m){
     positve <- x[strand(x) == "+"]
     negative <- x[strand(x) == "-"]
@@ -42,7 +41,7 @@ mer_count <- function(x,m){
     
 }
 
-x # table returned by mer_count()
+#x table returned by mer_count()
 prop_df <- function(x){
     prop <- proportions(x)
     df <- data.frame(res = names(prop),
@@ -50,14 +49,14 @@ prop_df <- function(x){
     return(df)
 }
 
-x # table returned by mer_count()
+#x table returned by mer_count()
 count_df <- function(x){
     df <- data.frame(res = names(x),
                      Freq = unname(x))
     return(df) 
 }
-x #prop_mer data.frame for group 1
-x #prop_mer data.frame for group 2
+#x #prop_mer data.frame for group 1
+#y #prop_mer data.frame for group 2
 
 dif_motif_prop <- function(x,y){
     library(dplyr)
@@ -99,16 +98,15 @@ dif_motif_prop <- function(x,y){
     return(kk)
 }
 
-x #Name of group 1
-y #Name of group 2
-z #data.frame returned by dif_motif_prop() eller diff_active_inactive_end_motif()
+#x #Name of group 1
+#y #Name of group 2
+#z #data.frame returned by dif_motif_prop() eller diff_active_inactive_end_motif()
 volcano_motif <- function(x,y,z){
     library(ggplot2)
     library(ggrepel)
     p <- -log10(z$q.value)
     z$Log10p <- p
     z <- z %>% dplyr::filter(!is.na(q.value))
-    tit <- paste("End motif of", x, "compared to",y)
     if(min(z$FC)<0.8){
         xmin = log2(min(z$FC)-0.1)
         x_lab1 = log2(1-((1-min(z$FC))/2))
@@ -142,7 +140,7 @@ volcano_motif <- function(x,y,z){
                              midpoint = 0)+
         xlab(expression(bold(paste(log[2]("FC"), sep = ""))))+
         ylab(expression(bold(paste("-",log[10]("q-value"), sep = ""))))+
-        labs(title = tit)+
+        labs(title = "")+
         geom_hline(yintercept = c(-log10(0.05),-log10(0.01),-log10(0.001)),
                    linetype = c("dashed","dashed","dashed"),
                    colour = c("black", "black", "black"),
@@ -167,13 +165,13 @@ volcano_motif <- function(x,y,z){
     return(gg)
 }
 
-x #Proportion of fragment end motifs for sample 1
-y #Proportion of fragment end motifs for sample 2
-p #Name of sample 1
-q #Name of sample 2
-s #seed for set.seed()
-n #Number of neighbors
-t #Type of plot. For healthy and cancer type "both" (default), for cancer = "cancer", for healthy = "healthy"
+#x #Proportion of fragment end motifs for sample 1
+#y #Proportion of fragment end motifs for sample 2
+#p #Name of sample 1
+#q #Name of sample 2
+#s #seed for set.seed()
+#n #Number of neighbors
+#t #Type of plot. For healthy and cancer type "both" (default), for cancer = "cancer", for healthy = "healthy"
 umap_moitf <- function(x,y, p, q, s, n, t = "both"){
     library(umap)
     library(ggrepel)
@@ -194,7 +192,7 @@ umap_moitf <- function(x,y, p, q, s, n, t = "both"){
         gg <- ggplot(data = umap_df, aes(x = V1, y = V2, color = V5,
                                          shape = V5, group = V5))+
             geom_point(size = 5)+
-            labs(title = paste(p, "and", q),
+            labs(title = "",
                  x = "UMAP-1", y = "UMAP-2")+
             scale_color_manual(name = "Sample",
                                labels = c("Cancer input", "Cancer cfChIP",
@@ -210,7 +208,7 @@ umap_moitf <- function(x,y, p, q, s, n, t = "both"){
     if(t == "cancer"){
         gg <- ggplot(data = umap_df, aes(x = V1, y = V2, color = V3))+
             geom_point(size = 5)+
-            labs(title = paste(p, "and", q),
+            labs(title = "",
                  x = "UMAP-1", y = "UMAP-2")+
             scale_color_manual(name = "Sample",
                                labels = c("Cancer input", "Cancer cfChIP"),
@@ -221,7 +219,7 @@ umap_moitf <- function(x,y, p, q, s, n, t = "both"){
     if(t == "healthy"){
         gg <- ggplot(data = umap_df, aes(x = V1, y = V2, color = V3))+
             geom_point(size = 5)+
-            labs(title = paste(p, "and", q),
+            labs(title = "",
                  x = "UMAP-1", y = "UMAP-2")+
             scale_color_manual(name = "Sample",
                                labels = c("Healthy input", "Healthy cfChIP"),
@@ -236,7 +234,7 @@ umap_moitf <- function(x,y, p, q, s, n, t = "both"){
         gg <- ggplot(data = umap_df, aes(x = V1, y = V2, color = V5,
                                          shape = V5, group = V5))+
             geom_point(size = 5)+
-            labs(title = paste(p, "and", q),
+            labs(title ="",
                  x = "UMAP-1", y = "UMAP-2")+
             scale_color_manual(name = "Sample",
                                labels = c("Cancer active", "Cancer inactive",
@@ -247,27 +245,17 @@ umap_moitf <- function(x,y, p, q, s, n, t = "both"){
                                           "Healthy active","Healthy inactive"),
                                values = c(19,19,17,17))+
             theme_bw()+
-            geom_label_repel(
-                aes(label=V6),
-                segment.color="black",
-                color="black",
-                nudge_x = 0,
-                label.size = NA,
-                size = 2.5,
-                fill = alpha(c("white"),0),
-                parse = F,
-                max.overlaps = 100)+
             th
     }
     
     return(gg)
 }
 
-x #enrichment data.frame 
-y #Granges object returned by gr() for the 197 AVENIO target genes
-z #name of sample to isolate from enrichment data.frame
-i #name of input BAM file
-m #number of bases to be evaluated in each fragment end
+#x #enrichment data.frame 
+#y #Granges object returned by gr() for the 197 AVENIO target genes
+#z #name of sample to isolate from enrichment data.frame
+#i #name of input BAM file
+#m #number of bases to be evaluated in each fragment end
 end_motif_active_inactive <- function(x,y,z,i,m){
     library(Rsamtools)
     df_sample <- x[c("genes",z)]
@@ -311,7 +299,7 @@ end_motif_active_inactive <- function(x,y,z,i,m){
     return(df_res)
 }
 
-x #prop_mer data.frame with paired active and inactive gene fragment end motifs
+#x #prop_mer data.frame with paired active and inactive gene fragment end motifs
 diff_active_inactive_end_motif <- function(x){
     library(dplyr)
     rownames(x) <- x$motif
@@ -352,9 +340,9 @@ diff_active_inactive_end_motif <- function(x){
     return(kk)
 }
 
-x #data.frame returned by diff_active_inactive_end_motif() eller dif_motif_prop()
-q #value cutoff
-f #Can be "negative" eller "positive" for om ente FC < 1 eller FC > 1 endemotiver skal undersøge
+#x #data.frame returned by diff_active_inactive_end_motif() eller dif_motif_prop()
+#q #value cutoff
+#f #Can be "negative" eller "positive" for om ente FC < 1 eller FC > 1 endemotiver skal undersøge
 sequence_end_motif <- function(x, q, f, tit){
     library(ggseqlogo)
     sig_motif <- x %>% filter(q.value < q)
@@ -369,8 +357,8 @@ sequence_end_motif <- function(x, q, f, tit){
     return(end_motif)
 }
 
-x #list of character vectors with significant sequences
-y #character vector of names of samples
+#x #list of character vectors with significant sequences
+#y #character vector of names of samples
 sequence_end_motif_plot <- function(x,y){
     library(ggseqlogo)
     names(x) <- y
@@ -391,9 +379,9 @@ sequence_end_motif_plot <- function(x,y){
     return(gg)
 }
 
-x #bam.file returned by bamfile()
-y #genomic ranges of AVENIO genes returned by gr()
-z #character vector of motifs to get fraction of
+#x #bam.file returned by bamfile()
+#y #genomic ranges of AVENIO genes returned by gr()
+#z #character vector of motifs to get fraction of
 motif_fraction <- function(x, y, z){
     library(Biostrings)
     fractions <- c()
@@ -413,8 +401,8 @@ motif_fraction <- function(x, y, z){
 }
                                         
 
-x #name on .txt file containing each gene, the number of times each gene is sequenced and the distance each target is from TSS
-y #cutoff of distance from TSS which is too long
+#x #name on .txt file containing each gene, the number of times each gene is sequenced and the distance each target is from TSS
+#y #cutoff of distance from TSS which is too long
 badgene <- function(x,y = 25){
     library(dplyr)
     df <- read.table(x,header = T)
@@ -429,11 +417,11 @@ multiple_region <- function(x){
     df <- df %>% filter(Regions > 1)
     return(unique(df$SYMBOL))
 }
-x #data.frame returned by motif_fraction()
-y #data.frame returned by e.score()
-z #Name of sample
-b #optional: if not NULL then use character vector returned by badgene()
-r #optional: if not NULL then use character vector returned by multiple_region()
+#x #data.frame returned by motif_fraction()
+#y #data.frame returned by e.score()
+#z #Name of sample
+#b #optional: if not NULL then use character vector returned by badgene()
+#r #optional: if not NULL then use character vector returned by multiple_region()
 motif_fraction_vs_enrichment <- function(x,y,z,b = NULL, r = NULL){
     `%ni%` <- Negate(`%in%`)
     if (is.null(b)){
@@ -485,8 +473,8 @@ motif_fraction_vs_enrichment <- function(x,y,z,b = NULL, r = NULL){
     
     return(gg)
 }
-x #correlation matrix with samples, rhos, p and alpha values
-z #Title of plot
+#x #correlation matrix with samples, rhos, p and alpha values
+#z #Title of plot
 matrix_plot <- function(x,z){
     library(tidyr)
     options(scipen = 999)
@@ -519,9 +507,9 @@ matrix_plot <- function(x,z){
  
     
 }
-x #BAM file returned by bamfile()
-y #fragment length cut-off, default = 150
-z #TRUE to get fragments shorter than or equal to cutoff, whereas FALSE gives fragments longer than cutoff. Default is TRUE
+#x #BAM file returned by bamfile()
+#y #fragment length cut-off, default = 150
+#z #TRUE to get fragments shorter than or equal to cutoff, whereas FALSE gives fragments longer than cutoff. Default is TRUE
 short_long_fragments <- function(x, y = 150,z = TRUE){
     mcols(x)$abs_size <- abs(mcols(x)$isize)
     x <- x[!is.na(mcols(x)$abs_size)]
@@ -536,9 +524,9 @@ short_long_fragments <- function(x, y = 150,z = TRUE){
 }
 
 
-x #BAM file returned by bamfile()
-y #fragment length cut-off, default = 150
-m #number of bases to be evaluated in each fragment end
+#x #BAM file returned by bamfile()
+#y #fragment length cut-off, default = 150
+#m #number of bases to be evaluated in each fragment end
 short_long_fragments_motifs <- function(x,y,m){
     short <- short_long_fragments(x,y,z = TRUE)
     long <- short_long_fragments(x,y,z = FALSE)
@@ -551,9 +539,9 @@ short_long_fragments_motifs <- function(x,y,m){
     return(df)
 }
 
-x #list of character vectors with significant sequences
-y #character vector of names of samples
-tit #title of plot
+#x #list of character vectors with significant sequences
+#y #character vector of names of samples
+#tit #title of plot
 motif_venn <- function(x,y, tit){
     library(ggVennDiagram)
     library(ggpubr)
@@ -580,12 +568,12 @@ motif_venn <- function(x,y, tit){
             axis.ticks = element_blank())
     return(gg)
 }
-e #enrichment dataframe
-n #Name of sample
-x #input BAM file returned by bamfile()
-g #Granges object returned by gr()
-y #fragment length cut-off, default = 150
-m #number of bases to be evaluated in each fragment end. Default = 3
+#e #enrichment dataframe
+#n #Name of sample
+#x #input BAM file returned by bamfile()
+#g #Granges object returned by gr()
+#y #fragment length cut-off, default = 150
+#m #number of bases to be evaluated in each fragment end. Default = 3
 active_short_long_fragments_motifs <- function(e, n, x, g, y = 150, m = 3){
     e_sample <- e %>% select(c("genes", n))
     bottom_15 <- e_sample$genes[order(e_sample[,2])][1:15]
@@ -601,9 +589,9 @@ active_short_long_fragments_motifs <- function(e, n, x, g, y = 150, m = 3){
     return(df)
 }
 
-x #list of data.frames returned by e.score()
-y #vector of names for each data.frame.
-z #vector of names for groups
+#x #list of data.frames returned by e.score()
+#y #vector of names for each data.frame.
+#z #vector of names for groups
 bind_samples <- function(x,y,z){
     library(dplyr)
     len <- length(x)
@@ -625,8 +613,8 @@ bind_samples <- function(x,y,z){
     return(res)
 }
 
-x #data.frame returned by e.score()
-y #name of sample
+#x #data.frame returned by e.score()
+#y #name of sample
 transpose <- function(x,y){
     x1 <- as.data.frame(t(x))
     colnames(x1) <- x1[1,1:length(x1)]
@@ -635,7 +623,7 @@ transpose <- function(x,y){
     return(x1)
 }
 
-x #list of data.frames returned by e.score()
+#x #list of data.frames returned by e.score()
 average_enrichment <- function(x){
     len <- length(x)
     std <- x[[1]]$genes
@@ -654,8 +642,8 @@ average_enrichment <- function(x){
     return(df)
 }
 
-x #Average Enrichment data.frame return from average_enrichmet() for sample 1
-y #Average Enrichment data.frame return from average_enrichmet() for sample 2
+#x #Average Enrichment data.frame return from average_enrichmet() for sample 1
+#y #Average Enrichment data.frame return from average_enrichmet() for sample 2
 conf <- function(x,y,b = NULL,v,w){
     library(dplyr)
     `%ni%` <- Negate(`%in%`)
@@ -717,28 +705,28 @@ conf <- function(x,y,b = NULL,v,w){
     return(kk)
 }
 
-x #data.frame with genes of interest returned by conf()
-g #Granges object returned by gr()
-i #input BAM file to be analyzed, returned by bamfile()
+#x #data.frame with genes of interest returned by conf()
+#g #Granges object returned by gr()
+#i #input BAM file to be analyzed, returned by bamfile()
 diff_gene_reads <- function(x,g,i){
     gene_g <- g[mcols(g)$SYMBOL %in% x$genes]
     sub <- subsetByOverlaps(i, gene_g,ignore.strand=TRUE)
     return(sub)
 }
 
-x #input BAM file to be analyzed, returned by bamfile()
-y #cutoff for short fragments
+#x #input BAM file to be analyzed, returned by bamfile()
+#y #cutoff for short fragments
 sub150_fraction <- function(x,y){
     mcols(x)$abs_size <- abs(mcols(x)$isize)
     res <- mcols(x)$abs_size<y
     res <- res[!is.na(res)]
     return(mean(res))
 }
-x #data.frame with genes of interest returned by conf()
-g #Granges object returned by gr()
-l #list of input BAM file to be analyzed, returned by bamfile()
-y #cutoff for short fragments
-m #number of bases to be evaluated in each fragment end
+#x #data.frame with genes of interest returned by conf()
+#g #Granges object returned by gr()
+#l #list of input BAM file to be analyzed, returned by bamfile()
+#y #cutoff for short fragments
+#m #number of bases to be evaluated in each fragment end
 diff_gene_epigenetic_analysis <- function(x,g,l,y,m){
     fragment_res <- c()
     for(j in 1:length(l)){
@@ -759,8 +747,8 @@ diff_gene_epigenetic_analysis <- function(x,g,l,y,m){
     return(list(fragment_df,df))
 }
 
-x #data.frame returned by diff_gene_epigenetic_analysis()[[2]] for sample 1
-y #data.frame returned by diff_gene_epigenetic_analysis()[[2]] for sample 2
+#x #data.frame returned by diff_gene_epigenetic_analysis()[[2]] for sample 1
+#y #data.frame returned by diff_gene_epigenetic_analysis()[[2]] for sample 2
 diff_gene_motiv_analysis <- function(x, y){
     library(dplyr)
     rownames(x) <- x$motif
@@ -800,14 +788,10 @@ diff_gene_motiv_analysis <- function(x, y){
     kk <- kk[order(-abs(kk$mean_diff)),]
     return(kk)
 }
-volcano_motif("Healthy","Cancer",
-              diff_gene_motiv_analysis(cancer_upregulated_healthy_files[[2]],cancer_upregulated_cancer_files[[2]]))
-volcano_motif("Healthy","Cancer",
-              diff_gene_motiv_analysis(healthy_upregulated_healthy_files[[2]],healthy_upregulated_cancer_files[[2]]))
 
-x #Data.frame of sample 1
-y #data.frame of sample 2
-z #Character vecotr of sample names
+#x #Data.frame of sample 1
+#y #data.frame of sample 2
+#z #Character vecotr of sample names
 clusters <- function(x,y,z){
     library(plotly)
     rownames(x) <- x$motif
@@ -839,10 +823,10 @@ clusters <- function(x,y,z){
    return(colnames(mat1)[res$colInd])
 }
 
-x #list of bamfiles returned by bamfile()
-y #list of character vectors with motifs to group fragments by
-z #Name of groups
-t #title of plot
+#x #list of bamfiles returned by bamfile()
+#y #list of character vectors with motifs to group fragments by
+#z #Name of groups
+#t #title of plot
 fragment_length_motif_plot <- function(x, y, z, t){
     library(Biostrings)
     for(i in 1:length(x)){
@@ -892,13 +876,13 @@ fragment_length_motif_plot <- function(x, y, z, t){
         th
     return(gg)
 }
-x #Numeric vector of the motif proportions
+#x #Numeric vector of the motif proportions
 entrop <- function(x){
     res <- -sum(x * log2(x))
     return(res)
 }
-x #Proportion of fragment end motifs for sample 1
-y #Proportion of fragment end motifs for sample 2
+#x #Proportion of fragment end motifs for sample 1
+#y #Proportion of fragment end motifs for sample 2
 shannon_entropy_plot <- function(x,y){
     library(dplyr)
     library(tidyr)
@@ -934,8 +918,8 @@ shannon_entropy_plot <- function(x,y){
     return(gg)
     
 }
-x #Proportion of fragment end motifs for sample 1
-y #Proportion of fragment end motifs for sample 2
+#x #Proportion of fragment end motifs for sample 1
+#y #Proportion of fragment end motifs for sample 2
 transposed_shannon_entropy_plot <- function(x,y){
     library(ggrepel)
     rownames(x) <- x$motif
@@ -989,9 +973,9 @@ transposed_shannon_entropy_plot <- function(x,y){
     return(gg)
 }
 
-x #list of motifs to separate motifs into
-y #list of data.frames to to get information from
-z #character vector with names of samples
+#x #list of motifs to separate motifs into
+#y #list of data.frames to to get information from
+#z #character vector with names of samples
 stack_bar <- function(x,y,z,m){
     df <- data.frame(samples = z)
     for(i in 1:length(x)){
@@ -1034,13 +1018,14 @@ stack_bar <- function(x,y,z,m){
     return(gg)
 }
 
-x #list of BAMfiles returned by bamfile() for group 1
-y #list of BAMfiles returned by bamfile() for group 2
-z #vector of names for group 1 and 2
-p #Title of plot
+#x #list of BAMfiles returned by bamfile() for group 1
+#y #list of BAMfiles returned by bamfile() for group 2
+#z #vector of names for group 1 and 2
+#p #Title of plot
 fragment_length <- function(x,y,z,p){
     library(ggplot2)
     library(tidyr)
+    library(plyr)
     len1 <- c()
     len2 <- c()
     for (i in 1:length(x)){
@@ -1072,8 +1057,8 @@ fragment_length <- function(x,y,z,p){
     return(gg)
 }
 
-x #BAM file returned by bamfile()
-y #cutoff for fragment length
+#x #BAM file returned by bamfile()
+#y #cutoff for fragment length
 proportion_sub <- function(x,y){
     library(Rsamtools)
     len <- mcols(x)$isize
@@ -1083,11 +1068,11 @@ proportion_sub <- function(x,y){
     res <- length(bam_lengths_sub150)/length(len)
     return(res)
 }
-proportion_sub(NAC.1_cfChIP, 150)
 
-x #list of bam files returned by bamfile() for group 1
-y #cutoff for fragment length
-z #name of samples
+
+#x #list of bam files returned by bamfile() for group 1
+#y #cutoff for fragment length
+#z #name of samples
 proportion_sub_df <- function(x, y, z){
     res <- c()
     for (i in 1:length(x)){
@@ -1098,10 +1083,11 @@ proportion_sub_df <- function(x, y, z){
     return(df)
 }
 
-x #list of proportion sub data.frame returned by proportion_sub_df() for samples
-z #Name of samples
-p #If samples are paired p = "Paired (default), otherwise p = "Unpaired"
-proportion_sub_boxplot <- function(x, z, p = "Paired"){
+#x #list of proportion sub data.frame returned by proportion_sub_df() for samples
+#z #Name of samples
+#p #If samples are paired p = "Paired (default), otherwise p = "Unpaired"
+#g #If active vs. inactive is analyzed g = "activity", default = NULL.
+proportion_sub_boxplot <- function(x, z, p = "Paired", g = NULL){
     library(ggpubr)
     if(p == "Unpaired"){
         if (length(z) < 3){
@@ -1113,7 +1099,8 @@ proportion_sub_boxplot <- function(x, z, p = "Paired"){
             gg <- df %>% ggplot(aes(x=sample, y=sub_fraction, fill=sample)) + 
                 geom_boxplot(outlier.alpha = 0)+
                 geom_jitter(alpha = 0.5, width = 0.1)+
-                labs(x = "",
+                labs(title ="",
+                     x = "",
                      y = "Fraction under 150 bp")+
                 scale_fill_manual("Sample",
                                   values = c("#ffa10c","#6a00fc"))+
@@ -1133,7 +1120,8 @@ proportion_sub_boxplot <- function(x, z, p = "Paired"){
             gg <- df %>% ggplot(aes(x=sample, y=sub_fraction, fill=sample)) + 
                 geom_boxplot(outlier.alpha = 0)+
                 geom_jitter(alpha = 0.5, width = 0.1)+
-                labs(x = "",
+                labs(title = "",
+                     x = "",
                      y = "Fraction under 150 bp")+
                 scale_fill_manual("Sample",
                                   values = c("#ffa10c","firebrick","#6a00fc"))+
@@ -1146,31 +1134,57 @@ proportion_sub_boxplot <- function(x, z, p = "Paired"){
         }
     }
     else{
-        df <- data.frame(sub_fraction = c(x[[1]]$sub_fraction,
-                                          x[[2]]$sub_fraction),
-                         sample = factor(c(rep(z[1], nrow(x[[1]])),
-                                    rep(z[2], nrow(x[[2]]))), 
-                                    levels = c(z[1], z[2])),
-                         pairs = rep(seq(1,nrow(x[[1]])),2))
-        gg <- df %>% ggplot(aes(x=sample, y=sub_fraction, fill=sample)) + 
-            geom_boxplot(outlier.alpha = 0)+
-            geom_line(aes(group=pairs))+
-            geom_point(alpha = 0.5)+
-            labs(x = "",
-                 y = "Fraction under 150 bp")+
-            scale_fill_manual("Sample",
-                              values = c("#ffa10c","#6a00fc"))+
-            stat_compare_means(method = "t.test",
-                               paired = TRUE,
-                               comparisons = list(c(z[1], z[2])))+
-            theme_bw()+
-            th
+        if(is.null(g)){
+            df <- data.frame(sub_fraction = c(x[[1]]$sub_fraction,
+                                              x[[2]]$sub_fraction),
+                             sample = factor(c(rep(z[1], nrow(x[[1]])),
+                                               rep(z[2], nrow(x[[2]]))), 
+                                             levels = c(z[1], z[2])),
+                             pairs = rep(seq(1,nrow(x[[1]])),2))
+            gg <- df %>% ggplot(aes(x=sample, y=sub_fraction, fill=sample)) + 
+                geom_boxplot(outlier.alpha = 0)+
+                geom_line(aes(group=pairs))+
+                geom_point(alpha = 0.5)+
+                labs(title = "",
+                     x = "",
+                     y = "Fraction under 150 bp")+
+                scale_fill_manual("Sample",
+                                  values = c("#ffa10c","#6a00fc"))+
+                stat_compare_means(method = "t.test",
+                                   paired = TRUE,
+                                   comparisons = list(c(z[1], z[2])))+
+                theme_bw()+
+                th
+        }
+        else{
+            df <- data.frame(sub_fraction = c(x[[1]]$sub_fraction,
+                                              x[[2]]$sub_fraction),
+                             sample = factor(c(rep(z[1], nrow(x[[1]])),
+                                               rep(z[2], nrow(x[[2]]))), 
+                                             levels = c(z[1], z[2])),
+                             pairs = rep(seq(1,nrow(x[[1]])),2))
+            gg <- df %>% ggplot(aes(x=sample, y=sub_fraction, fill=sample)) + 
+                geom_boxplot(outlier.alpha = 0)+
+                geom_line(aes(group=pairs))+
+                geom_point(alpha = 0.5)+
+                labs(title = "",
+                     x = "",
+                     y = "Fraction under 150 bp")+
+                scale_fill_manual("Gene activity",
+                                  values = c("#ffa10c","#6a00fc"))+
+                stat_compare_means(method = "t.test",
+                                   paired = TRUE,
+                                   comparisons = list(c(z[1], z[2])))+
+                theme_bw()+
+                th
+        }
+        
     }
     return(gg)
 }
-x #Table consisting of BAM file names (name used when bamfile() is used),
+#x #Table consisting of BAM file names (name used when bamfile() is used),
   #genes mutated and the position of the mutation
-y #Named list of samples used
+#y #Named list of samples used
 fragment_length_wt_ctdna_df <- function(x,y){
     library(Rsamtools)
     library(tidyr)
@@ -1244,7 +1258,7 @@ fragment_length_wt_ctdna_df <- function(x,y){
     return(df6)
 }
 
-x #data.frame returned by fragment_length_wt_ctdna_df()
+#x #data.frame returned by fragment_length_wt_ctdna_df()
 fragment_length_wt_ctdna_plot <- function(x){
     library(ggplot2)
     library(tidyr)
@@ -1258,7 +1272,7 @@ fragment_length_wt_ctdna_plot <- function(x){
                    linetype="dashed", size = 1)+
         theme_bw(base_size = 15)+
         scale_color_manual(values = c("#6a00fc","#ffa10c"))+
-        labs(title = "ctDNA and WT", y = "Density", x = "Fragment length (bp)")+
+        labs(title = "", y = "Density", x = "Fragment length (bp)")+
         scale_x_continuous(breaks = seq(0,400,50), limits = c(0,400))+
         th
     return(gg)
@@ -1297,7 +1311,8 @@ MAF_in_bins <- function(x){
         geom_point(data = df1, aes(x = len, y = enrichment),
                    color = "black",
                    size = 2)+
-        labs(x = "Fragment (bp)",
+        labs(title ="",
+             x = "Fragment length (bp)",
              y = "MAF enrichment")+
         geom_hline(yintercept = 1,
                    color = "black",
@@ -1324,9 +1339,9 @@ MAF_in_bins <- function(x){
     return(gg)
 }
 
-x #Table consisting of BAM file names (name used when bamfile() is used),
+#x #Table consisting of BAM file names (name used when bamfile() is used),
 #genes mutated and the position of the mutation
-y #Named list of the patient sample (length = 1)
+#y #Named list of the patient sample (length = 1)
 fragment_length_wt_ctdna_patient <- function(x,y){
     library(Rsamtools)
     library(tidyr)
@@ -1400,7 +1415,7 @@ fragment_length_wt_ctdna_patient <- function(x,y){
     return(df6)
 }
 
-x #List of patient data.frames with fragment lengths of WT and ctDNA
+#x #List of patient data.frames with fragment lengths of WT and ctDNA
 fragment_length_wt_ctdna_boxplot <- function(x){
     x <- lapply(x,FUN = function(x){if(isa(x,"data.frame")){return(x)}
         else{return(NA)}})
@@ -1424,7 +1439,8 @@ fragment_length_wt_ctdna_boxplot <- function(x){
         geom_boxplot(outlier.alpha = 0)+
         geom_line(aes(group=pairs))+
         geom_point(alpha = 0.5)+
-        labs(x = "",
+        labs(title = "",
+             x = "",
              y = "Fraction under 150 bp")+
         scale_fill_manual("Fragments",
                           values = c("#ffa10c","#6a00fc"))+
@@ -1435,10 +1451,10 @@ fragment_length_wt_ctdna_boxplot <- function(x){
         th
     return(gg)
 }
-x #enrichment data.frame 
-y #Granges object returned by gr() for the 197 AVENIO target genes
-z #name of sample to isolate from enrichment data.frame
-i #name of input BAM file
+#x #enrichment data.frame 
+#y #Granges object returned by gr() for the 197 AVENIO target genes
+#z #name of sample to isolate from enrichment data.frame
+#i #name of input BAM file
 fragment_length_active_inactive_df <- function(x,y,z,i){
     library(Rsamtools)
     df_sample <- x[c("genes",z)]
@@ -1468,17 +1484,15 @@ fragment_length_active_inactive_df <- function(x,y,z,i){
                                 rep("Inactive",length(length_bottom15))))
     return(df)
 }
-fragment_length_active_inactive_df(enrichment_df,
-                                   grs,
-                                   "NAC.1",
-                                   "D:/Lung cancer input/PosDeduped/PosDeduped-A-1279-input.bam")
-x #Data.frame with two columns. One with fragment lengths and the other determining whether the fragment originates from an active or inactive gene
-p #Title of plot
+
+#x #Data.frame with two columns. One with fragment lengths and the other determining whether the fragment originates from an active or inactive gene
+#p #sample
 fragment_length_active_inactive_plot <- function(x,p){
     library(ggplot2)
     library(tidyr)
     library(plyr)
     df <- x
+    df <- df %>% mutate(Sample = paste(p,Sample))
     mu <- ddply(df, "Sample", summarise, grp.median=median(len))
     gg <- ggplot(data = df, aes(x = len, color = Sample))+
         geom_density(size = 1)+
@@ -1487,16 +1501,16 @@ fragment_length_active_inactive_plot <- function(x,p){
         theme_bw(base_size = 15)+
         scale_color_manual(values = c("#6a00fc","#ffa10c"),
                            name = "Gene activity")+
-        labs(title = p, y = "Density", x = "Fragment length (bp)")+
+        labs(title = "", y = "Density", x = "Fragment length (bp)")+
         scale_x_continuous(breaks = seq(0,400,50), limits = c(0,400))+
         th
     return(gg)
 }
 
-x #list of fragment length data.frames returned by fragment_length_active_inactive_df()
-y #fragment length cutoff
-z #name of samples
-a #Definition of whether "Active" or "Inactive" genes are analyzed
+#x #list of fragment length data.frames returned by fragment_length_active_inactive_df()
+#y #fragment length cutoff
+#z #name of samples
+#a #Definition of whether "Active" or "Inactive" genes are analyzed
 fragment_length_active_inactive_sub_df <- function(x,y,a,z){
     res <- c()
     for (i in 1:length(x)){
@@ -1510,11 +1524,11 @@ fragment_length_active_inactive_sub_df <- function(x,y,a,z){
                      sub_fraction = res)
     return(df)
 }
-x #enrichment data.frame 
-y #Granges object returned by gr() for the 197 AVENIO target genes
-z #name of sample to isolate from enrichment data.frame
-j #name of input BAM file
-p #cutoff for fragment length
+#x #enrichment data.frame 
+#y #Granges object returned by gr() for the 197 AVENIO target genes
+#z #name of sample to isolate from enrichment data.frame
+#j #name of input BAM file
+#p #cutoff for fragment length
 sub_150_in_cfChIP_quartiles <- function(x,y,z,j,p){
     library(Rsamtools)
     df_sample <- x[c("genes",z)]
@@ -1570,7 +1584,7 @@ sub_150_in_cfChIP_quartiles <- function(x,y,z,j,p){
     return(df)
 }
 
-x #data.frame with quartiles, sub150 fraction of the quartiles and the sample
+#x #data.frame with quartiles, sub150 fraction of the quartiles and the sample
 sub150_fraction_quartiles_plot <- function(x){
     library(ggpubr)
     ddf <- data.frame(quartile = c(),
@@ -1601,19 +1615,20 @@ sub150_fraction_quartiles_plot <- function(x){
                            paired = TRUE,
                            ref.group = "Q1",
                            size = 4.5)+
-        labs(x = "Quartiles",
+        labs(title ="",
+             x = "Quantiles",
              y = "Normalized fraction under 150 bp")+
         scale_y_continuous(limits = c(0.9,1.5))+
         th
     
     return(gg)
 }
-x #enrichment data.frame 
-y #Granges object returned by gr() for the 197 AVENIO target genes
-z #name of sample to isolate from enrichment data.frame
-j #name of input BAM file
-m #number of bases to be evaluated in each fragment end
-a #character vector of motifs defined as "Active motifs"
+#x #enrichment data.frame 
+#y #Granges object returned by gr() for the 197 AVENIO target genes
+#z #name of sample to isolate from enrichment data.frame
+#j #name of input BAM file
+#m #number of bases to be evaluated in each fragment end
+#a #character vector of motifs defined as "Active motifs"
 active_motif_quartiles_df <- function(x,y,z,j,m,a){
     library(Rsamtools)
     df_sample <- x[c("genes",z)]
@@ -1679,8 +1694,9 @@ active_motif_quartiles_df <- function(x,y,z,j,m,a){
                      sample = rep(z,10))
     return(df)
 }
+#a #Definition of whether "Active" or "Inactive" genes are analyzed
 
-active_motif_fraction_quartiles_plot <- function(x){
+active_motif_fraction_quartiles_plot <- function(x,a){
     library(ggpubr)
     ddf <- data.frame(quartile = c(),
                       active_fraction = c(),
@@ -1692,6 +1708,12 @@ active_motif_fraction_quartiles_plot <- function(x){
         base_fraction <- df$active_fraction[1]
         df <- df %>% mutate(norm_fraction = active_fraction/base_fraction)
         ddf <- rbind(ddf,df)
+    }
+    if(a == "Active"){
+        lab <- "Normalized active motif fraction"
+    }
+    else{
+        lab <- "Normalized input motif fraction"
     }
     ddf <- ddf %>% 
         mutate(quartile = factor(quartile,
@@ -1710,19 +1732,20 @@ active_motif_fraction_quartiles_plot <- function(x){
                            paired = TRUE,
                            ref.group = "Q1",
                            size = 4.5)+
-        labs(x = "Quartiles",
-             y = "Normalized active motif fraction")+
+        labs(title="",
+             x = "Quantiles",
+             y = lab)+
         th
     
     return(gg)
 }
-x #enrichment data.frame 
-y #Granges object returned by gr() for the 197 AVENIO target genes
-z #name of sample to isolate from enrichment data.frame
-j #name of input BAM file
-p #cutoff for fragment length
-m #number of bases to be evaluated in each fragment end
-a #character vector of motifs defined as "Active motifs"
+#x #enrichment data.frame 
+#y #Granges object returned by gr() for the 197 AVENIO target genes
+#z #name of sample to isolate from enrichment data.frame
+#j #name of input BAM file
+#p #cutoff for fragment length
+#m #number of bases to be evaluated in each fragment end
+#a #character vector of motifs defined as "Active motifs"
 sub150_active_motif_fraction_quartiles_df <- function(x,y,z,j,p,m,a){
     library(Rsamtools)
     df_sample <- x[c("genes",z)]
@@ -1797,8 +1820,9 @@ sub150_active_motif_fraction_quartiles_df <- function(x,y,z,j,p,m,a){
     return(df)
 }
 
+#a #Definition of whether "Active" or "Inactive" genes are analyzed
 
-sub150_active_motif_fraction_quartiles_plot <- function(x){
+sub150_active_motif_fraction_quartiles_plot <- function(x,a){
     library(ggpubr)
     ddf <- data.frame(quartile = c(),
                       fraction = c(),
@@ -1810,6 +1834,12 @@ sub150_active_motif_fraction_quartiles_plot <- function(x){
         base_fraction <- df$fraction[1]
         df <- df %>% mutate(norm_fraction = fraction/base_fraction)
         ddf <- rbind(ddf,df)
+    }
+    if(a == "Active"){
+        lab <- "Normalized sub 150 active motif fraction"
+    }
+    else{
+        lab <- "Normalized sub 150 inactive motif fraction"
     }
     ddf <- ddf %>% 
         mutate(quartile = factor(quartile,
@@ -1828,10 +1858,11 @@ sub150_active_motif_fraction_quartiles_plot <- function(x){
                            paired = TRUE,
                            ref.group = "Q1",
                            size = 4.5)+
-        labs(x = "Quartiles",
-             y = "Normalized sub 150 active motif fraction")+
+        labs(title = "",
+             x = "Quantiles",
+             y = lab)+
         th
     
     return(gg)
 }
-sub150_active_motif_fraction_quartiles_plot(collected_sub150_active_motif_fraction_quartiles)
+
