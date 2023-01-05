@@ -1,3 +1,4 @@
+library(ggpubr)
 ####Fig 1 ####
 fig1a <- fragment_length(list(NAC.1_input, NAC.2_input,
                               NAC.3_input, NAC.4_input,
@@ -93,8 +94,7 @@ fig2a
 
 fig2b <- proportion_sub_boxplot(list(proportion_sub150_cancer_input,
                                      proportion_sub_150_cancer_cfChIP),
-                                c("Cancer Input", "Cancer cfChIP"),
-                                "Paired")
+                                c("Cancer Input", "Cancer cfChIP"),"Paired")
 
 saveRDS(fig2b, file = "C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Fig. 2/fig2B.rds",compress = F)
 fig2b <- readRDS("C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Fig. 2/fig2B.rds")
@@ -129,10 +129,11 @@ gc()
 ggarrange(plotlist = fig2_list,
           nrow = 3,
           ncol = ceiling(length(fig2_list)/3),
-          labels = "AUTO") + bgcolor("White")
+          labels = "AUTO",
+          widths = c(2,1)) + bgcolor("White")
 
 ggsave(filename = "fig2.png",
-       width = 13000, height = 27000, units = "px",
+       width = 20000, height = 25000, units = "px",
        path = "C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Fig. 2",
        dpi = 1200,
        device = "png")
@@ -306,3 +307,116 @@ ggsave(filename = "S2.png",
        device = "png")
 
 
+####Supplementary 3####
+
+s3a <- volcano_motif("Input", "cfChIP", dif_motif_prop(prop_mer_input_healthy, prop_mer_cfChIP_healthy))
+
+saveRDS(s3a, file = "C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Supplementary/S3/S3A.rds",compress = F)
+s3a <- readRDS("C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Supplementary/S3/S3A.rds")
+s3a
+
+
+s3b <- volcano_motif("Input", "cfChIP", dif_motif_prop(prop_mer_input, prop_mer_cfChIP))
+
+saveRDS(s3b, file = "C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Supplementary/S3/S3B.rds",compress = F)
+s3b <- readRDS("C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Supplementary/S3/S3B.rds")
+s3b
+
+
+s3c <- volcano_motif("Inactive genes", "Active genes", diff_active_inactive_end_motif(healthy_active_inactive))
+
+saveRDS(s3c, file = "C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Supplementary/S3/S3C.rds",compress = F)
+s3c <- readRDS("C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Supplementary/S3/S3C.rds")
+s3c
+
+
+s3d <- volcano_motif("Inactive genes", "Active genes", diff_active_inactive_end_motif(collected_active_inactive_df))
+
+saveRDS(s3d, file = "C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Supplementary/S3/S3D.rds",compress = F)
+s3d <- readRDS("C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Supplementary/S3/S3D.rds")
+s3d
+
+S3_list <- list(s3a,s3b,s3c,s3d)
+
+gc()
+ggarrange(plotlist = S3_list,
+          nrow = 2,
+          ncol = ceiling(length(S3_list)/2),
+          labels = "AUTO") + bgcolor("White")
+
+ggsave(filename = "S3.png",
+       width = 20000, height = 13000, units = "px",
+       path = "C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Supplementary/S3",
+       dpi = 1200,
+       device = "png")
+
+
+####Supplementary 4####
+
+s4a <- sequence_end_motif_plot(sequence_list_cancer, 
+                               c("Cancer cfChIP", "Cancer Input",
+                                "Cancer Active genes", "Cancer Inactive genes"))
+
+saveRDS(s4a, file = "C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Supplementary/S4/S4A.rds",compress = F)
+s4a <- readRDS("C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Supplementary/S4/S4A.rds")
+s4a
+
+
+s4b <- motif_venn(sequence_list_cancer,
+                  c("cfChIP", "Input",
+                    "Active", "Inactive"), 
+                  "Cancer samples")
+
+saveRDS(s4b, file = "C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Supplementary/S4/S4B.rds",compress = F)
+s4b <- readRDS("C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Supplementary/S4/S4B.rds")
+s4b
+
+
+s4c <- sequence_end_motif_plot(sequence_list_healthy, 
+                               c("Healthy cfChIP", "Healthy Input",
+                                 "Healthy Active genes", "Healthy Inactive genes"))
+
+saveRDS(s4c, file = "C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Supplementary/S4/S4C.rds",compress = F)
+s4c <- readRDS("C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Supplementary/S4/S4C.rds")
+s4c
+
+
+s4d <- motif_venn(sequence_list_healthy,
+                  c("cfChIP", "Input",
+                    "Active", "Inactive"), 
+                  "Healthy samples")
+
+saveRDS(s4d, file = "C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Supplementary/S4/S4D.rds",compress = F)
+s4d <- readRDS("C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Supplementary/S4/S4D.rds")
+s4d
+
+
+s4e <- sequence_end_motif_plot(sequence_list_all_samples, 
+                               c("cfChIP", "Input",
+                                 "Active genes", "Inactive genes"))
+
+saveRDS(s4e, file = "C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Supplementary/S4/S4E.rds",compress = F)
+s4e <- readRDS("C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Supplementary/S4/S4E.rds")
+s4e
+
+s4f <- motif_venn(sequence_list_all_samples,
+                  c("cfChIP", "Input",
+                    "Active", "Inactive"), 
+                  "All samples")
+
+saveRDS(s4f, file = "C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Supplementary/S4/S4F.rds",compress = F)
+s4f <- readRDS("C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Supplementary/S4/S4F.rds")
+s4f
+
+S4_list <- list(s4a,s4b,s4c,s4d,s4e,s4f)
+
+ggarrange(plotlist = S4_list,
+          nrow = 3,
+          ncol = ceiling(length(S4_list)/3),
+          labels = "AUTO") + bgcolor("White")
+
+ggsave(filename = "S4.png",
+       width = 20000, height = 25000, units = "px",
+       path = "C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Supplementary/S4",
+       dpi = 1200,
+       device = "png")
