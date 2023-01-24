@@ -13,6 +13,14 @@ th <- theme(
     title = element_text(size = 14, face = "bold"))
 setwd("C:/Users/Christoffer/OneDrive/1PhD/R files/Important excel and text documents")
 grs <- gr("AVENIO_genes.txt")
+CH01_nuc_range_target <- coverages_nuc("HCC827.bedgraph", z = "GSE71378_CH01_avenio.bed")
+target_df <- read.table("Complete table of all targets.txt", header = T)
+target_grang <- GRanges(seqnames = target_df$seqnames,
+                        ranges = IRanges(start = (target_df$start-1000),
+                                         end = (target_df$end + 1000)),
+                        strand = target_df$strand)
+
+mcols(target_grang)$SYMBOL <- target_df$SYMBOL
 bad <- badgene("Complete table of all targets.txt",25)
 multiple_region_genes <- multiple_region("Complete table of all targets.txt")
 setwd("C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver")
@@ -818,7 +826,6 @@ collected_inactive_motif_fraction_quartiles <- read.table("Inactive motif cancer
 active_motif_fraction_quartiles_plot(collected_inactive_motif_fraction_quartiles, "Inactive")
 
 ####Active vs. inactive####
-
 active_active <- sequence_end_motif(dif_motif_prop(prop_mer_inactive, prop_mer_active), 0.05, "positive")
 active_active
 inactive_inactive <- sequence_end_motif(dif_motif_prop(prop_mer_inactive, prop_mer_active), 0.05, "negative")
@@ -831,6 +838,19 @@ active_motif_fraction_quartiles_plot(collected_active_active_fraction_quartiles,
 collected_inactive_inactive_fraction_quartiles <- read.table("Inactive inactive fraction in cfChIP quatiles.txt", header = T)
 
 active_motif_fraction_quartiles_plot(collected_inactive_inactive_fraction_quartiles, "Inactive")
+
+active_active_cancer <- sequence_end_motif(dif_motif_prop(prop_mer_inactive_cancer, prop_mer_active_cancer), 0.05, "positive")
+active_active_cancer
+inactive_inactive_cancer <- sequence_end_motif(dif_motif_prop(prop_mer_inactive_cancer, prop_mer_active_cancer), 0.05, "negative")
+inactive_inactive_cancer
+
+collected_active_active_cancer_fraction_quartiles <- read.table("Active active cancer fraction in cfChIP quatiles.txt", header = T)
+
+active_motif_fraction_quartiles_plot(collected_active_active_cancer_fraction_quartiles, "Active")
+
+collected_inactive_inactive_cancer_fraction_quartiles <- read.table("Inactive inactive cancer fraction in cfChIP quatiles.txt", header = T)
+
+active_motif_fraction_quartiles_plot(collected_inactive_inactive_cancer_fraction_quartiles, "Inactive")
 
 ####Combining length and motif####
 
@@ -852,3 +872,127 @@ ggsave(filename = "Sub150 active motif fraction Cancer cfChIP quartiles.png",
        device = "png")
 
 
+NAC.1_nuc_dist_df_bed <- bed_based_cleavage_nuc_dist_data(top_bottom_genes(enrichment_df,"NAC.1"),
+                                                          NAC.1_input, grs, CH01_nuc_range_target, target_grang)
+gc()
+NAC.2_nuc_dist_df_bed <- bed_based_cleavage_nuc_dist_data(top_bottom_genes(enrichment_df,"NAC.2"),
+                                                          NAC.2_input, grs, CH01_nuc_range_target, target_grang)
+gc()
+NAC.3_nuc_dist_df_bed <- bed_based_cleavage_nuc_dist_data(top_bottom_genes(enrichment_df,"NAC.3"),
+                                                          NAC.3_input, grs, CH01_nuc_range_target, target_grang)
+gc()
+NAC.4_nuc_dist_df_bed <- bed_based_cleavage_nuc_dist_data(top_bottom_genes(enrichment_df,"NAC.4"),
+                                                          NAC.4_input, grs, CH01_nuc_range_target, target_grang)
+gc()
+NSC.1_nuc_dist_df_bed <- bed_based_cleavage_nuc_dist_data(top_bottom_genes(enrichment_df,"NSC.1"),
+                                                          NSC.1_input, grs, CH01_nuc_range_target, target_grang)
+gc()
+NSC.2_nuc_dist_df_bed <- bed_based_cleavage_nuc_dist_data(top_bottom_genes(enrichment_df,"NSC.2"),
+                                                          NSC.2_input, grs, CH01_nuc_range_target, target_grang)
+gc()
+NSC.3_nuc_dist_df_bed <- bed_based_cleavage_nuc_dist_data(top_bottom_genes(enrichment_df,"NSC.3"),
+                                                          NSC.3_input, grs, CH01_nuc_range_target, target_grang)
+gc()
+NSC.4_nuc_dist_df_bed <- bed_based_cleavage_nuc_dist_data(top_bottom_genes(enrichment_df,"NSC.4"),
+                                                          NSC.4_input, grs, CH01_nuc_range_target, target_grang)
+gc()
+SSC.1_nuc_dist_df_bed <- bed_based_cleavage_nuc_dist_data(top_bottom_genes(enrichment_df,"SSC.1"),
+                                                          SSC.1_input, grs, CH01_nuc_range_target, target_grang)
+gc()
+SSC.2_nuc_dist_df_bed <- bed_based_cleavage_nuc_dist_data(top_bottom_genes(enrichment_df,"SSC.2"),
+                                                          SSC.2_input, grs, CH01_nuc_range_target, target_grang)
+gc()
+SSC.3_nuc_dist_df_bed <- bed_based_cleavage_nuc_dist_data(top_bottom_genes(enrichment_df,"SSC.3"),
+                                                          SSC.3_input, grs, CH01_nuc_range_target, target_grang)
+gc()
+SSC.4_nuc_dist_df_bed <- bed_based_cleavage_nuc_dist_data(top_bottom_genes(enrichment_df,"SSC.4"),
+                                                          SSC.4_input, grs, CH01_nuc_range_target, target_grang)
+
+collected_nuc_dist_df_bed <- rbind(NAC.1_nuc_dist_df_bed,
+                                   NAC.2_nuc_dist_df_bed,
+                                   NAC.3_nuc_dist_df_bed,
+                                   NAC.4_nuc_dist_df_bed,
+                                   NSC.1_nuc_dist_df_bed,
+                                   NSC.2_nuc_dist_df_bed,
+                                   NSC.3_nuc_dist_df_bed,
+                                   NSC.4_nuc_dist_df_bed,
+                                   SSC.1_nuc_dist_df_bed,
+                                   SSC.2_nuc_dist_df_bed,
+                                   SSC.3_nuc_dist_df_bed,
+                                   SSC.4_nuc_dist_df_bed) %>% 
+    mutate(sample = c(rep("NAC.1", nrow(NAC.1_nuc_dist_df_bed)),
+                      rep("NAC.2", nrow(NAC.2_nuc_dist_df_bed)),
+                      rep("NAC.3", nrow(NAC.3_nuc_dist_df_bed)),
+                      rep("NAC.4", nrow(NAC.4_nuc_dist_df_bed)),
+                      rep("NSC.1", nrow(NSC.1_nuc_dist_df_bed)),
+                      rep("NSC.2", nrow(NSC.2_nuc_dist_df_bed)),
+                      rep("NSC.3", nrow(NSC.3_nuc_dist_df_bed)),
+                      rep("NSC.4", nrow(NSC.4_nuc_dist_df_bed)),
+                      rep("SSC.1", nrow(SSC.1_nuc_dist_df_bed)),
+                      rep("SSC.2", nrow(SSC.2_nuc_dist_df_bed)),
+                      rep("SSC.3", nrow(SSC.3_nuc_dist_df_bed)),
+                      rep("SSC.4", nrow(SSC.4_nuc_dist_df_bed))))
+
+distance_nucleosome_plot(collected_nuc_dist_df_bed, TRUE)
+
+distance_nucleosome_plot(collected_nuc_dist_df_bed, FALSE)
+
+distance_nucleosome_boxplot(collected_nuc_dist_df_bed)
+
+cfChIP_motif_lengths_NAC.1 <- length_fragment_with_motif_df(NAC.1_input,active_motifs_cancer,inactive_motifs_cancer)
+cfChIP_motif_lengths_NAC.2 <- length_fragment_with_motif_df(NAC.2_input,active_motifs_cancer,inactive_motifs_cancer)
+cfChIP_motif_lengths_NAC.3 <- length_fragment_with_motif_df(NAC.3_input,active_motifs_cancer,inactive_motifs_cancer)
+cfChIP_motif_lengths_NAC.4 <- length_fragment_with_motif_df(NAC.4_input,active_motifs_cancer,inactive_motifs_cancer)
+gc()
+cfChIP_motif_lengths_NSC.1 <- length_fragment_with_motif_df(NSC.1_input,active_motifs_cancer,inactive_motifs_cancer)
+cfChIP_motif_lengths_NSC.2 <- length_fragment_with_motif_df(NSC.2_input,active_motifs_cancer,inactive_motifs_cancer)
+cfChIP_motif_lengths_NSC.3 <- length_fragment_with_motif_df(NSC.3_input,active_motifs_cancer,inactive_motifs_cancer)
+cfChIP_motif_lengths_NSC.4 <- length_fragment_with_motif_df(NSC.4_input,active_motifs_cancer,inactive_motifs_cancer)
+gc()
+cfChIP_motif_lengths_SSC.1 <- length_fragment_with_motif_df(SSC.1_input,active_motifs_cancer,inactive_motifs_cancer)
+cfChIP_motif_lengths_SSC.2 <- length_fragment_with_motif_df(SSC.2_input,active_motifs_cancer,inactive_motifs_cancer)
+cfChIP_motif_lengths_SSC.3 <- length_fragment_with_motif_df(SSC.3_input,active_motifs_cancer,inactive_motifs_cancer)
+cfChIP_motif_lengths_SSC.4 <- length_fragment_with_motif_df(SSC.4_input,active_motifs_cancer,inactive_motifs_cancer)
+
+active_motif_lengths_NAC.1 <- motif_lengths_NAC.1
+active_motif_lengths_NAC.2 <- motif_lengths_NAC.2
+active_motif_lengths_NAC.3 <- motif_lengths_NAC.3
+active_motif_lengths_NAC.4 <- motif_lengths_NAC.4
+active_motif_lengths_NSC.1 <- motif_lengths_NSC.1
+active_motif_lengths_NSC.2 <- motif_lengths_NSC.2
+active_motif_lengths_NSC.3 <- motif_lengths_NSC.3
+active_motif_lengths_NSC.4 <- motif_lengths_NSC.4
+active_motif_lengths_SSC.1 <- motif_lengths_SSC.1
+active_motif_lengths_SSC.2 <- motif_lengths_SSC.2
+active_motif_lengths_SSC.3 <- motif_lengths_SSC.3
+active_motif_lengths_SSC.4 <- motif_lengths_SSC.4
+
+
+collected_cfChIP_motif_lengths <- rbind(cfChIP_motif_lengths_NAC.1,
+                                        cfChIP_motif_lengths_NAC.2,
+                                        cfChIP_motif_lengths_NAC.3,
+                                        cfChIP_motif_lengths_NAC.4,
+                                        cfChIP_motif_lengths_NSC.1,
+                                        cfChIP_motif_lengths_NSC.2,
+                                        cfChIP_motif_lengths_NSC.3,
+                                        cfChIP_motif_lengths_NSC.4,
+                                        cfChIP_motif_lengths_SSC.1,
+                                        cfChIP_motif_lengths_SSC.2,
+                                        cfChIP_motif_lengths_SSC.3,
+                                        cfChIP_motif_lengths_SSC.4) %>% 
+    mutate(patient_ID = c(rep("NAC.1", nrow(cfChIP_motif_lengths_NAC.1)),
+                      rep("NAC.2", nrow(cfChIP_motif_lengths_NAC.2)),
+                      rep("NAC.3", nrow(cfChIP_motif_lengths_NAC.3)),
+                      rep("NAC.4", nrow(cfChIP_motif_lengths_NAC.4)),
+                      rep("NSC.1", nrow(cfChIP_motif_lengths_NSC.1)),
+                      rep("NSC.2", nrow(cfChIP_motif_lengths_NSC.2)),
+                      rep("NSC.3", nrow(cfChIP_motif_lengths_NSC.3)),
+                      rep("NSC.4", nrow(cfChIP_motif_lengths_NSC.4)),
+                      rep("SSC.1", nrow(cfChIP_motif_lengths_SSC.1)),
+                      rep("SSC.2", nrow(cfChIP_motif_lengths_SSC.2)),
+                      rep("SSC.3", nrow(cfChIP_motif_lengths_SSC.3)),
+                      rep("SSC.4", nrow(cfChIP_motif_lengths_SSC.4))))
+
+length_fragment_with_motif_plot(collected_cfChIP_motif_lengths)
+gc()
+length_fragment_with_motif_boxplot(collected_cfChIP_motif_lengths)

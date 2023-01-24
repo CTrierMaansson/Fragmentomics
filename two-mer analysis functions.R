@@ -237,12 +237,12 @@ umap_moitf <- function(x,y, p, q, s, n, t = "both"){
             labs(title ="",
                  x = "UMAP-1", y = "UMAP-2")+
             scale_color_manual(name = "Sample",
-                               labels = c("Cancer active", "Cancer inactive",
-                                          "Healthy active", "Healthy inactive"),
+                               labels = c("Cancer High expressed", "Cancer Low expressed",
+                                          "Healthy High expressed", "Healthy Low expressed"),
                                values = c("#6a00fc","#ffa10c","#6a00fc","#ffa10c"))+
             scale_shape_manual(name = "Sample",
-                               labels = c("Cancer active", "Cancer inactive",
-                                          "Healthy active","Healthy inactive"),
+                               labels = c("Cancer High expressed", "Cancer Low expressed",
+                                          "Healthy High expressed","Healthy Low expressed"),
                                values = c(19,19,17,17))+
             theme_bw()+
             th
@@ -1107,7 +1107,8 @@ proportion_sub_boxplot <- function(x, z, p = "Paired", g = NULL){
                 stat_compare_means(method = "t.test",
                                    comparisons = list(c(z[1], z[2])))+
                 theme_bw()+
-                th
+                th+
+                theme(legend.position = "none")
         }
         else{
             df <- data.frame(sub_fraction = c(x[[1]]$sub_fraction,
@@ -1130,7 +1131,8 @@ proportion_sub_boxplot <- function(x, z, p = "Paired", g = NULL){
                                                       c(z[1],z[3]),
                                                       c(z[2],z[3])))+
                 theme_bw()+
-                th
+                th+
+                theme(legend.position = "none")
         }
     }
     else{
@@ -1154,7 +1156,8 @@ proportion_sub_boxplot <- function(x, z, p = "Paired", g = NULL){
                                    paired = TRUE,
                                    comparisons = list(c(z[1], z[2])))+
                 theme_bw()+
-                th
+                th+
+                theme(legend.position = "none")
         }
         else{
             df <- data.frame(sub_fraction = c(x[[1]]$sub_fraction,
@@ -1176,7 +1179,8 @@ proportion_sub_boxplot <- function(x, z, p = "Paired", g = NULL){
                                    paired = TRUE,
                                    comparisons = list(c(z[1], z[2])))+
                 theme_bw()+
-                th
+                th+
+                theme(legend.position = "none")
         }
         
     }
@@ -1448,7 +1452,8 @@ fragment_length_wt_ctdna_boxplot <- function(x){
                            paired = TRUE,
                            comparisons = list(c("WT", "ctDNA")))+
         theme_bw()+
-        th
+        th+
+        theme(legend.position = "none")
     return(gg)
 }
 #x #enrichment data.frame 
@@ -1492,7 +1497,9 @@ fragment_length_active_inactive_plot <- function(x,p){
     library(tidyr)
     library(plyr)
     df <- x
-    df <- df %>% mutate(Sample = paste(p,Sample))
+    df <- df %>% mutate(Sample = ifelse(Sample == "Active", 
+                                        paste(p, "High expressed"),
+                                        paste(p, "Low expressed")))
     mu <- ddply(df, "Sample", summarise, grp.median=median(len))
     gg <- ggplot(data = df, aes(x = len, color = Sample))+
         geom_density(size = 1)+
@@ -1710,7 +1717,7 @@ active_motif_fraction_quartiles_plot <- function(x,a){
         ddf <- rbind(ddf,df)
     }
     if(a == "Active"){
-        lab <- "Normalized active motif fraction"
+        lab <- "Normalized cfChIP motif fraction"
     }
     else{
         lab <- "Normalized input motif fraction"
@@ -1836,7 +1843,7 @@ sub150_active_motif_fraction_quartiles_plot <- function(x,a){
         ddf <- rbind(ddf,df)
     }
     if(a == "Active"){
-        lab <- "Normalized sub 150 active motif fraction"
+        lab <- "Normalized sub 150 cfChIP motif fraction"
     }
     else{
         lab <- "Normalized sub 150 inactive motif fraction"
@@ -1863,6 +1870,477 @@ sub150_active_motif_fraction_quartiles_plot <- function(x,a){
              y = lab)+
         th
     
+    return(gg)
+}
+#x enrichment_df
+#y name of sample to be analyzed
+
+cancer_upregulated_genes <- function(x,y){
+    library(dplyr)
+    healthy <- enrichment_df %>% dplyr::select(c(genes,grep("HC",colnames(enrichment_df))))
+    rownames(healthy) <- healthy$genes
+    healthy <- healthy %>% dplyr::select(-genes)
+    avg_h <- rowMeans(healthy)
+    healthy <- data.frame(genes = names(avg_h),
+                          enrichment = as.numeric(avg_h))
+    case <- enrichment_df %>% dplyr::select(all_of(c("genes",y)))
+    colnames(case) <- c("genes", "enrichment")
+    logFC <- log2(case$enrichment/healthy$enrichment)
+    fc_df <- data.frame(genes = case$genes,
+                        FC = logFC) %>% arrange(-FC)
+    up_genes <- fc_df$genes[1:20]
+    steady <- fc_df %>% arrange(abs(FC))
+    steady_genes <- steady$genes[1:20]
+    res_df <- data.frame(genes = c(up_genes,steady_genes),
+                         type = c(rep("upregulated",length(up_genes)),
+                                  rep("steady",length(steady_genes))))
+    return(res_df)
+}
+
+#x enrichment_df
+#y name of sample to be analyzed
+top_bottom_genes <- function(x,y){
+    library(dplyr) 
+    case <- enrichment_df %>% dplyr::select(all_of(c("genes",y)))
+    colnames(case) <- c("genes", "enrichment")
+    case <- case %>% arrange(enrichment)
+    case_bottom <- case$genes[1:15]
+    case <- case %>% arrange(-enrichment)
+    case_top <- case$genes[1:15]
+    res_df <- data.frame(genes = c(case_top,case_bottom),
+                         type = c(rep("upregulated",length(case_top)),
+                                  rep("steady",length(case_bottom))))
+    return(res_df)
+}
+
+#x data.frame of upregulated and steady genes returned by cancer_upregulated_genes()
+#y Granges object returned by bamfile() of the input sample
+#g Granges object of AVENIO genes returned by gr()
+#z Granges object of nucleosome positions of cfDNA in healthy individual in AVENIO genes
+#t Granges object of AVENIO target regions
+cleavage_nuc_dist_data <- function(x,y,g,z,t){
+    y <- y[subjectHits(findOverlaps(t,y, ignore.strand = T))]
+    up_x <- x %>% filter(type == "upregulated")
+    up_genes <- up_x$genes
+    grang_up <- g[mcols(g)$SYMBOL %in% up_genes]
+    up_overlap <- findOverlaps(grang_up,y,ignore.strand = T)
+    up_reads <- y[subjectHits(up_overlap)]
+    qur <- queryHits(up_overlap)
+    mcols(up_reads)$gene <- mcols(grang_up[queryHits(up_overlap)])$SYMBOL  
+    up_reads <- up_reads[!is.na(mcols(up_reads)$isize)]
+    up_reads <- up_reads[mcols(up_reads)$isize > 0]
+    mcols(up_reads)$end <- mcols(up_reads)$pos + mcols(up_reads)$isize
+    df <- data.frame(start_pos = c(),
+                     end_pos = c(),
+                     gene = c(),
+                     type = c())
+    for(i in 1:length(up_genes)){
+        print(up_genes[i])
+        up_reads_g <- up_reads[mcols(up_reads)$gene == up_genes[i]]
+        up_nuc_g <- z[mcols(z)$gene == up_genes[i]]
+        close_nuc <- vector(length = length(mcols(up_reads_g)$pos))
+        for(j in 1:length(mcols(up_nuc_g)$pos)){
+            res <- mcols(up_reads_g)$pos - 
+                   mcols(up_nuc_g)$pos[j] <= 0 & close_nuc == FALSE
+            if(any(res)){
+                close_nuc[res] <- max(c(mcols(up_reads_g)$pos[res],
+                                  mcols(up_nuc_g)$pos[j]))
+            }
+        }
+        ddf <- data.frame(start_pos = mcols(up_reads_g)$pos - close_nuc,
+                          end_pos = mcols(up_reads_g)$end - close_nuc,
+                          gene = mcols(up_reads_g)$gene,
+                          type = rep("upregulated",length(mcols(up_reads_g)$pos)))
+        ddf <- ddf %>% filter(end_pos > 0)
+        df <- rbind(df,ddf)
+    }
+    steady_x <- x %>% filter(type == "steady")
+    steady_genes <- steady_x$genes
+    grang_steady <- g[mcols(g)$SYMBOL %in% steady_genes]
+    steady_overlap <- findOverlaps(grang_steady,y,ignore.strand = T)
+    steady_reads <- y[subjectHits(steady_overlap)]
+    qur <- queryHits(steady_overlap)
+    mcols(steady_reads)$gene <- mcols(grang_steady[queryHits(steady_overlap)])$SYMBOL  
+    steady_reads <- steady_reads[!is.na(mcols(steady_reads)$isize)]
+    steady_reads <- steady_reads[mcols(steady_reads)$isize > 0]
+    mcols(steady_reads)$end <- mcols(steady_reads)$pos + mcols(steady_reads)$isize
+    for(i in 1:length(steady_genes)){
+        print(steady_genes[i])
+        steady_reads_g <- steady_reads[mcols(steady_reads)$gene == steady_genes[i]]
+        steady_nuc_g <- z[mcols(z)$gene == steady_genes[i]]
+        close_nuc <- vector(length = length(mcols(steady_reads_g)$pos))
+        for(j in 1:length(mcols(steady_nuc_g)$pos)){
+            res <- mcols(steady_reads_g)$pos - 
+                mcols(steady_nuc_g)$pos[j] <= 0 & close_nuc == FALSE
+            if(any(res)){
+                close_nuc[res] <- max(c(mcols(steady_reads_g)$pos[res],
+                                        mcols(steady_nuc_g)$pos[j]))
+            }
+        }
+        ddf <- data.frame(start_pos = mcols(steady_reads_g)$pos - close_nuc,
+                          end_pos = mcols(steady_reads_g)$end - close_nuc,
+                          gene = mcols(steady_reads_g)$gene,
+                          type = rep("steady",length(mcols(steady_reads_g)$pos)))
+        ddf <- ddf %>% filter(end_pos > 0)
+        df <- rbind(df,ddf)
+    }
+    f_df <- data.frame(breaks = c(df$start_pos, df$end_pos),
+                     gene = rep(df$gene,2),
+                     type = rep(df$type,2))
+    return(f_df)
+    
+}
+
+
+#x data.frame of upregulated and steady genes returned by cancer_upregulated_genes()
+#y Granges object returned by bamfile() of the input sample
+#g Granges object of AVENIO genes returned by gr()
+#z Granges object of nucleosome positions of cfDNA in healthy individual in AVENIO genes
+#t Granges object of AVENIO target regions
+bed_based_cleavage_nuc_dist_data <- function(x,y,g,z,t){
+    y <- y[subjectHits(findOverlaps(t,y, ignore.strand = T))]
+    up_x <- x %>% filter(type == "upregulated")
+    up_genes <- up_x$genes
+    grang_up <- g[mcols(g)$SYMBOL %in% up_genes]
+    up_overlap <- findOverlaps(grang_up,y,ignore.strand = T)
+    up_reads <- y[subjectHits(up_overlap)]
+    qur <- queryHits(up_overlap)
+    mcols(up_reads)$gene <- mcols(grang_up[queryHits(up_overlap)])$SYMBOL  
+    up_reads <- up_reads[!is.na(mcols(up_reads)$isize)]
+    up_reads <- up_reads[mcols(up_reads)$isize > 0]
+    mcols(up_reads)$end <- mcols(up_reads)$pos + mcols(up_reads)$isize
+    up_fragments <- GRanges(seqnames = seqnames(up_reads),
+                            ranges = IRanges(start = mcols(up_reads)$pos,
+                                             end = mcols(up_reads)$end),
+                            strand = strand(up_reads))
+    mcols(up_fragments)$gene <- mcols(up_reads)$gene
+    nuc_grange <- GRanges(seqnames = seqnames(z),
+                          ranges = IRanges(start = (mcols(z)$pos),
+                                           end = mcols(z)$pos),
+                          strand = strand(z))
+    mcols(nuc_grange)$gene <- z$gene
+    res <- findOverlaps(nuc_grange,up_fragments, 
+                 ignore.strand = TRUE,
+                 type = "any",
+                 select = "all")
+    start_dist <- start(up_fragments)[subjectHits(res)] - end(nuc_grange)[queryHits(res)]
+    end_dist <- end(up_fragments)[subjectHits(res)] - end(nuc_grange)[queryHits(res)]
+    df1 <- data.frame(start_dist = start_dist,
+                      end_dist = end_dist,
+                      frag_id = as.character(ranges(up_fragments)[subjectHits(res)]),
+                     gene = mcols(up_fragments)$gene[subjectHits(res)],
+                     type= rep("upregulated",length(mcols(up_fragments)$gene[subjectHits(res)])))
+    print("before up slice")
+    df_start <- df1 %>% 
+        group_by(frag_id) %>% 
+        dplyr::slice(which.max(start_dist)) %>% 
+        dplyr::select(-end_dist)
+    print("up start slice done")
+    df_end <- df1 %>% 
+        group_by(frag_id) %>% 
+        dplyr::slice(which.min(end_dist)) %>% 
+        dplyr::select(-start_dist)
+    print("up end slice done")
+    df2 <- data.frame(breaks = c(df_start$start_dist,
+                                 df_end$end_dist),
+                      breakage = c(rep("start",nrow(df_start)),
+                                 rep("end",nrow(df_end))),
+                      frag_id = df_start$frag_id,
+                      gene = df_start$gene,
+                      type = df_start$type)
+    steady_x <- x %>% filter(type == "steady")
+    steady_genes <- steady_x$genes
+    grang_steady <- g[mcols(g)$SYMBOL %in% steady_genes]
+    steady_overlap <- findOverlaps(grang_steady,y,ignore.strand = T)
+    steady_reads <- y[subjectHits(steady_overlap)]
+    qur <- queryHits(steady_overlap)
+    mcols(steady_reads)$gene <- mcols(grang_steady[queryHits(steady_overlap)])$SYMBOL  
+    steady_reads <- steady_reads[!is.na(mcols(steady_reads)$isize)]
+    steady_reads <- steady_reads[mcols(steady_reads)$isize > 0]
+    mcols(steady_reads)$end <- mcols(steady_reads)$pos + mcols(steady_reads)$isize
+    steady_fragments <- GRanges(seqnames = seqnames(steady_reads),
+                            ranges = IRanges(start = mcols(steady_reads)$pos,
+                                             end = mcols(steady_reads)$end),
+                            strand = strand(steady_reads))
+    mcols(steady_fragments)$gene <- mcols(steady_reads)$gene
+    nuc_grange <- GRanges(seqnames = seqnames(z),
+                          ranges = IRanges(start = (mcols(z)$pos),
+                                           end = mcols(z)$pos),
+                          strand = strand(z))
+    mcols(nuc_grange)$gene <- z$gene
+    res <- findOverlaps(nuc_grange,steady_fragments, 
+                        ignore.strand = TRUE,
+                        type = "any",
+                        select = "all")
+    start_dist <- start(steady_fragments)[subjectHits(res)] - end(nuc_grange)[queryHits(res)]
+    end_dist <- end(steady_fragments)[subjectHits(res)] - end(nuc_grange)[queryHits(res)]
+    df1 <- data.frame(start_dist = start_dist,
+                      end_dist = end_dist,
+                      frag_id = as.character(ranges(steady_fragments)[subjectHits(res)]),
+                      gene = mcols(steady_fragments)$gene[subjectHits(res)],
+                      type= rep("steady",length(mcols(steady_fragments)$gene[subjectHits(res)])))
+    print("before steady slice")
+    df_start <- df1 %>% 
+        group_by(frag_id) %>% 
+        dplyr::slice(which.max(start_dist)) %>% 
+        dplyr::select(-end_dist)
+    print("steady start slice done")
+    df_end <- df1 %>% 
+        group_by(frag_id) %>% 
+        dplyr::slice(which.min(end_dist)) %>% 
+        dplyr::select(-start_dist)
+    print("steady end slice done")
+    df3 <- data.frame(breaks = c(df_start$start_dist,
+                                 df_end$end_dist),
+                      breakage = c(rep("start",nrow(df_start)),
+                                   rep("end",nrow(df_end))),
+                      frag_id = df_start$frag_id,
+                      gene = df_start$gene,
+                      type = df_start$type)
+    df <- rbind(df2,df3)
+    return(df)
+    
+}
+
+
+#x data.frame of distances from nucleosome in steady genes and upregulated genes
+#y if TRUE (default) plottes alle distancer som et samlet plot, hvis FALSE plottes distancer for hver patient
+distance_nucleosome_plot <- function(x, y = TRUE){
+    library(ggplot2)
+    x <- x %>% mutate(type2 = ifelse(type == "upregulated", "Cancer High expressed", "Cancer Low expressed")) %>%
+        mutate(type2 = factor(type2, level = c("Cancer High expressed","Cancer Low expressed")))
+    rects <- data.frame(xstart = c(-95,-75,75), xend = c(-75,75,95), 
+                        col = factor(c("Linker","Core","Linker"),
+                                     levels = c("Linker", "Core")))
+    if(y){
+        gg <- ggplot()+
+            geom_rect(data = rects, aes(xmin = xstart, xmax = xend, 
+                                        ymin = -Inf, ymax = Inf, fill = col),
+                      alpha = 0.5)+
+            scale_fill_manual("Region",values = c("firebrick","Green4"))+ 
+            geom_density(data = x, aes(x = breaks, color = type2),
+                         size = 1)+
+            scale_color_manual(name = "Gene activity",
+                               values = c("Cancer High expressed" = "#6a00fc",
+                                          "Cancer Low expressed" = "#ffa10c"))+ 
+            scale_x_continuous(breaks = seq(-150,150,50), limits = c(-150,150))+
+            theme_bw()+
+            geom_vline(xintercept = c(-75,75),color="black",
+                       linetype="dashed", size = 1)+
+            coord_cartesian(ylim = c(0.0025, 0.005))+
+            labs(title = "",
+                 x = "Cleavage from dyad (bp)",
+                 y = "Density")+
+            th+
+            guides(fill = guide_legend(override.aes = list(alpha = 0.5)))
+    }
+    else{
+        gg <- ggplot()+
+            geom_rect(data = rects, aes(xmin = xstart, xmax = xend, 
+                                        ymin = -Inf, ymax = Inf, fill = col), 
+                      alpha = 0.5)+
+            scale_fill_manual("Region",values = c("firebrick","Green4"))+
+            geom_density(data = x, aes(x = breaks, color = type2),
+                         size = 1)+
+            scale_color_manual(name = "Gene activity",
+                            values = c("Cancer High expressed" = "#6a00fc",
+                                       "Cancer Low expressed" = "#ffa10c"))+ 
+            scale_x_continuous(breaks = seq(-150,150,50), limits = c(-150,150))+
+            theme_bw()+
+            geom_vline(xintercept = c(-75,75),color="black",
+                       linetype="dashed", size = 1)+
+            labs(title = "",
+                 x = "Cleavage from dyad (bp)",
+                 y = "Density")+
+            facet_wrap(~ sample, nrow = 3)+
+            coord_cartesian(ylim = c(0.0025, 0.005))+
+            th+
+            guides(fill = guide_legend(override.aes = list(alpha = 0.5)))+
+            theme(strip.background =element_rect(fill="white"))+
+            theme(strip.text = element_text(colour = 'black',face = "bold"))
+    }
+   return(gg) 
+}
+#x data.frame of distances from nucleosome in steady genes and upregulated genes
+
+distance_nucleosome_boxplot <- function(x){
+    box_df <- data.frame(upregulated = c(),
+                         steady = c())
+    for (i in 1:length(unique(x$sample))){
+        sample_df <- x %>% filter(sample == unique(sample)[i])
+        sample_up <- sample_df %>% filter(type == "upregulated")
+        sample_steady <- sample_df %>% filter(type == "steady")
+        sample_up_nuc <- sample_up %>% filter(breaks < 75 & -75 < breaks)
+        sample_steady_nuc <- sample_steady %>% filter(breaks < 75 & -75 < breaks)
+        sample_up_link <- sample_up %>% filter(breaks <= 95 & 75 <= breaks | breaks <= -75 & -95 <= breaks)
+        sample_steady_link <- sample_steady %>% filter(breaks <= 95 & 75 <= breaks | breaks <= -75 & -95 <= breaks)
+        df <- data.frame(upregulated = (nrow(sample_up_nuc)/nrow(sample_up_link)),
+                         steady = (nrow(sample_steady_nuc)/nrow(sample_steady_link)))
+        box_df <- rbind(box_df, df)
+        
+    }
+    ddf <- data.frame(fraction = c(box_df$upregulated,box_df$steady),
+                      gene_activity = factor(c(rep("Cancer High expressed",nrow(box_df)),
+                                        rep("Cancer Low expressed",nrow(box_df))),
+                                        level = c("Cancer Low expressed", "Cancer High expressed")),
+                      pairs = c(rep(seq(1:nrow(box_df)),2)))
+    gg <- ggplot(ddf,aes(x = gene_activity, y = fraction, fill = gene_activity))+
+        geom_boxplot(outlier.alpha = 0)+
+        geom_line(aes(group=pairs))+
+        geom_point(alpha = 0.5)+
+        labs(title = "",
+             x = "",
+             y = "Core/linker break fraction")+
+        scale_fill_manual("Gene activity",
+                          values = c("#ffa10c","#6a00fc"))+
+        stat_compare_means(method = "t.test",
+                           paired = TRUE,
+                           comparisons = list(c("Cancer High expressed", "Cancer Low expressed")))+
+        theme_bw()+
+        th+
+        theme(legend.position = "none")
+    return(gg)
+}
+
+
+#KPRP and DLGAP2 have been put in manually. DLGAP2 is based on information given by Roche
+#KPRP is made by manually looking on the HCC827 input file and determine where the coverage > 100
+#x Name of bedgraph file used to study the coverages. Created using samtools. I use HCC827 input file
+#y cutoff for minimum coverage value.
+#z Name of bed file with nucleosome positions
+
+coverages_nuc <- function(x,y = 100,z) {
+    or_wd <- getwd()
+    library(hwglabr2)
+    library(GenomicRanges)
+    library(dplyr)
+    `%ni%` <- Negate(`%in%`)
+    bg <- import_bedGraph(x)
+    subsets <- bg[elementMetadata(bg)[,1]>y]
+    reduced_subsets <- reduce(subsets)
+    setwd("C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver")
+    CH01_nuc <- read.table(z,header = FALSE, sep="\t",stringsAsFactors=FALSE, quote="")
+    CH01_nuc_range <- GRanges(seqnames = CH01_nuc$V1,strand = CH01_nuc$V6,
+                              ranges = IRanges(start = CH01_nuc$V2,
+                                               end = CH01_nuc$V3))
+    mcols(CH01_nuc_range)$pos <- CH01_nuc$V8
+    genes <- vector(length = length(mcols(CH01_nuc_range)$pos)) 
+    for (i in 1:length(grs$SYMBOL)){
+        rang <- grs[i]
+        res <- findOverlaps(rang,CH01_nuc_range,ignore.strand = T)
+        genes[subjectHits(res)] <- rep(mcols(rang)$SYMBOL[1], length(subjectHits(res)))
+    }
+    mcols(CH01_nuc_range)$gene <- genes
+    res <- subsetByOverlaps(CH01_nuc_range, reduced_subsets, ignore.strand = TRUE)
+    setwd(or_wd)
+    return(res)
+}
+#x #name of input BAM file
+#m #number of bases to be evaluated in each fragment end
+#a #character vector of motifs defined as "Active motifs"
+#i #character vector of motifs defined as "Input motifs"
+length_fragment_with_motif_df <- function(x,a,i){
+    library(Biostrings)
+    library(tidyr)
+    library(plyr)
+    positve <- x[strand(x) == "+"]
+    str_set <- BStringSet(mcols(positve)$seq)
+    mer <- extractAt(x = str_set, at = IRanges(start = 1,width = 3))
+    active_mers <- mer %in% a
+    active_pos_fragments <- positve[unlist(active_mers)]
+    input_mers <- mer %in% i
+    input_pos_fragments <- positve[unlist(input_mers)]
+    negative <- x[strand(x) == "-"]
+    rev_strands <- DNAStringSet(stringi::stri_reverse(mcols(negative)$seq))
+    str_set <- BStringSet(rev_strands)
+    mer <- extractAt(x = str_set, at = IRanges(start = 1,width = 3))
+    active_mers <- mer %in% a
+    active_neg_fragments <- negative[unlist(active_mers)]
+    input_mers <- mer %in% i
+    input_neg_fragments <- negative[unlist(input_mers)]
+    active_neg_fragments <- active_neg_fragments[!is.na(mcols(active_neg_fragments)$isize)]
+    active_neg_fragments <- active_neg_fragments[!mcols(active_neg_fragments)$isize == 0]
+    active_pos_fragments <- active_pos_fragments[!is.na(mcols(active_pos_fragments)$isize)]
+    active_pos_fragments <- active_pos_fragments[!mcols(active_pos_fragments)$isize == 0]
+    input_neg_fragments <- input_neg_fragments[!is.na(mcols(input_neg_fragments)$isize)] 
+    input_neg_fragments <- input_neg_fragments[!mcols(input_neg_fragments)$isize == 0]
+    input_pos_fragments <- input_pos_fragments[!is.na(mcols(input_pos_fragments)$isize)]
+    input_pos_fragments <- input_pos_fragments[!mcols(input_pos_fragments)$isize == 0]
+    df <- data.frame(len = c(mcols(active_pos_fragments)$isize,
+                                abs(mcols(active_neg_fragments)$isize),
+                                mcols(input_pos_fragments)$isize,
+                                abs(mcols(input_neg_fragments)$isize)),
+                     Sample = factor(c(rep("cfChIP",
+                                  length(active_pos_fragments)+length(active_neg_fragments)),
+                              rep("Input",
+                                  length(input_pos_fragments)+length(input_neg_fragments))),
+                              levels = c("cfChIP", "Input")))
+    return(df)
+}
+
+#data.frame of reads either with input or cfChIP end motif
+
+length_fragment_with_motif_plot <- function(x){
+    library(Biostrings)
+    library(tidyr)
+    library(plyr)
+    df <- x
+    df <- df %>% mutate(Sample = paste(Sample,"motif"))
+    mu <- ddply(df, "Sample", summarise, grp.median=median(len))
+    gg <- ggplot(data = df, aes(x = len, color = Sample))+
+        geom_density(size = 1)+
+        geom_vline(data=mu, aes(xintercept=grp.median, color=Sample),
+                   linetype="dashed", size = 1)+
+        theme_bw(base_size = 15)+
+        scale_color_manual(values = c("#6a00fc","#ffa10c"))+
+        labs(title = "", y = "Density", x = "Fragment length (bp)")+
+        scale_x_continuous(breaks = seq(0,400,50), limits = c(0,400))+
+        th
+    return(gg)
+}
+
+
+#data.frame of reads either with input or cfChIP end motif
+
+length_fragment_with_motif_boxplot <- function(x){
+    library(ggpubr)
+    cfChIP_res <- x %>% filter(Sample == "cfChIP")
+    input_res <- x %>% filter(Sample == "Input")
+    df <- data.frame(proportions = c())
+    for (i in 1:length(unique(x$patient_ID))){
+        sample <- unique(x$patient_ID)[i]
+        cfChIP_res_sample <- cfChIP_res %>%  filter(patient_ID == sample)
+        input_res_sample <- input_res %>% filter(patient_ID == sample)
+        cfChIP_sub <- cfChIP_res_sample %>% filter(len < 150)
+        input_sub <- input_res_sample %>% filter(len < 150)
+        cfChIP_prop <- nrow(cfChIP_sub)/nrow(cfChIP_res_sample)
+        input_prop <- nrow(input_sub)/nrow(input_res_sample)
+        df1 <- data.frame(proportions = c(cfChIP_prop,
+                                          input_prop),
+                          motif = factor(c("cfChIP motifs",
+                                           "Input motifs"),
+                                         levels = c("Input motifs",
+                                                    "cfChIP motifs")),
+                          pairs = rep(i,2))
+        df <- rbind(df,df1)
+    }
+    gg <- ggplot(df, aes(x = motif, y = proportions,
+                         fill = motif))+
+        geom_boxplot(outlier.alpha = 0)+
+        geom_line(aes(group=pairs))+
+        geom_point(alpha = 0.5)+
+        labs(title = "",
+             x = "",
+             y = "Fraction under 150 bp")+
+        scale_fill_manual("Fragment motif",
+                          values = c("#ffa10c","#6a00fc"))+
+        stat_compare_means(method = "t.test",
+                           paired = TRUE,
+                           comparisons = list(c("cfChIP motifs", "Input motifs")))+
+        theme_bw()+
+        th+
+        theme(legend.position = "none")
+        
     return(gg)
 }
 

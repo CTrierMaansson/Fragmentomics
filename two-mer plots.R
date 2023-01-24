@@ -13,7 +13,7 @@ fig1a <- fragment_length(list(NAC.1_input, NAC.2_input,
 saveRDS(fig1a, file = "C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Fig. 1/fig1A.rds",compress = F)
 fig1a <- readRDS("C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Fig. 1/fig1A.rds")
 fig1a
-
+gc()
 
 fig1b <- fragment_length(list(NAC.1_input,
                               NAC.3_input, NAC.4_input,
@@ -26,7 +26,7 @@ fig1b <- fragment_length(list(NAC.1_input,
 saveRDS(fig1b, file = "C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Fig. 1/fig1B.rds",compress = F)
 fig1b <- readRDS("C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Fig. 1/fig1B.rds")
 fig1b
-
+gc()
 
 fig1c <- proportion_sub_boxplot(list(proportion_sub150_healthy_input,
                             proportion_sub150_ct_neg_input,
@@ -34,12 +34,12 @@ fig1c <- proportion_sub_boxplot(list(proportion_sub150_healthy_input,
                        c("Healthy",
                          "ctDNA negative",
                          "ctDNA positive"),
-                       "Unpaired")
+                       "Unpaired") 
 
 saveRDS(fig1c, file = "C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Fig. 1/fig1C.rds",compress = F)
 fig1c <- readRDS("C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Fig. 1/fig1C.rds")
+fig1c <- fig1c + theme(legend.position = "none")
 fig1c
-
 
 fig1d <- fragment_length_wt_ctdna_plot(fragment_length_wt_ctdna_input)
 
@@ -57,15 +57,16 @@ fig1f <- fragment_length_wt_ctdna_boxplot(ct_wt_input_list)
 
 saveRDS(fig1f, file = "C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Fig. 1/fig1F.rds",compress = F)
 fig1f <- readRDS("C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Fig. 1/fig1F.rds")
-fig1f
+fig1f <- fig1f+ theme(legend.position = "none")
+
 
 fig1_list <- list(fig1a,fig1b,fig1c,fig1d,fig1e,fig1f)
 gc()
 ggarrange(plotlist = fig1_list,
           nrow = 2,
           ncol = ceiling(length(fig1_list)/2),
+          widths = c(2,2,1),
           labels = "AUTO")
-?ggarrange
 ggsave(filename = "fig1.png",
        width = 27000, height = 13000, units = "px",
        path = "C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Fig. 1",
@@ -98,7 +99,7 @@ fig2b <- proportion_sub_boxplot(list(proportion_sub150_cancer_input,
 
 saveRDS(fig2b, file = "C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Fig. 2/fig2B.rds",compress = F)
 fig2b <- readRDS("C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Fig. 2/fig2B.rds")
-fig2b
+fig2b <- fig2b + theme(legend.position = "none")
 
 fig2c <- fragment_length_active_inactive_plot(collected_fragment_length_active_inactive,
                                               "Cancer")
@@ -108,12 +109,12 @@ fig2c
 
 
 fig2d <- proportion_sub_boxplot(list(fragment_length_inactive_cancer,fragment_length_active_cancer),
-                       c("Cancer Inactive", "Cancer Active"),
+                       c("Cancer Low epxressed", "Cancer High expressed"),
                        "Paired", "activity")
 
 saveRDS(fig2d, file = "C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Fig. 2/fig2D.rds",compress = F)
 fig2d <- readRDS("C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Fig. 2/fig2D.rds")
-fig2d
+fig2d <- fig2d + theme(legend.position = "none")
 
 
 fig2e <- sub150_fraction_quartiles_plot(collected_sub150_fraction_quartiles)
@@ -122,13 +123,29 @@ saveRDS(fig2e, file = "C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemoti
 fig2e <- readRDS("C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Fig. 2/fig2E.rds")
 fig2e
 
-#fig2f <- 
+fig2f <- ggplot(data = data.frame(x=seq(1:20),y = seq(21:40)))+
+    geom_point(aes(x= x,y=y))+
+    theme_bw()+
+    labs(title = "Placeholder plot")+
+    th
 
-fig2_list <- list(fig2a,fig2b,fig2c,fig2d,fig2e)
+fig2g <- distance_nucleosome_plot(collected_nuc_dist_df_bed, TRUE)
+
+saveRDS(fig2g, file = "C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Fig. 2/fig2G.rds",compress = F)
+fig2g <- readRDS("C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Fig. 2/fig2G.rds")
+fig2g
+
+fig2h <- distance_nucleosome_boxplot(collected_nuc_dist_df_bed)
+
+saveRDS(fig2h, file = "C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Fig. 2/fig2H.rds",compress = F)
+fig2h <- readRDS("C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Fig. 2/fig2H.rds")
+fig2h <- fig2h + theme(legend.position = "none")
+
+fig2_list <- list(fig2a,fig2b,fig2c,fig2d,fig2e,fig2f,fig2g,fig2h)
 gc()
 ggarrange(plotlist = fig2_list,
-          nrow = 3,
-          ncol = ceiling(length(fig2_list)/3),
+          nrow = 4,
+          ncol = ceiling(length(fig2_list)/4),
           labels = "AUTO",
           widths = c(2,1)) + bgcolor("White")
 
@@ -160,13 +177,13 @@ saveRDS(fig3c, file = "C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemoti
 fig3c <- readRDS("C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Fig. 3/fig3C.rds")
 fig3c
 
-fig3d <- volcano_motif("Inactive genes", "Active genes", diff_active_inactive_end_motif(cancer_active_inactive))
+fig3d <- volcano_motif("Low expressed", "High expressed", diff_active_inactive_end_motif(cancer_active_inactive))
 
 saveRDS(fig3d, file = "C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Fig. 3/fig3D.rds",compress = F)
 fig3d <- readRDS("C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Fig. 3/fig3D.rds")
 fig3d
 
-fig3e <- umap_moitf(prop_mer_active, prop_mer_inactive, "Active", "Inactive", 3, 32, "Activity")
+fig3e <- umap_moitf(prop_mer_active, prop_mer_inactive, "High expressed", "Low expressed", 3, 32, "Activity")
 
 saveRDS(fig3e, file = "C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Fig. 3/fig3E.rds",compress = F)
 fig3e <- readRDS("C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Fig. 3/fig3E.rds")
@@ -192,27 +209,51 @@ saveRDS(fig4a, file = "C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemoti
 fig4a <- readRDS("C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Fig. 4/fig4A.rds")
 fig4a
 
-
 fig4b <- active_motif_fraction_quartiles_plot(collected_inactive_motif_fraction_quartiles, "Inactive")
 
 saveRDS(fig4b, file = "C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Fig. 4/fig4B.rds",compress = F)
 fig4b <- readRDS("C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Fig. 4/fig4B.rds")
 fig4b
 
-fig4c <- sub150_active_motif_fraction_quartiles_plot(collected_sub150_active_motif_fraction_quartiles, "Active")
+fig4c <- length_fragment_with_motif_plot(collected_cfChIP_motif_lengths)
 
 saveRDS(fig4c, file = "C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Fig. 4/fig4C.rds",compress = F)
 fig4c <- readRDS("C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Fig. 4/fig4C.rds")
 fig4c
 
-fig4_list <- list(fig4a,fig4b,fig4c)
+fig4d <- length_fragment_with_motif_boxplot(collected_cfChIP_motif_lengths)
+
+saveRDS(fig4d, file = "C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Fig. 4/fig4D.rds",compress = F)
+fig4d <- readRDS("C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Fig. 4/fig4D.rds")
+fig4d <- fig4d + theme(legend.position = "none")
+
+fig4e <- sub150_active_motif_fraction_quartiles_plot(collected_sub150_active_motif_fraction_quartiles, "Active")
+
+saveRDS(fig4e, file = "C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Fig. 4/fig4E.rds",compress = F)
+fig4e <- readRDS("C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Fig. 4/fig4E.rds")
+fig4e
+
+fig4_list <- list(fig4a, fig4b, fig4c, fig4d, fig4e)
+fig4_list1 <- list(fig4a,fig4b)
+fig4_list2 <- list(fig4c,fig4d)
+fig4_list3 <- list(fig4e, NULL)
 gc()
-ggarrange(plotlist = fig4_list,
-          nrow = 2,
-          ncol = ceiling(length(fig4_list)/2),
-          labels = "AUTO") + bgcolor("White")  
+ggarrange(plotlist = list(ggarrange(plotlist = fig4_list1, 
+                                    ncol = ceiling(length(fig4_list1)/1),
+                                    labels = c("A","B")),
+          ggarrange(plotlist = fig4_list2,widths = c(2,1),
+                    ncol = ceiling(length(fig4_list2)/1),
+                    labels = c("C","D")),
+          ggarrange(fig4e,NULL,ncol = ceiling(length(fig4_list3)/1),
+                    labels = c("E",""))),
+          nrow = 3,
+          ncol = ceiling(length(fig4_list)/6) + bgcolor("White"))
+ggarrange(fig4_list,
+          nrow = 3,
+          ncol = ceiling(length(fig4_list)/3),
+          labels = c("AUTO") + bgcolor("White"))
 ggsave(filename = "fig4.png",
-       width = 20000, height = 13000, units = "px",
+       width = 15000, height = 20000, units = "px",
        path = "C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver/plots/Fig. 4",
        dpi = 1200,
        device = "png")
