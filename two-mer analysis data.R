@@ -753,7 +753,7 @@ ct_wt_input_list <- list(NAC.1_input_ct_wt,
      SSC.4_input_ct_wt)
 
 fragment_length_wt_ctdna_boxplot(ct_wt_input_list)
-
+gc()
 collected_fragment_length_active_inactive <- read.table("Fragment lengths active inactive.txt", header = T)
 collected_fragment_length_active_inactive
 collected_fragment_length_active_inactive_healthy <- read.table("Fragment lengths active inactive healthy.txt", header = T)
@@ -994,5 +994,13 @@ collected_cfChIP_motif_lengths <- rbind(cfChIP_motif_lengths_NAC.1,
                       rep("SSC.4", nrow(cfChIP_motif_lengths_SSC.4))))
 
 length_fragment_with_motif_plot(collected_cfChIP_motif_lengths)
+
 gc()
 length_fragment_with_motif_boxplot(collected_cfChIP_motif_lengths)
+setwd("C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver")
+fragment_length_input_cfChIP_mutated_genes <- length_of_mutated_genes_df("BL mutations input files.txt",
+                                                                         named_cancer_input_list,
+                                                                         named_cancer_cfChIP_list,grs)
+length_of_mutated_genes_plot(fragment_length_input_cfChIP_mutated_genes,T)
+length_of_mutated_genes_plot(fragment_length_input_cfChIP_mutated_genes,"individual")
+length_of_mutated_genes_boxplot(fragment_length_input_cfChIP_mutated_genes)

@@ -1018,42 +1018,95 @@ stack_bar <- function(x,y,z,m){
     return(gg)
 }
 
-#x #list of BAMfiles returned by bamfile() for group 1
-#y #list of BAMfiles returned by bamfile() for group 2
+#x #named list of BAMfiles returned by bamfile() for group 1
+#y #named list of BAMfiles returned by bamfile() for group 2
 #z #vector of names for group 1 and 2
 #p #Title of plot
-fragment_length <- function(x,y,z,p){
+#q If q = TRUE (default) concatenated lines are plotted. 
+#if q = FALSE separate lines in same plot is plotted. 
+#If q = "individual" individual plots for individual patients is plotted
+fragment_length <- function(x,y,z,p,q){
     library(ggplot2)
     library(tidyr)
     library(plyr)
     len1 <- c()
     len2 <- c()
+    name1 <- c()
+    name2 <- c()
     for (i in 1:length(x)){
         len <- mcols(x[[i]])$isize
         len <- len[len >0]
         len <- len[!is.na(len)]
         len1 <- c(len1,len)
+        nam <- unlist(lapply(strsplit(names(x)[i],"_"), "[[", 1))
+        name <- rep(nam,length(len))
+        name1 <- c(name1,name)
     }
     for (i in 1:length(y)){
         len <- mcols(y[[i]])$isize
         len <- len[len >0]
         len <- len[!is.na(len)]
         len2 <- c(len2,len)
+        nam <- unlist(lapply(strsplit(names(y)[i],"_"), "[[", 1))
+        name <- rep(nam,length(len))
+        name2 <- c(name2,name)
     }
+    rects <- data.frame(xstart = 0, xend = 150, col = "col")
     df <- data.frame(len = c(len1,len2),
                      Sample = factor(c(rep(z[1],length(len1)),
                                        rep(z[2],length(len2))),
-                                     levels = c(z[1], z[2])))
-    mu <- ddply(df, "Sample", summarise, grp.median=median(len))
-    gg <- ggplot(data = df, aes(x = len, color = Sample))+
-        geom_density(size = 1)+
-        geom_vline(data=mu, aes(xintercept=grp.median, color=Sample),
-                   linetype="dashed", size = 1)+
-        theme_bw(base_size = 15)+
-        scale_color_manual(values = c("#6a00fc","#ffa10c"))+
-        labs(title = p, y = "Density", x = "Fragment length (bp)")+
-        scale_x_continuous(breaks = seq(0,400,50), limits = c(0,400))+
-        th
+                                     levels = c(z[1], z[2])),
+                     group = c(name1,name2))
+    if(isTRUE(q)){
+        gg <- ggplot()+
+            geom_rect(data = rects, aes(xmin = xstart, xmax = xend, 
+                                        ymin = -Inf, ymax = Inf, fill = col),
+                      alpha = 0.4)+
+            scale_fill_manual(values = "green4",guide = "none")+
+            geom_density(data = df, 
+                         aes(x = len, color = Sample),
+                         size = 1)+
+            theme_bw(base_size = 15)+
+            scale_color_manual(values = c("#6a00fc","#ffa10c"))+
+            labs(title = p, y = "Density", x = "Fragment length (bp)")+
+            scale_x_continuous(breaks = seq(0,400,50), limits = c(0,400))+
+            th
+    }
+    if (isFALSE(q)){
+        df <- df %>% mutate(group = paste(Sample,group))
+        df <- df %>% mutate(group = factor(group, levels = unique(df$group)))
+        gg <- ggplot()+
+            geom_rect(data = rects, aes(xmin = xstart, xmax = xend, 
+                                        ymin = -Inf, ymax = Inf, fill = col),
+                      alpha = 0.4)+
+            scale_fill_manual(values = "green4",guide = "none")+
+            geom_density(data = df, 
+                         aes(x = len, color = Sample, group = group),
+                         size = 1)+
+            theme_bw(base_size = 15)+
+            scale_color_manual(values = c("#6a00fc","#ffa10c"))+
+            labs(title = p, y = "Density", x = "Fragment length (bp)")+
+            scale_x_continuous(breaks = seq(0,400,50), limits = c(0,400))+
+            th
+    }
+    if(q == "individual"){
+        gg <- ggplot()+
+            geom_rect(data = rects, aes(xmin = xstart, xmax = xend, 
+                                        ymin = -Inf, ymax = Inf, fill = col),
+                      alpha = 0.4)+
+            scale_fill_manual(values = "green4",guide = "none")+
+            geom_density(data = df, 
+                         aes(x = len, color = Sample),
+                         size = 1)+
+            theme_bw(base_size = 15)+
+            scale_color_manual(values = c("#6a00fc","#ffa10c"))+
+            labs(title = p, y = "Density", x = "Fragment length (bp)")+
+            scale_x_continuous(breaks = seq(0,400,50), limits = c(0,400))+
+            th+
+            facet_wrap( ~ group,scales = "free_y")+
+            theme(strip.background =element_rect(fill="white"))+
+            theme(strip.text = element_text(colour = 'black',face = "bold"))
+    }
     return(gg)
 }
 
@@ -1198,7 +1251,8 @@ fragment_length_wt_ctdna_df <- function(x,y){
     df <- read.table(x,header = T)
     df <- df[!is.na(df$genes),]
     df6 <- data.frame(len = c(),
-                      Sample = c())
+                      Sample = c(),
+                      group = c())
     n_samples <- length(df$file)
     for (i in 1:n_samples){
         genes <- strsplit(df$genes[i],split = ",")[[1]]
@@ -1228,7 +1282,8 @@ fragment_length_wt_ctdna_df <- function(x,y){
                 wt_len <- len[!grepl(indel,cig)]
                 df1 <- data.frame(len = c(ct_len,wt_len),
                                  Sample = c(rep("ctDNA",length(ct_len)),
-                                            rep("WT", length(wt_len))))
+                                            rep("WT", length(wt_len))),
+                                 group = rep(df$name[i],length(length(ct_len)+length(wt_len))))
                 df6 <- rbind(df6,df1)
             }
             else{
@@ -1253,7 +1308,8 @@ fragment_length_wt_ctdna_df <- function(x,y){
                 wt_len <- df1$size[!grepl(base,df1$MD)]
                 df4 <- data.frame(len = c(ct_len,wt_len),
                                   Sample = c(rep("ctDNA",length(ct_len)),
-                                             rep("WT", length(wt_len))))
+                                             rep("WT", length(wt_len))),
+                                  group = rep(df$name[i],length(length(ct_len)+length(wt_len))))
                 df6 <- rbind(df6,df4)
                 print(i)
             }
@@ -1263,24 +1319,59 @@ fragment_length_wt_ctdna_df <- function(x,y){
 }
 
 #x #data.frame returned by fragment_length_wt_ctdna_df()
-fragment_length_wt_ctdna_plot <- function(x){
+#y If y = TRUE (default) concatenated lines are plotted. Otherwise the plot is per patient. 
+fragment_length_wt_ctdna_plot <- function(x,y = TRUE){
     library(ggplot2)
     library(tidyr)
     library(plyr)
-    colnames(x) <- c("len", "Sample")
-    x$Sample <- factor(x$Sample, levels = c("ctDNA", "WT"))
-    mu <- ddply(x, "Sample", summarise, grp.median=median(len))
-    gg <- ggplot(data = x, aes(x = len, color = Sample))+
-        geom_density(size = 1)+
-        geom_vline(data=mu, aes(xintercept=grp.median, color=Sample),
-                   linetype="dashed", size = 1)+
-        theme_bw(base_size = 15)+
-        scale_color_manual(values = c("#6a00fc","#ffa10c"))+
-        labs(title = "", y = "Density", x = "Fragment length (bp)")+
-        scale_x_continuous(breaks = seq(0,400,50), limits = c(0,400))+
-        th
-    return(gg)
+    if(y){
+        colnames(x) <- c("len", "Sample", "group")
+        x$Sample <- factor(x$Sample, levels = c("ctDNA", "WT"))
+        rects <- data.frame(xstart = 0, xend = 150, col = "col")
+        gg <- ggplot()+
+            geom_rect(data = rects, aes(xmin = xstart, xmax = xend, 
+                                        ymin = -Inf, ymax = Inf, fill = col),
+                      alpha = 0.4)+
+            scale_fill_manual(values = "green4",guide = "none")+
+            geom_density(data = x, 
+                         aes(x = len, color = Sample),
+                         size = 1)+
+            theme_bw(base_size = 15)+
+            scale_color_manual("Fragment", values = c("#6a00fc","#ffa10c"))+
+            labs(title = "", y = "Density", x = "Fragment length (bp)")+
+            scale_x_continuous(breaks = seq(0,400,50), limits = c(0,400))+
+            th
+        
+    }
+    else{
+        colnames(x) <- c("len", "Sample", "group")
+        x$Sample <- factor(x$Sample, levels = c("ctDNA", "WT"))
+        x <- x %>% mutate(group = unlist(lapply(strsplit(x$group,"_"), "[[", 1)))
+        rects <- data.frame(xstart = 0, xend = 150, col = "col")
+        gg <- ggplot()+
+            geom_rect(data = rects, aes(xmin = xstart, xmax = xend, 
+                                        ymin = -Inf, ymax = Inf, fill = col),
+                      alpha = 0.4)+
+            scale_fill_manual(values = "green4",guide = "none")+
+            geom_density(data = x, 
+                         aes(x = len, color = Sample),
+                         size = 1)+
+            theme_bw(base_size = 15)+
+            scale_color_manual("Fragment", values = c("#6a00fc","#ffa10c"))+
+            labs(title = "", y = "Density", x = "Fragment length (bp)")+
+            scale_x_continuous(breaks = seq(0,400,50), limits = c(0,400))+
+            th+
+            facet_wrap( ~ group,scales = "free_y")+
+            theme(strip.background =element_rect(fill="white"))+
+            theme(strip.text = element_text(colour = 'black',face = "bold"))
+    }
+    return(gg) 
+    
 }
+
+fragment_length_wt_ctdna_plot(fragment_length_wt_ctdna_input,F)
+fragment_length_wt_ctdna_plot(fragment_length_wt_ctdna_input,T)
+
 
 MAF_in_bins <- function(x){
     intervals <- seq(50,400,10)
@@ -1486,13 +1577,17 @@ fragment_length_active_inactive_df <- function(x,y,z,i){
     length_bottom15 <- length_bottom15[!is.na(length_bottom15)]
     df <- data.frame(len = c(length_top15,length_bottom15),
                      Sample = c(rep("Active",length(length_top15)),
-                                rep("Inactive",length(length_bottom15))))
+                                rep("Inactive",length(length_bottom15))),
+                     group = rep(z,length(length_top15)+length(length_bottom15)))
     return(df)
 }
 
 #x #Data.frame with two columns. One with fragment lengths and the other determining whether the fragment originates from an active or inactive gene
 #p #sample
-fragment_length_active_inactive_plot <- function(x,p){
+#q If q = TRUE (default) concatenated lines are plotted. 
+#if q = FALSE separate lines in same plot is plotted. 
+#If q = "individual" individual plots for individual patients is plotted
+fragment_length_active_inactive_plot <- function(x,p, q){
     library(ggplot2)
     library(tidyr)
     library(plyr)
@@ -1500,17 +1595,43 @@ fragment_length_active_inactive_plot <- function(x,p){
     df <- df %>% mutate(Sample = ifelse(Sample == "Active", 
                                         paste(p, "High expressed"),
                                         paste(p, "Low expressed")))
-    mu <- ddply(df, "Sample", summarise, grp.median=median(len))
-    gg <- ggplot(data = df, aes(x = len, color = Sample))+
-        geom_density(size = 1)+
-        geom_vline(data=mu, aes(xintercept=grp.median, color=Sample),
-                   linetype="dashed", size = 1)+
-        theme_bw(base_size = 15)+
-        scale_color_manual(values = c("#6a00fc","#ffa10c"),
-                           name = "Gene activity")+
-        labs(title = "", y = "Density", x = "Fragment length (bp)")+
-        scale_x_continuous(breaks = seq(0,400,50), limits = c(0,400))+
-        th
+    rects <- data.frame(xstart = 0, xend = 150, col = "col")
+    if(isTRUE(q)){
+        gg <- ggplot()+
+            geom_rect(data = rects, aes(xmin = xstart, xmax = xend, 
+                                        ymin = -Inf, ymax = Inf, fill = col),
+                      alpha = 0.4)+
+            scale_fill_manual(values = "green4",guide = "none")+
+            geom_density(data = df, 
+                         aes(x = len, color = Sample),
+                         size = 1)+
+            theme_bw(base_size = 15)+
+            scale_color_manual(values = c("#6a00fc","#ffa10c"),
+                               name = "Gene activity")+
+            labs(title = "", y = "Density", x = "Fragment length (bp)")+
+            scale_x_continuous(breaks = seq(0,400,50), limits = c(0,400))+
+            th
+    }
+    if(q == "individual"){
+        gg <- ggplot()+
+            geom_rect(data = rects, aes(xmin = xstart, xmax = xend, 
+                                        ymin = -Inf, ymax = Inf, fill = col),
+                      alpha = 0.4)+
+            scale_fill_manual(values = "green4",guide = "none")+
+            geom_density(data = df, 
+                         aes(x = len, color = Sample),
+                         size = 1)+
+            theme_bw(base_size = 15)+
+            scale_color_manual(values = c("#6a00fc","#ffa10c"),
+                               name = "Gene activity")+
+            labs(title = "", y = "Density", x = "Fragment length (bp)")+
+            scale_x_continuous(breaks = seq(0,400,50), limits = c(0,400))+
+            th+
+            facet_wrap( ~ group,scales = "free_y")+
+            theme(strip.background =element_rect(fill="white"))+
+            theme(strip.text = element_text(colour = 'black',face = "bold"))
+    }
+    
     return(gg)
 }
 
@@ -2286,13 +2407,17 @@ length_fragment_with_motif_plot <- function(x){
     library(plyr)
     df <- x
     df <- df %>% mutate(Sample = paste(Sample,"motif"))
-    mu <- ddply(df, "Sample", summarise, grp.median=median(len))
-    gg <- ggplot(data = df, aes(x = len, color = Sample))+
-        geom_density(size = 1)+
-        geom_vline(data=mu, aes(xintercept=grp.median, color=Sample),
-                   linetype="dashed", size = 1)+
+    rects <- data.frame(xstart = 0, xend = 150, col = "col")
+    gg <- ggplot()+
+        geom_rect(data = rects, aes(xmin = xstart, xmax = xend, 
+                                    ymin = -Inf, ymax = Inf, fill = col),
+                  alpha = 0.4)+
+        scale_fill_manual(values = "green4",guide = "none")+
+        geom_density(data = df, 
+                     aes(x = len, color = Sample),
+                     size = 1)+
         theme_bw(base_size = 15)+
-        scale_color_manual(values = c("#6a00fc","#ffa10c"))+
+        scale_color_manual("Fragment", values = c("#6a00fc","#ffa10c"))+
         labs(title = "", y = "Density", x = "Fragment length (bp)")+
         scale_x_continuous(breaks = seq(0,400,50), limits = c(0,400))+
         th
@@ -2321,17 +2446,19 @@ length_fragment_with_motif_boxplot <- function(x){
                                            "Input motifs"),
                                          levels = c("Input motifs",
                                                     "cfChIP motifs")),
+                          relative_prop = c(cfChIP_prop/input_prop,
+                                            input_prop/input_prop),
                           pairs = rep(i,2))
         df <- rbind(df,df1)
     }
-    gg <- ggplot(df, aes(x = motif, y = proportions,
+    gg <- ggplot(df, aes(x = motif, y = relative_prop,
                          fill = motif))+
         geom_boxplot(outlier.alpha = 0)+
         geom_line(aes(group=pairs))+
         geom_point(alpha = 0.5)+
         labs(title = "",
              x = "",
-             y = "Fraction under 150 bp")+
+             y = "Normalized fraction under 150 bp")+
         scale_fill_manual("Fragment motif",
                           values = c("#ffa10c","#6a00fc"))+
         stat_compare_means(method = "t.test",
@@ -2344,3 +2471,161 @@ length_fragment_with_motif_boxplot <- function(x){
     return(gg)
 }
 
+length_fragment_with_motif_plot_zoom <- function(x){
+    library(Biostrings)
+    library(tidyr)
+    library(plyr)
+    df <- x
+    rects <- data.frame(xstart = 0, xend = 150, col = "col")
+    df <- df %>% mutate(Sample = paste(Sample,"motif")) %>% 
+        mutate(group = paste(Sample,patient_ID)) %>% 
+        filter(len < 156)
+    gg <- ggplot()+
+        geom_rect(data = rects, aes(xmin = xstart, xmax = xend, 
+                                    ymin = -Inf, ymax = Inf, fill = col),
+                  alpha = 0.4)+
+        scale_fill_manual(values = "green4",guide = "none")+
+        geom_density(data = df, 
+                     aes(x = len, color = Sample),
+                     size = .6)+
+        theme_bw(base_size = 15)+
+        scale_color_manual("Fragment", values = c("#6a00fc","#ffa10c"))+
+        labs(title = "", y = "Density", x = "Fragment length (bp)")+
+        scale_x_continuous(breaks = seq(50,155,20), limits = c(50,155))+
+        th+
+        facet_wrap( ~ patient_ID,scales = "free_y")+
+        theme(strip.background = element_rect(fill="white"))+
+        theme(strip.text = element_text(colour = 'black',face = "bold"))
+    return(gg)
+}
+
+#length_fragment_with_motif_plot_zoom(collected_cfChIP_motif_lengths)
+
+#x #Table consisting of BAM file names (name used when bamfile() is used),
+#genes mutated and the position of the mutation
+#y #Named list of input samples used
+#z Named list of cfChIP samples used
+#g Granges object of AVENIO genes
+
+length_of_mutated_genes_df <- function(x,y,z,g){
+    library(Rsamtools)
+    library(tidyr)
+    library(GenomicAlignments)
+    or_wd <- getwd()
+    `%ni%` <- Negate(`%in%`)
+    df <- read.table(x,header = T)
+    df$cfChIP <- names(z)
+    df <- df[!is.na(df$genes),]
+    df2 <- data.frame(len = c(),
+                      Sample = c(),
+                      group = c())
+    n_samples <- length(df$file)
+    for (i in 1:n_samples){
+        nam <- unlist(lapply(strsplit(df$name[i],"_"),"[[",1))
+        genes <- strsplit(df$genes[i],split = ",")[[1]]
+        genes_grang <- g[mcols(g)$SYMBOL %in% genes]
+        reads_input <- y[df$name[i]][[1]]
+        reads_cfChIP <- z[df$cfChIP[i]][[1]]
+        sub_input <- subsetByOverlaps(reads_input,genes_grang,ignore.strand = T)
+        len_input <- mcols(sub_input)$isize
+        len_input <- len_input[len_input >0]
+        len_input <- len_input[!is.na(len_input)]
+        sub_cfChIP <- subsetByOverlaps(reads_cfChIP,genes_grang,ignore.strand = T)
+        len_cfChIP <- mcols(sub_cfChIP)$isize
+        len_cfChIP <- len_cfChIP[len_cfChIP >0]
+        len_cfChIP <- len_cfChIP[!is.na(len_cfChIP)]
+        
+        df1 <- data.frame(len = c(len_input,len_cfChIP),
+                          Sample = c(rep("Input",length(len_input)),rep("cfChIP",length(len_cfChIP))),
+                          group = rep(nam,length(len_input)+length(len_cfChIP)))
+        df2 <- rbind(df2,df1)
+    }
+    return(df2)
+}
+
+#x data.frame of fragment lengths in mutated genes for input af cfChIP samples
+#y if y = TRUE concatenated plot is plotted. If = "individual" individual plots per patients is made
+length_of_mutated_genes_plot <- function(x,y){
+    df <- x
+    rects <- data.frame(xstart = 0, xend = 150, col = "col")
+    if(isTRUE(y)){
+        gg <- ggplot()+
+            geom_rect(data = rects, aes(xmin = xstart, xmax = xend, 
+                                        ymin = -Inf, ymax = Inf, fill = col),
+                      alpha = 0.4)+
+            scale_fill_manual(values = "green4",guide = "none")+
+            geom_density(data = df, 
+                         aes(x = len, color = Sample),
+                         size = 1)+
+            theme_bw(base_size = 15)+
+            scale_color_manual(values = c("#6a00fc","#ffa10c"))+
+            labs(title = "", y = "Density", x = "Fragment length (bp)")+
+            scale_x_continuous(breaks = seq(0,400,50), limits = c(0,400))+
+            th
+    }
+    if(y == "individual"){
+        gg <- ggplot()+
+            geom_rect(data = rects, aes(xmin = xstart, xmax = xend, 
+                                        ymin = -Inf, ymax = Inf, fill = col),
+                      alpha = 0.4)+
+            scale_fill_manual(values = "green4",guide = "none")+
+            geom_density(data = df, 
+                         aes(x = len, color = Sample),
+                         size = 1)+
+            theme_bw(base_size = 15)+
+            scale_color_manual(values = c("#6a00fc","#ffa10c"))+
+            labs(title = "", y = "Density", x = "Fragment length (bp)")+
+            scale_x_continuous(breaks = seq(0,400,50), limits = c(0,400))+
+            th+
+            facet_wrap( ~ group,scales = "free_y")+
+            theme(strip.background =element_rect(fill="white"))+
+            theme(strip.text = element_text(colour = 'black',face = "bold"))
+    }
+    return(gg)
+}
+
+length_of_mutated_genes_boxplot <- function(x){
+    library(ggpubr)
+    cfChIP_res <- x %>% filter(Sample == "cfChIP")
+    input_res <- x %>% filter(Sample == "Input")
+    df <- data.frame(proportions = c())
+    for (i in 1:length(unique(x$group))){
+        sample <- unique(x$group)[i]
+        cfChIP_res_sample <- cfChIP_res %>%  filter(group == sample)
+        input_res_sample <- input_res %>% filter(group == sample)
+        cfChIP_sub <- cfChIP_res_sample %>% filter(len < 150)
+        input_sub <- input_res_sample %>% filter(len < 150)
+        cfChIP_prop <- nrow(cfChIP_sub)/nrow(cfChIP_res_sample)
+        input_prop <- nrow(input_sub)/nrow(input_res_sample)
+        df1 <- data.frame(proportions = c(cfChIP_prop,
+                                          input_prop),
+                          sample = factor(c("cfChIP",
+                                           "Input"),
+                                         levels = c("Input",
+                                                    "cfChIP")),
+                          relative_prop = c(cfChIP_prop/input_prop,
+                                            input_prop/input_prop),
+                          pairs = rep(i,2))
+        df <- rbind(df,df1)
+    }
+    gg <- ggplot(df, aes(x = sample, y = proportions,
+                         fill = sample))+
+        geom_boxplot(outlier.alpha = 0)+
+        geom_line(aes(group=pairs))+
+        geom_point(alpha = 0.5)+
+        labs(title = "",
+             x = "",
+             y = "Fraction under 150 bp")+
+        scale_fill_manual("Fragment motif",
+                          values = c("#ffa10c","#6a00fc"))+
+        stat_compare_means(method = "t.test",
+                           paired = TRUE,
+                           comparisons = list(c("cfChIP", "Input")))+
+        theme_bw()+
+        th+
+        theme(legend.position = "none")
+    
+    return(gg)
+}
+
+length_of_mutated_genes_boxplot(fragment_length_input_cfChIP_mutated_genes)

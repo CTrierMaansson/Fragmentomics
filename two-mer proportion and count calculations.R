@@ -698,6 +698,8 @@ collected_fragment_length_active_inactive_healthy <- rbind(HC.1_fragment_length_
 
 write.table(collected_fragment_length_active_inactive_healthy, file = "Fragment lengths active inactive healthy.txt", 
             sep = "\t",col.names = T)
+write.table(collected_fragment_length_active_inactive, file = "Fragment lengths active inactive.txt", 
+            sep = "\t",col.names = T)
 
 NAC.1_active_motif_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"NAC.1","D:/Lung cancer input/PosDeduped/PosDeduped-A-1279-input.bam",3,active_motifs_cancer)
 NAC.2_active_motif_quartiles <- active_motif_quartiles_df(enrichment_df,grs,"NAC.2","D:/Lung cancer input/PosDeduped/PosDeduped-B-1288-input.bam",3,active_motifs_cancer)
