@@ -939,6 +939,9 @@ distance_nucleosome_plot(collected_nuc_dist_df_bed, FALSE)
 
 distance_nucleosome_boxplot(collected_nuc_dist_df_bed)
 
+active_motifs_cancer <- sequence_end_motif(dif_motif_prop(prop_mer_input_cancer, prop_mer_cfChIP_cancer), 0.05, "positive")
+inactive_motifs_cancer <- sequence_end_motif(dif_motif_prop(prop_mer_input_cancer, prop_mer_cfChIP_cancer), 0.05, "negative")
+
 cfChIP_motif_lengths_NAC.1 <- length_fragment_with_motif_df(NAC.1_input,active_motifs_cancer,inactive_motifs_cancer)
 cfChIP_motif_lengths_NAC.2 <- length_fragment_with_motif_df(NAC.2_input,active_motifs_cancer,inactive_motifs_cancer)
 cfChIP_motif_lengths_NAC.3 <- length_fragment_with_motif_df(NAC.3_input,active_motifs_cancer,inactive_motifs_cancer)
@@ -1004,3 +1007,81 @@ fragment_length_input_cfChIP_mutated_genes <- length_of_mutated_genes_df("BL mut
 length_of_mutated_genes_plot(fragment_length_input_cfChIP_mutated_genes,T)
 length_of_mutated_genes_plot(fragment_length_input_cfChIP_mutated_genes,"individual")
 length_of_mutated_genes_boxplot(fragment_length_input_cfChIP_mutated_genes)
+
+cancer_healthy_di_nuc_fraction <- di_nucleosome_fraction_df(list(NAC.1_input=NAC.1_input,
+                                                                 NAC.2_input=NAC.2_input,
+                                                                 NAC.3_input=NAC.3_input,
+                                                                 NAC.4_input=NAC.4_input,
+                                                                 NSC.1_input=NSC.1_input,
+                                                                 NSC.2_input=NSC.2_input,
+                                                                 NSC.3_input=NSC.3_input,
+                                                                 NSC.4_input=NSC.4_input,
+                                                                 SSC.1_input=SSC.1_input,
+                                                                 SSC.2_input=SSC.2_input,
+                                                                 SSC.3_input=SSC.3_input,
+                                                                 SSC.4_input=SSC.4_input),
+                                                            list(HC.1_input=HC.1_input,
+                                                                 HC.2_input=HC.2_input,
+                                                                 HC.3_input=HC.3_input,
+                                                                 HC.4_input=HC.4_input,
+                                                                 HC.5_input=HC.5_input,
+                                                                 HC.6_input=HC.6_input,
+                                                                 HC.7_input=HC.7_input),
+                                                            z = c("Cancer", "Healthy"))
+di_nucleosome_fraction_boxplot(cancer_healthy_di_nuc_fraction,c("Healthy","Cancer"))
+
+ct_pos_neg_healthy_di_nuc_fraction <- di_nucleosome_fraction_df(list(NAC.1_input = NAC.1_input,
+                                                                     NAC.3_input = NAC.3_input, 
+                                                                     NAC.4_input = NAC.4_input,
+                                                                     NSC.1_input = NSC.1_input,
+                                                                     NSC.2_input = NSC.2_input,
+                                                                     SSC.1_input = SSC.1_input,
+                                                                     SSC.2_input = SSC.2_input,
+                                                                     SSC.3_input = SSC.3_input,
+                                                                     SSC.4_input = SSC.4_input),
+                                                                list(NAC.2_input = NAC.2_input,
+                                                                     NSC.3_input = NSC.3_input, 
+                                                                     NSC.4_input = NSC.4_input),
+                                                                list(HC.1_input = HC.1_input,
+                                                                     HC.2_input = HC.2_input,
+                                                                     HC.3_input = HC.3_input,
+                                                                     HC.4_input = HC.4_input,
+                                                                     HC.5_input = HC.5_input,
+                                                                     HC.6_input = HC.6_input,
+                                                                     HC.7_input = HC.7_input),
+                                                            z = c("ctDNA positive", "ctDNA negative","Healthy"))
+
+di_nucleosome_fraction_boxplot(ct_pos_neg_healthy_di_nuc_fraction,c("Healthy", "ctDNA negative","ctDNA positive"))
+
+input_cfChIP_di_nuc_fraction <- di_nucleosome_fraction_df(list(NAC.1_input=NAC.1_input,
+                                                                 NAC.2_input=NAC.2_input,
+                                                                 NAC.3_input=NAC.3_input,
+                                                                 NAC.4_input=NAC.4_input,
+                                                                 NSC.1_input=NSC.1_input,
+                                                                 NSC.2_input=NSC.2_input,
+                                                                 NSC.3_input=NSC.3_input,
+                                                                 NSC.4_input=NSC.4_input,
+                                                                 SSC.1_input=SSC.1_input,
+                                                                 SSC.2_input=SSC.2_input,
+                                                                 SSC.3_input=SSC.3_input,
+                                                                 SSC.4_input=SSC.4_input),
+                                                          list(NAC.1_cfChIP=NAC.1_cfChIP,
+                                                               NAC.2_cfChIP=NAC.2_cfChIP,
+                                                               NAC.3_cfChIP=NAC.3_cfChIP,
+                                                               NAC.4_cfChIP=NAC.4_cfChIP,
+                                                               NSC.1_cfChIP=NSC.1_cfChIP,
+                                                               NSC.2_cfChIP=NSC.2_cfChIP,
+                                                               NSC.3_cfChIP=NSC.3_cfChIP,
+                                                               NSC.4_cfChIP=NSC.4_cfChIP,
+                                                               SSC.1_cfChIP=SSC.1_cfChIP,
+                                                               SSC.2_cfChIP=SSC.2_cfChIP,
+                                                               SSC.3_cfChIP=SSC.3_cfChIP,
+                                                               SSC.4_cfChIP=SSC.4_cfChIP),
+                                                            z = c("Cancer input", "Cancer cfChIP"))
+di_nucleosome_fraction_boxplot(input_cfChIP_di_nuc_fraction,c("Cancer input", "Cancer cfChIP"),T)
+
+collected_fragment_length_active_inactive <- read.table("Fragment lengths active inactive.txt", header = T)
+
+high_low_di_nuc_fraction <- di_nucleosome_high_low_fraction_df(collected_fragment_length_active_inactive)
+
+di_nucleosome_fraction_boxplot(high_low_di_nuc_fraction,c("Cancer Low expression", "Cancer High expression"),T)

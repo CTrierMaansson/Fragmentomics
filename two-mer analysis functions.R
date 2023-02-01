@@ -722,6 +722,140 @@ sub150_fraction <- function(x,y){
     res <- res[!is.na(res)]
     return(mean(res))
 }
+
+#x #BAM file to be analyzed, returned by bamfile()
+di_nucleosome_fraction <- function(x){
+    mcols(x)$abs_size <- abs(mcols(x)$isize)
+    res <- mcols(x)$abs_size<340 & mcols(x)$abs_size>230
+    res <- res[!is.na(res)]
+    return(mean(res))
+}
+
+#x named list of BAM files to be analyzed, returned by bamfile()
+#y named list of BAM files to be analyzed, returned by bamfile()
+#q named list of BAM files to be analyzed, returned by bamfile(), if not needed type q = NULL
+#z Names of types of samples in x and y 
+di_nucleosome_fraction_df <- function(x,y,q=NULL,z){
+    df <- data.frame(name = c(),
+                     proportions = c(),
+                     sample = c())
+    for(i in 1:length(x)){
+        nam <- unlist(lapply(strsplit(names(x)[i],"_"), "[[", 1))
+        res <- di_nucleosome_fraction(x[[i]])
+        df1 <- data.frame(name = nam,
+                          proportions = res,
+                         sample = z[1])
+        df <- rbind(df,df1)
+    }
+    for(i in 1:length(y)){
+        nam <- unlist(lapply(strsplit(names(y)[i],"_"), "[[", 1))
+        res <- di_nucleosome_fraction(y[[i]])
+        df1 <- data.frame(name = nam,
+                          proportions = res,
+                         sample = z[2])
+        df <- rbind(df,df1)
+    }
+    if(!is.null(q)){
+        for(i in 1:length(q)){
+            nam <- unlist(lapply(strsplit(names(q)[i],"_"), "[[", 1))
+            res <- di_nucleosome_fraction(q[[i]])
+            df1 <- data.frame(name = nam,
+                              proportions = res,
+                              sample = z[3])
+            df <- rbind(df,df1)
+        }
+    }
+    return(df)
+}
+#x #list of fragment length data.frames returned by fragment_length_active_inactive_df()
+#aka read.table("Fragment lengths active inactive.txt", header = T)
+di_nucleosome_high_low_fraction_df<- function(x){
+    df <- data.frame(name = c(),
+                     proportions = c(),
+                     sample = c())
+    for(i in 1:length(unique(x$group))){
+        sample <- unique(x$group)[i]
+        df_sample <- x %>% filter(group == sample)
+        df_high <- df_sample %>% filter(Sample == "Active")
+        df_low <- df_sample %>% filter(Sample == "Inactive")
+        sub_high <- df_high %>% filter(len<340 & len>230)
+        sub_low <- df_low %>% filter(len<340 & len>230)
+        df1 <- data.frame(name = rep(sample,2),
+                          proportions = c(nrow(sub_high)/nrow(df_high),
+                                          nrow(sub_low)/nrow(df_low)),
+                          sample = c("Cancer High expression","Cancer Low expression"))
+        df <- rbind(df,df1)
+    }
+    df <- df %>% arrange(sample)
+    return(df)
+}
+
+di_nucleosome_fraction_boxplot <- function(x,y,z=F){
+    library(ggplot2)
+    library(ggpubr)
+    if(length(y)==2){
+        if(z){
+            df <- x %>% mutate(sample = factor(sample,levels = c(y[1],y[2]))) %>% 
+                mutate(pairs = rep(1:length(unique(x$name)),2))
+            gg <- ggplot(df, aes(x = sample, y = proportions,
+                                 fill = sample))+
+                geom_boxplot(outlier.alpha = 0)+
+                geom_point(alpha = 0.5)+
+                geom_line(aes(group=pairs))+
+                labs(title = "",
+                     x = "",
+                     y = "Fraction 230-340 bp")+
+                scale_fill_manual("Sample",
+                                  values = c("#ffa10c","#6a00fc"))+
+                stat_compare_means(method = "t.test",
+                                   paired = T,
+                                   comparisons = list(c(y[1], y[2])))+
+                theme_bw()+
+                th+
+                theme(legend.position = "none")
+        }
+        else{
+            df <- x %>% mutate(sample = factor(sample,levels = c(y[1],y[2])))
+            gg <- ggplot(df, aes(x = sample, y = proportions,
+                                 fill = sample))+
+                geom_boxplot(outlier.alpha = 0)+
+                geom_jitter(alpha = 0.5, width = 0.1)+
+                labs(title = "",
+                     x = "",
+                     y = "Fraction 230-340 bp")+
+                scale_fill_manual("Sample",
+                                  values = c("#ffa10c","#6a00fc"))+
+                stat_compare_means(method = "t.test",
+                                   paired = FALSE,
+                                   comparisons = list(c(y[1], y[2])))+
+                theme_bw()+
+                th+
+                theme(legend.position = "none")
+        }
+        
+    }
+    if(length(y)==3){
+        df <- x %>% mutate(sample = factor(sample,levels = c(y[1],y[2],y[3])))
+        gg <- df %>% ggplot(aes(x=sample, y=proportions, fill=sample)) + 
+            geom_boxplot(outlier.alpha = 0)+
+            geom_jitter(alpha = 0.5, width = 0.1)+
+            labs(title = "",
+                 x = "",
+                 y = "Fraction 230-340 bp")+
+            scale_fill_manual("Sample",
+                              values = c("#ffa10c","firebrick","#6a00fc"))+
+            stat_compare_means(method = "t.test",
+                               comparisons = list(c(y[1],y[2]),
+                                                  c(y[1],y[3]),
+                                                  c(y[2],y[3])))+
+            theme_bw()+
+            th+
+            theme(legend.position = "none")
+    }
+    
+    return(gg)
+}
+
 #x #data.frame with genes of interest returned by conf()
 #g #Granges object returned by gr()
 #l #list of input BAM file to be analyzed, returned by bamfile()
@@ -1369,8 +1503,8 @@ fragment_length_wt_ctdna_plot <- function(x,y = TRUE){
     
 }
 
-fragment_length_wt_ctdna_plot(fragment_length_wt_ctdna_input,F)
-fragment_length_wt_ctdna_plot(fragment_length_wt_ctdna_input,T)
+#fragment_length_wt_ctdna_plot(fragment_length_wt_ctdna_input,F)
+#fragment_length_wt_ctdna_plot(fragment_length_wt_ctdna_input,T)
 
 
 MAF_in_bins <- function(x){
@@ -1854,6 +1988,54 @@ active_motif_fraction_quartiles_plot <- function(x,a){
         geom_jitter(alpha = 0.5, width = 0.1)+
         theme_bw()+
         stat_compare_means(method = "anova", label.y = 0.8,
+                           label.x = 8.2)+ 
+        stat_compare_means(aes(label = after_stat(p.signif)),
+                           method = "t.test",
+                           paired = TRUE,
+                           ref.group = "Q1",
+                           size = 4.5)+
+        labs(title="",
+             x = "Quantiles",
+             y = lab)+
+        th
+    
+    return(gg)
+}
+
+#a #Definition of whether "Active" or "Inactive" genes are analyzed
+
+high_motif_fraction_quartiles_plot <- function(x,a){
+    library(ggpubr)
+    ddf <- data.frame(quartile = c(),
+                      active_fraction = c(),
+                      sample = c(),
+                      norm_fraction = c())
+    for(i in 1:length(unique(x$sample))){
+        sam <- unique(x$sample)[i]
+        df <- x %>% filter(sample == sam)
+        base_fraction <- df$active_fraction[1]
+        df <- df %>% mutate(norm_fraction = active_fraction/base_fraction)
+        ddf <- rbind(ddf,df)
+    }
+    if(a == "Active"){
+        lab <- "Normalized high expression motif fraction"
+        posi <- 0.8
+    }
+    else{
+        lab <- "Normalized low expression motif fraction"
+        posi <- 1.25
+    }
+    ddf <- ddf %>% 
+        mutate(quartile = factor(quartile,
+                                 level = c("Q1", "Q2", "Q3", "Q4",
+                                           "Q5", "Q6", "Q7", "Q8",
+                                           "Q9", "Q10")))
+    gg <- ddf %>% ggplot(aes(x = quartile, y = norm_fraction))+
+        geom_boxplot(outlier.alpha = 0,
+                     fill = "#6a00fc")+
+        geom_jitter(alpha = 0.5, width = 0.1)+
+        theme_bw()+
+        stat_compare_means(method = "anova", label.y = posi,
                            label.x = 8.2)+ 
         stat_compare_means(aes(label = after_stat(p.signif)),
                            method = "t.test",
@@ -2476,7 +2658,7 @@ length_fragment_with_motif_plot_zoom <- function(x){
     library(tidyr)
     library(plyr)
     df <- x
-    rects <- data.frame(xstart = 0, xend = 150, col = "col")
+    rects <- data.frame(xstart = 50, xend = 150, col = "col")
     df <- df %>% mutate(Sample = paste(Sample,"motif")) %>% 
         mutate(group = paste(Sample,patient_ID)) %>% 
         filter(len < 156)
@@ -2499,7 +2681,6 @@ length_fragment_with_motif_plot_zoom <- function(x){
     return(gg)
 }
 
-#length_fragment_with_motif_plot_zoom(collected_cfChIP_motif_lengths)
 
 #x #Table consisting of BAM file names (name used when bamfile() is used),
 #genes mutated and the position of the mutation
@@ -2628,4 +2809,3 @@ length_of_mutated_genes_boxplot <- function(x){
     return(gg)
 }
 
-length_of_mutated_genes_boxplot(fragment_length_input_cfChIP_mutated_genes)
