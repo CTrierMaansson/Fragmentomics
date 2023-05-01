@@ -11,7 +11,7 @@ th <- theme(
     axis.line = element_line(colour = 'black'),
     legend.text = element_text(size = 12), 
     title = element_text(size = 14, face = "bold"))
-setwd("C:/Users/Christoffer/OneDrive/1PhD/R files/Important excel and text documents")
+setwd("C:/Users/chris/OneDrive/1PhD/R files/Important excel and text documents")
 grs <- gr("AVENIO_genes.txt")
 CH01_nuc_range_target <- coverages_nuc("HCC827.bedgraph", z = "GSE71378_CH01_avenio.bed")
 target_df <- read.table("Complete table of all targets.txt", header = T)
@@ -23,8 +23,15 @@ target_grang <- GRanges(seqnames = target_df$seqnames,
 mcols(target_grang)$SYMBOL <- target_df$SYMBOL
 bad <- badgene("Complete table of all targets.txt",25)
 multiple_region_genes <- multiple_region("Complete table of all targets.txt")
-setwd("C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver")
+setwd("C:/Users/chris/OneDrive/1PhD/Fragmentering/endemotiver")
 enrichment_df <- read.table("enrichment all.txt", header = T)
+pippin_enrichment_df <- read.table("pippin enrichment all.txt", header = T)
+coding_exons <- exon_extract(grs,list("BRCA1" = "ENST00000357654.9",
+                                      "BRCA2" = "ENST00000380152.8",
+                                      "EGFR" = "ENST00000275493.7",
+                                      "ERBB2" = "ENST00000584601.5",
+                                      "KRAS" = "ENST00000256078.10",
+                                      "MET" = "ENST00000318493.11"))
 setwd("D:/Lung cancer cfChIP/PosDeduped")
 NAC.1_cfChIP <- bamfile("PosDeduped-A-1279-cfChIP.bam",
                         "PosDeduped-A-1279-cfChIP.bam.bai")
@@ -103,10 +110,36 @@ HC.6_input <- bamfile("PosDeduped-Rask_kontrol_6_input.bam",
 HC.7_input <- bamfile("PosDeduped-Rask_kontrol_7_input.bam",
                       "PosDeduped-Rask_kontrol_7_input.bam.bai")
 gc()
+
+setwd("D:/Lung cancer Pippin/PosDeduped")
+NAC.1_pippin <- bamfile("PosDeduped-pippin_NAC.1.bam",
+                        "PosDeduped-pippin_NAC.1.bam.bai")
+NAC.2_pippin <- bamfile("PosDeduped-pippin_NAC.2.bam",
+                        "PosDeduped-pippin_NAC.2.bam.bai")
+NAC.3_pippin <- bamfile("PosDeduped-pippin_NAC.3.bam",
+                        "PosDeduped-pippin_NAC.3.bam.bai")
+NAC.4_pippin <- bamfile("PosDeduped-pippin_NAC.4.bam",
+                        "PosDeduped-pippin_NAC.4.bam.bai")
+NSC.1_pippin <- bamfile("PosDeduped-pippin_NSC.1.bam",
+                        "PosDeduped-pippin_NSC.1.bam.bai")
+NSC.2_pippin <- bamfile("PosDeduped-pippin_NSC.2.bam",
+                        "PosDeduped-pippin_NSC.2.bam.bai")
+NSC.3_pippin <- bamfile("PosDeduped-pippin_NSC.3.bam",
+                        "PosDeduped-pippin_NSC.3.bam.bai")
+SSC.1_pippin <- bamfile("PosDeduped-pippin_SSC.1.bam",
+                        "PosDeduped-pippin_SSC.1.bam.bai")
+SSC.2_pippin <- bamfile("PosDeduped-pippin_SSC.2.bam",
+                        "PosDeduped-pippin_SSC.2.bam.bai")
+SSC.3_pippin <- bamfile("PosDeduped-pippin_SSC.3.bam",
+                        "PosDeduped-pippin_SSC.3.bam.bai")
+SSC.4_pippin <- bamfile("PosDeduped-pippin_SSC.4.bam",
+                        "PosDeduped-pippin_SSC.4.bam.bai")
+gc()
 library(dplyr)
-setwd("C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver")
+setwd("C:/Users/chris/OneDrive/1PhD/Fragmentering/endemotiver")
 prop_mer_input <- read.table("fragment end motif proportions input.txt", header = T)
 prop_mer_cfChIP <- read.table("fragment end motif proportions cfChIP.txt", header = T)
+prop_mer_pippin <- read.table("fragment end motif proportions pippin.txt", header = T)
 count_mer_input <- read.table("fragment end motif counts input.txt", header = T)
 count_mer_cfChIP <- read.table("fragment end motif counts cfChIP.txt", header = T)
 
@@ -136,7 +169,7 @@ prop_mer_active_healthy$motif <- prop_mer_active$motif
 prop_mer_inactive_healthy <- prop_mer_inactive[grepl("HC", colnames(prop_mer_inactive))]
 prop_mer_inactive_healthy$motif <- prop_mer_inactive$motif
 
-setwd("C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver")
+setwd("C:/Users/chris/OneDrive/1PhD/Fragmentering/endemotiver")
 volcano_motif("Input healthy", "Input cancer", diff_gene_motiv_analysis(prop_mer_input_healthy, prop_mer_input_cancer))
 volcano_motif("cfChIP healthy", "cfChIP cancer", diff_gene_motiv_analysis(prop_mer_cfChIP_healthy, prop_mer_cfChIP_cancer))
 volcano_motif("Input cancer", "cfChIP cancer", dif_motif_prop(prop_mer_input_cancer, prop_mer_cfChIP_cancer))
@@ -146,6 +179,7 @@ volcano_motif("Cancer inactive genes", "Cancer active genes", diff_active_inacti
 volcano_motif("Healthy inactive genes", "Healthy active genes", diff_active_inactive_end_motif(healthy_active_inactive))
 volcano_motif("Inactive genes", "Active genes", diff_active_inactive_end_motif(collected_active_inactive_df))
 
+volcano_motif("Input", "Size selected", diff_gene_motiv_analysis(prop_mer_input_cancer %>% select(-NSC.4_input), prop_mer_pippin))
 
 
 sequence_list_all_samples <- list(sequence_end_motif(dif_motif_prop(prop_mer_input, prop_mer_cfChIP), 0.05, "positive"),
@@ -197,6 +231,7 @@ motif_venn(sequence_list_healthy,
              "Active", "Inactive"), 
            "Healthy samples")
 
+
 png("plots/Correlation matrix active cfChIP.png",
     width = 10000, height = 7500,
     units = "px",
@@ -240,7 +275,7 @@ active_motifs <- sequence_end_motif(dif_motif_prop(prop_mer_input, prop_mer_cfCh
 active_motifs
 inactive_motifs <- sequence_end_motif(dif_motif_prop(prop_mer_input, prop_mer_cfChIP), 0.05, "negative")
 inactive_motifs
-setwd("C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver")
+setwd("C:/Users/chris/OneDrive/1PhD/Fragmentering/endemotiver")
 active_motif_fraction_df <- read.table("active motif fraction.txt", header = T)
 active_motif_fraction_df
 
@@ -354,7 +389,7 @@ all_genes_correlations
 
 matrix_plot(multiple_regions_correlations,"Correlation statistics for multiple region genes")
 matrix_plot(all_genes_correlations,"Correlation statistics for all genes")
-setwd("C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver")
+setwd("C:/Users/chris/OneDrive/1PhD/Fragmentering/endemotiver")
 short_long_fraction_df <- read.table("Fragment end motif fractions of short and long fragments.txt", header = T)
 prop_mer_short <- short_long_fraction_df[!grepl("_long",colnames(short_long_fraction_df))]
 prop_mer_long <- short_long_fraction_df[!grepl("_short",colnames(short_long_fraction_df))]
@@ -386,7 +421,7 @@ sequence_list$Active_genes[sequence_list$Active_genes %in% sequence_list$cfChIP 
                                sequence_list$Active_genes %ni% sequence_list$Long_fragments]
 
 enrichment_df
-setwd("C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver")
+setwd("C:/Users/chris/OneDrive/1PhD/Fragmentering/endemotiver")
 active_long_short_df <- read.table("Fragment end motif fractions of short and long fragments in active and inactive genes.txt",
            header = TRUE)
 active_long_short_df
@@ -707,9 +742,11 @@ named_cancer_cfChIP_list <- list(NAC.1_cfChIP = NAC.1_cfChIP,
                                  SSC.2_cfChIP = SSC.2_cfChIP,
                                  SSC.3_cfChIP = SSC.3_cfChIP, 
                                  SSC.4_cfChIP = SSC.4_cfChIP)
-setwd("C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver")
+setwd("C:/Users/chris/OneDrive/1PhD/Fragmentering/endemotiver")
 
 fragment_length_wt_ctdna_input <- fragment_length_wt_ctdna_df("BL mutations input files.txt",
+                                                              named_cancer_input_list)
+fragment_length_wt_ctdna_input_vessies <- fragment_length_wt_ctdna_vessies_df("BL mutations input files.txt",
                                                               named_cancer_input_list)
 fragment_length_wt_ctdna_plot(fragment_length_wt_ctdna_input)
 
@@ -812,6 +849,7 @@ sub150_fraction_quartiles_plot(collected_sub150_fraction_quartiles)
 
 
 ####input vs. cfChIP####
+setwd("C:/Users/chris/OneDrive/1PhD/Fragmentering/endemotiver")
 active_motifs_cancer <- sequence_end_motif(dif_motif_prop(prop_mer_input_cancer, prop_mer_cfChIP_cancer), 0.05, "positive")
 active_motifs_cancer
 inactive_motifs_cancer <- sequence_end_motif(dif_motif_prop(prop_mer_input_cancer, prop_mer_cfChIP_cancer), 0.05, "negative")
@@ -939,6 +977,9 @@ distance_nucleosome_plot(collected_nuc_dist_df_bed, FALSE)
 
 distance_nucleosome_boxplot(collected_nuc_dist_df_bed)
 
+active_motifs_cancer <- sequence_end_motif(dif_motif_prop(prop_mer_input_cancer, prop_mer_cfChIP_cancer), 0.05, "positive")
+inactive_motifs_cancer <- sequence_end_motif(dif_motif_prop(prop_mer_input_cancer, prop_mer_cfChIP_cancer), 0.05, "negative")
+gc()
 cfChIP_motif_lengths_NAC.1 <- length_fragment_with_motif_df(NAC.1_input,active_motifs_cancer,inactive_motifs_cancer)
 cfChIP_motif_lengths_NAC.2 <- length_fragment_with_motif_df(NAC.2_input,active_motifs_cancer,inactive_motifs_cancer)
 cfChIP_motif_lengths_NAC.3 <- length_fragment_with_motif_df(NAC.3_input,active_motifs_cancer,inactive_motifs_cancer)
@@ -953,7 +994,7 @@ cfChIP_motif_lengths_SSC.1 <- length_fragment_with_motif_df(SSC.1_input,active_m
 cfChIP_motif_lengths_SSC.2 <- length_fragment_with_motif_df(SSC.2_input,active_motifs_cancer,inactive_motifs_cancer)
 cfChIP_motif_lengths_SSC.3 <- length_fragment_with_motif_df(SSC.3_input,active_motifs_cancer,inactive_motifs_cancer)
 cfChIP_motif_lengths_SSC.4 <- length_fragment_with_motif_df(SSC.4_input,active_motifs_cancer,inactive_motifs_cancer)
-
+gc()
 active_motif_lengths_NAC.1 <- motif_lengths_NAC.1
 active_motif_lengths_NAC.2 <- motif_lengths_NAC.2
 active_motif_lengths_NAC.3 <- motif_lengths_NAC.3
@@ -997,10 +1038,191 @@ length_fragment_with_motif_plot(collected_cfChIP_motif_lengths)
 
 gc()
 length_fragment_with_motif_boxplot(collected_cfChIP_motif_lengths)
-setwd("C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver")
+setwd("C:/Users/chris/OneDrive/1PhD/Fragmentering/endemotiver")
 fragment_length_input_cfChIP_mutated_genes <- length_of_mutated_genes_df("BL mutations input files.txt",
                                                                          named_cancer_input_list,
                                                                          named_cancer_cfChIP_list,grs)
 length_of_mutated_genes_plot(fragment_length_input_cfChIP_mutated_genes,T)
 length_of_mutated_genes_plot(fragment_length_input_cfChIP_mutated_genes,"individual")
 length_of_mutated_genes_boxplot(fragment_length_input_cfChIP_mutated_genes)
+
+cancer_healthy_di_nuc_fraction <- di_nucleosome_fraction_df(list(NAC.1_input=NAC.1_input,
+                                                                 NAC.2_input=NAC.2_input,
+                                                                 NAC.3_input=NAC.3_input,
+                                                                 NAC.4_input=NAC.4_input,
+                                                                 NSC.1_input=NSC.1_input,
+                                                                 NSC.2_input=NSC.2_input,
+                                                                 NSC.3_input=NSC.3_input,
+                                                                 NSC.4_input=NSC.4_input,
+                                                                 SSC.1_input=SSC.1_input,
+                                                                 SSC.2_input=SSC.2_input,
+                                                                 SSC.3_input=SSC.3_input,
+                                                                 SSC.4_input=SSC.4_input),
+                                                            list(HC.1_input=HC.1_input,
+                                                                 HC.2_input=HC.2_input,
+                                                                 HC.3_input=HC.3_input,
+                                                                 HC.4_input=HC.4_input,
+                                                                 HC.5_input=HC.5_input,
+                                                                 HC.6_input=HC.6_input,
+                                                                 HC.7_input=HC.7_input),
+                                                            z = c("Cancer", "Healthy"))
+di_nucleosome_fraction_boxplot(cancer_healthy_di_nuc_fraction,c("Healthy","Cancer"))
+
+ct_pos_neg_healthy_di_nuc_fraction <- di_nucleosome_fraction_df(list(NAC.1_input = NAC.1_input,
+                                                                     NAC.3_input = NAC.3_input, 
+                                                                     NAC.4_input = NAC.4_input,
+                                                                     NSC.1_input = NSC.1_input,
+                                                                     NSC.2_input = NSC.2_input,
+                                                                     SSC.1_input = SSC.1_input,
+                                                                     SSC.2_input = SSC.2_input,
+                                                                     SSC.3_input = SSC.3_input,
+                                                                     SSC.4_input = SSC.4_input),
+                                                                list(NAC.2_input = NAC.2_input,
+                                                                     NSC.3_input = NSC.3_input, 
+                                                                     NSC.4_input = NSC.4_input),
+                                                                list(HC.1_input = HC.1_input,
+                                                                     HC.2_input = HC.2_input,
+                                                                     HC.3_input = HC.3_input,
+                                                                     HC.4_input = HC.4_input,
+                                                                     HC.5_input = HC.5_input,
+                                                                     HC.6_input = HC.6_input,
+                                                                     HC.7_input = HC.7_input),
+                                                            z = c("ctDNA positive", "ctDNA negative","Healthy"))
+
+di_nucleosome_fraction_boxplot(ct_pos_neg_healthy_di_nuc_fraction,c("Healthy", "ctDNA negative","ctDNA positive"))
+
+input_cfChIP_di_nuc_fraction <- di_nucleosome_fraction_df(list(NAC.1_input=NAC.1_input,
+                                                                 NAC.2_input=NAC.2_input,
+                                                                 NAC.3_input=NAC.3_input,
+                                                                 NAC.4_input=NAC.4_input,
+                                                                 NSC.1_input=NSC.1_input,
+                                                                 NSC.2_input=NSC.2_input,
+                                                                 NSC.3_input=NSC.3_input,
+                                                                 NSC.4_input=NSC.4_input,
+                                                                 SSC.1_input=SSC.1_input,
+                                                                 SSC.2_input=SSC.2_input,
+                                                                 SSC.3_input=SSC.3_input,
+                                                                 SSC.4_input=SSC.4_input),
+                                                          list(NAC.1_cfChIP=NAC.1_cfChIP,
+                                                               NAC.2_cfChIP=NAC.2_cfChIP,
+                                                               NAC.3_cfChIP=NAC.3_cfChIP,
+                                                               NAC.4_cfChIP=NAC.4_cfChIP,
+                                                               NSC.1_cfChIP=NSC.1_cfChIP,
+                                                               NSC.2_cfChIP=NSC.2_cfChIP,
+                                                               NSC.3_cfChIP=NSC.3_cfChIP,
+                                                               NSC.4_cfChIP=NSC.4_cfChIP,
+                                                               SSC.1_cfChIP=SSC.1_cfChIP,
+                                                               SSC.2_cfChIP=SSC.2_cfChIP,
+                                                               SSC.3_cfChIP=SSC.3_cfChIP,
+                                                               SSC.4_cfChIP=SSC.4_cfChIP),
+                                                            z = c("Cancer input", "Cancer cfChIP"))
+di_nucleosome_fraction_boxplot(input_cfChIP_di_nuc_fraction,c("Cancer input", "Cancer cfChIP"),T)
+
+collected_fragment_length_active_inactive <- read.table("Fragment lengths active inactive.txt", header = T)
+
+high_low_di_nuc_fraction <- di_nucleosome_high_low_fraction_df(collected_fragment_length_active_inactive)
+
+di_nucleosome_fraction_boxplot(high_low_di_nuc_fraction,c("Cancer Low expression", "Cancer High expression"),T)
+
+pippin_vs_cfChIP_df <- pippin_vs_cfChIP(enrichment_df,pippin_enrichment_df)
+
+pippin_vs_cfChIP_df
+
+pippin_vs_cfChIP_plot(pippin_vs_cfChIP_df)
+
+pippin_vs_cfChIP_correlation(enrichment_df,pippin_enrichment_df)
+
+cfChIP_pippin_correlations <- data.frame(sample = c("NAC.1","NAC.2","NAC.3","NAC.4",
+                                                    "NSC.1","NSC.2","NSC.3",
+                                                    "SSC.1","SSC.2","SSC.3","SSC.4"),
+                                         rho = c(0.788,0.553,0.769,0.840,
+                                                 0.678,0.756,0.843,
+                                                 0.800,0.882,0.499,0.644))
+
+pippin_vs_cfChIP_correlation_matrix(cfChIP_pippin_correlations)
+
+fragment_length(list(NAC.1_pippin = NAC.1_pippin, 
+                     NAC.2_pippin = NAC.2_pippin,
+                     NAC.3_pippin = NAC.3_pippin, 
+                     NAC.4_pippin = NAC.4_pippin,
+                     NSC.1_pippin = NSC.1_pippin, 
+                     NSC.2_pippin = NSC.2_pippin,
+                     NSC.3_pippin = NSC.3_pippin, 
+                     SSC.1_pippin = SSC.1_pippin, 
+                     SSC.2_pippin = SSC.2_pippin,
+                     SSC.3_pippin = SSC.3_pippin, 
+                     SSC.4_pippin = SSC.4_pippin),
+                list(NAC.1_input = NAC.1_input, 
+                     NAC.2_input = NAC.2_input,
+                     NAC.3_input = NAC.3_input, 
+                     NAC.4_input = NAC.4_input,
+                     NSC.1_input = NSC.1_input, 
+                     NSC.2_input = NSC.2_input,
+                     NSC.3_input = NSC.3_input, 
+                     SSC.1_input = SSC.1_input, 
+                     SSC.2_input = SSC.2_input,
+                     SSC.3_input = SSC.3_input, 
+                     SSC.4_input = SSC.4_input),
+                c("Size selected", "Input"), "",F)
+
+proportion_sub150_cancer_pippin <- proportion_sub_df(list(NAC.1_pippin, NAC.2_pippin,
+                                                         NAC.3_pippin, NAC.4_pippin,
+                                                         NSC.1_pippin, NSC.2_pippin,
+                                                         NSC.3_pippin,
+                                                         SSC.1_pippin, SSC.2_pippin,
+                                                         SSC.3_pippin, SSC.4_pippin),
+                                                    150,
+                                                    c("NAC.1_pippin", "NAC.2_pippin",
+                                                      "NAC.3_pippin", "NAC.4_pippin",
+                                                      "NSC.1_pippin", "NSC.2_pippin",
+                                                      "NSC.3_pippin",
+                                                      "SSC.1_pippin", "SSC.2_pippin",
+                                                      "SSC.3_pippin", "SSC.4_pippin"))
+
+proportion_sub_boxplot(list(proportion_sub150_cancer_input %>% filter(sample != "NSC.4_input"),
+                            proportion_sub150_cancer_pippin),
+                       c("Input", "Size selected"),"Paired")
+
+pippin_effect_MAF("pippin og input mutation.txt")
+
+volcano_motif("Input", "Size selected", diff_gene_motiv_analysis(prop_mer_input_cancer %>% select(-NSC.4_input), prop_mer_pippin))
+
+
+sequence_list_cancer_ish <- list(sequence_end_motif(dif_motif_prop(prop_mer_input_cancer, prop_mer_cfChIP_cancer), 0.05, "positive"),
+                                 sequence_end_motif(dif_motif_prop(prop_mer_input_cancer, prop_mer_cfChIP_cancer), 0.05, "negative"),
+                                 sequence_end_motif(diff_gene_motiv_analysis(prop_mer_input_cancer %>% dplyr::select(-NSC.4_input), prop_mer_pippin), 0.05, "positive"),
+                                 sequence_end_motif(diff_gene_motiv_analysis(prop_mer_input_cancer %>% dplyr::select(-NSC.4_input), prop_mer_pippin), 0.05, "negative"))
+
+motif_venn(sequence_list_cancer_ish,
+           c("cfChIP", "Input",
+             "Size selected", "Unselected"), 
+           " ")
+
+setwd("C:/Users/chris/OneDrive/1PhD/Fragmentering/endemotiver")
+collected_in_silico_enrichment <- read.table("collected in silico enrichment.txt", header =T)
+collected_in_silico_enrichment
+collected_in_silico_fraction <- read.table("collected in silico fraction.txt", header =T)
+
+in_silico_correlation_plot(NAC.1_in_silico_enrichment,enrichment_df,grs)
+
+size_selected_cfChIP <- enrich_pvalue(64,12,3,12)
+unselected_input <- enrich_pvalue(64,3,1,6)
+size_selected_input <- enrich_pvalue(64,15,9,0)
+unselected_cfChIP <- enrich_pvalue(64,24,7,0)
+high_expression_cfChIP_cancer <- enrich_pvalue(64,10,7,14)
+high_expression_cfChIP_healthy <- enrich_pvalue(64,4,13,2)
+high_expression_cfChIP_all <- enrich_pvalue(64,10,10,14)
+
+setwd("C:/Users/chris/OneDrive/1PhD/Fragmentering/endemotiver")
+exon_Sub150_collected <- read.table("collected sub 150 in exons.txt", header =T)
+sub150_exon_plot(exon_Sub150_collected,enrichment_df)
+
+collected_fragment_endpoint_wt_ct <- fragment_endpoint_wt_ctdna_df("BL mutations input files.txt",
+                                                                   named_cancer_input_list)
+setwd("C:/Users/chris/OneDrive/1PhD/Fragmentering/endemotiver")
+
+fragment_endpoint_wt_ctdna_plot(collected_fragment_endpoint_wt_ct,T)
+fragment_endpoint_wt_ctdna_plot(collected_fragment_endpoint_wt_ct,F)
+test_1 <- collected_fragment_endpoint_wt_ct %>% filter(group == "SSC.4_input") %>% filter(Sample == "WT") %>% 
+    filter(-200 < relative & relative < 200)
+hist(test_1$relative,breaks = 50)

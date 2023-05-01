@@ -136,7 +136,7 @@ colnames(prop_mer_input) <- c("motif",
                               "HC.3_input",
                               "HC.4_input")
 prop_mer_input
-setwd("C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver")
+setwd("C:/Users/chris/OneDrive/1PhD/Fragmentering/endemotiver")
 
 write.table(prop_mer_cfChIP, file = "fragment end motif proportions cfChIP.txt", 
             sep = "\t",col.names = T)
@@ -374,6 +374,9 @@ colnames(collected_active_inactive_df) <- c("motif",
                                             "HC.4_active", "HC.4_inactive")
 
 collected_active_inactive_df
+setwd("C:/Users/chris/OneDrive/1PhD/Fragmentering/endemotiver")
+write.table(collected_active_inactive_df, file = "fragment end motif proportion of active and inactive fragments.txt", 
+            sep = "\t",col.names = T)
 
 NAC.1_active_fraction <- motif_fraction(NAC.1_input, grs, active_motifs)
 NAC.2_active_fraction <- motif_fraction(NAC.2_input, grs, active_motifs)
@@ -402,7 +405,7 @@ SCLC1 <- gene_count("G-514-cfChIP.bam", grs)
 SCLC2 <- gene_count("H-1169-cfChIP.bam", grs)
 SCLC3 <- gene_count("K-440-cfChIP.bam", grs)
 SCLC4 <- gene_count("L-1100-cfChIP.bam", grs)
-setwd("C:/Users/Christoffer/OneDrive/1PhD/R files/Important excel and text documents")
+setwd("C:/Users/chris/OneDrive/1PhD/R files/Important excel and text documents")
 NAC.1_enrichment <- e.score(Adeno1, "Coverage of AVENIO genes.txt",gr("AVENIO_genes.txt"))
 NAC.2_enrichment <- e.score(Adeno2, "Coverage of AVENIO genes.txt",gr("AVENIO_genes.txt"))
 NAC.3_enrichment <- e.score(Adeno3, "Coverage of AVENIO genes.txt",gr("AVENIO_genes.txt"))
@@ -466,7 +469,7 @@ colnames(active_motif_fraction_df) <- c("genes",
                                         "SSC.2",
                                         "SSC.3",
                                         "SSC.4")
-setwd("C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver")
+setwd("C:/Users/chris/OneDrive/1PhD/Fragmentering/endemotiver")
 
 write.table(active_motif_fraction_df, file = "active motif fraction.txt", 
             sep = "\t",col.names = T)
@@ -784,7 +787,7 @@ df <- rbind(NAC.1_active_active_quartiles,
             SSC.2_active_active_quartiles,
             SSC.3_active_active_quartiles,
             SSC.4_active_active_quartiles)
-setwd("C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver")
+setwd("C:/Users/chris/OneDrive/1PhD/Fragmentering/endemotiver")
 write.table(df, file = "Active active cancer fraction in cfChIP quatiles.txt", 
             sep = "\t",col.names = T)
 
@@ -813,7 +816,7 @@ df <- rbind(NAC.1_inactive_inactive_quartiles,
             SSC.2_inactive_inactive_quartiles,
             SSC.3_inactive_inactive_quartiles,
             SSC.4_inactive_inactive_quartiles)
-setwd("C:/Users/Christoffer/OneDrive/1PhD/Fragmentering/endemotiver")
+setwd("C:/Users/chris/OneDrive/1PhD/Fragmentering/endemotiver")
 write.table(df, file = "Inactive inactive cancer fraction in cfChIP quatiles.txt", 
             sep = "\t",col.names = T)
 
@@ -873,4 +876,210 @@ df <- rbind(NAC.1_sub150_active_active_quartiles,
             SSC.4_sub150_active_active_quartiles)
 
 write.table(df, file = "Sub 150 with active active fraction in cfChIP quatiles.txt", 
+            sep = "\t",col.names = T)
+setwd("D:/Lung cancer Pippin/Deduped")
+Adeno1 <- gene_count("Deduped-pippin_NAC.1.bam",grs)
+Adeno2 <- gene_count("Deduped-pippin_NAC.2.bam", grs)
+Adeno3 <- gene_count("Deduped-pippin_NAC.3.bam", grs)
+Adeno4 <- gene_count("Deduped-pippin_NAC.4.bam", grs)
+Plano1 <- gene_count("Deduped-pippin_NSC.1.bam", grs)
+Plano2 <- gene_count("Deduped-pippin_NSC.2.bam", grs)
+Plano3 <- gene_count("Deduped-pippin_NSC.3.bam",grs)
+SCLC1 <- gene_count("Deduped-pippin_SSC.1.bam", grs)
+SCLC2 <- gene_count("Deduped-pippin_SSC.2.bam", grs)
+SCLC3 <- gene_count("Deduped-pippin_SSC.3.bam", grs)
+SCLC4 <- gene_count("Deduped-pippin_SSC.4.bam", grs)
+setwd("C:/Users/chris/OneDrive/1PhD/R files/Important excel and text documents")
+NAC.1_enrichment <- e.score(Adeno1, "Coverage of AVENIO genes.txt",gr("AVENIO_genes.txt"))
+NAC.2_enrichment <- e.score(Adeno2, "Coverage of AVENIO genes.txt",gr("AVENIO_genes.txt"))
+NAC.3_enrichment <- e.score(Adeno3, "Coverage of AVENIO genes.txt",gr("AVENIO_genes.txt"))
+NAC.4_enrichment <- e.score(Adeno4, "Coverage of AVENIO genes.txt",gr("AVENIO_genes.txt"))
+NSC.1_enrichment <- e.score(Plano1, "Coverage of AVENIO genes.txt",gr("AVENIO_genes.txt"))
+NSC.2_enrichment <- e.score(Plano2, "Coverage of AVENIO genes.txt",gr("AVENIO_genes.txt"))
+NSC.3_enrichment <- e.score(Plano3, "Coverage of AVENIO genes.txt",gr("AVENIO_genes.txt"))
+SSC.1_enrichment <- e.score(SCLC1, "Coverage of AVENIO genes.txt",gr("AVENIO_genes.txt"))
+SSC.2_enrichment <- e.score(SCLC2, "Coverage of AVENIO genes.txt",gr("AVENIO_genes.txt"))
+SSC.3_enrichment <- e.score(SCLC3, "Coverage of AVENIO genes.txt",gr("AVENIO_genes.txt"))
+SSC.4_enrichment <- e.score(SCLC4, "Coverage of AVENIO genes.txt",gr("AVENIO_genes.txt"))
+pippin_enrichment_df <- NAC.1_enrichment %>%
+    left_join(NAC.2_enrichment, by = "genes") %>%
+    left_join(NAC.3_enrichment, by = "genes") %>%
+    left_join(NAC.4_enrichment, by = "genes") %>%
+    left_join(NSC.1_enrichment, by = "genes") %>%
+    left_join(NSC.2_enrichment, by = "genes") %>%
+    left_join(NSC.3_enrichment, by = "genes") %>%
+    left_join(SSC.1_enrichment, by = "genes") %>%
+    left_join(SSC.2_enrichment, by = "genes") %>%
+    left_join(SSC.3_enrichment, by = "genes") %>%
+    left_join(SSC.4_enrichment, by = "genes")
+colnames(pippin_enrichment_df) <- c("genes","NAC.1",
+                             "NAC.2",
+                             "NAC.3",
+                             "NAC.4",
+                             "NSC.1",
+                             "NSC.2",
+                             "NSC.3",
+                             "SSC.1",
+                             "SSC.2",
+                             "SSC.3",
+                             "SSC.4")
+
+pippin_enrichment_df
+write.table(pippin_enrichment_df, file = "pippin enrichment all.txt", 
+            sep = "\t",col.names = T)
+
+mer_count_NAC.1_pippin <- mer_count(NAC.1_pippin,3)
+mer_count_NAC.2_pippin <- mer_count(NAC.2_pippin,3)
+mer_count_NAC.3_pippin <- mer_count(NAC.3_pippin,3)
+mer_count_NAC.4_pippin <- mer_count(NAC.4_pippin,3)
+mer_count_NSC.1_pippin <- mer_count(NSC.1_pippin,3)
+mer_count_NSC.2_pippin <- mer_count(NSC.2_pippin,3)
+mer_count_NSC.3_pippin <- mer_count(NSC.3_pippin,3)
+mer_count_SSC.1_pippin <- mer_count(SSC.1_pippin,3)
+mer_count_SSC.2_pippin <- mer_count(SSC.2_pippin,3)
+mer_count_SSC.3_pippin <- mer_count(SSC.3_pippin,3)
+mer_count_SSC.4_pippin <- mer_count(SSC.4_pippin,3)
+gc()
+prop_mer_NAC.1_pippin <- prop_df(mer_count_NAC.1_pippin)
+prop_mer_NAC.2_pippin <- prop_df(mer_count_NAC.2_pippin)
+prop_mer_NAC.3_pippin <- prop_df(mer_count_NAC.3_pippin)
+prop_mer_NAC.4_pippin <- prop_df(mer_count_NAC.4_pippin)
+prop_mer_NSC.1_pippin <- prop_df(mer_count_NSC.1_pippin)
+prop_mer_NSC.2_pippin <- prop_df(mer_count_NSC.2_pippin)
+prop_mer_NSC.3_pippin <- prop_df(mer_count_NSC.3_pippin)
+prop_mer_SSC.1_pippin <- prop_df(mer_count_SSC.1_pippin)
+prop_mer_SSC.2_pippin <- prop_df(mer_count_SSC.2_pippin)
+prop_mer_SSC.3_pippin <- prop_df(mer_count_SSC.3_pippin)
+prop_mer_SSC.4_pippin <- prop_df(mer_count_SSC.4_pippin)
+
+prop_mer_pippin <- prop_mer_NAC.1_pippin %>% 
+    left_join(prop_mer_NAC.2_pippin, by = "res") %>% 
+    left_join(prop_mer_NAC.3_pippin, by = "res") %>% 
+    left_join(prop_mer_NAC.4_pippin, by = "res") %>% 
+    left_join(prop_mer_NSC.1_pippin, by = "res") %>% 
+    left_join(prop_mer_NSC.2_pippin, by = "res") %>% 
+    left_join(prop_mer_NSC.3_pippin, by = "res") %>% 
+    left_join(prop_mer_SSC.1_pippin, by = "res") %>% 
+    left_join(prop_mer_SSC.2_pippin, by = "res") %>% 
+    left_join(prop_mer_SSC.3_pippin, by = "res") %>% 
+    left_join(prop_mer_SSC.4_pippin, by = "res")
+
+colnames(prop_mer_pippin) <- c("motif", 
+                              "NAC.1_pippin",
+                              "NAC.2_pippin",
+                              "NAC.3_pippin",
+                              "NAC.4_pippin",
+                              "NSC.1_pippin",
+                              "NSC.2_pippin",
+                              "NSC.3_pippin",
+                              "SSC.1_pippin",
+                              "SSC.2_pippin",
+                              "SSC.3_pippin",
+                              "SSC.4_pippin")
+gc()
+
+write.table(prop_mer_pippin, file = "fragment end motif proportions pippin.txt", 
+            sep = "\t",col.names = T)
+
+
+NAC.1_in_silico <- in_silico_size_selection(NAC.1_input,60,200)
+gc()
+NAC.2_in_silico <- in_silico_size_selection(NAC.2_input,60,200)
+gc()
+NAC.3_in_silico <- in_silico_size_selection(NAC.3_input,60,200)
+gc()
+NAC.4_in_silico <- in_silico_size_selection(NAC.4_input,60,200)
+gc()
+NSC.1_in_silico <- in_silico_size_selection(NSC.1_input,60,200)
+gc()
+NSC.2_in_silico <- in_silico_size_selection(NSC.2_input,60,200)
+gc()
+NSC.3_in_silico <- in_silico_size_selection(NSC.3_input,60,200)
+gc()
+NSC.4_in_silico <- in_silico_size_selection(NSC.4_input,60,200)
+gc()
+SSC.1_in_silico <- in_silico_size_selection(SSC.1_input,60,200)
+
+SSC.2_in_silico <- in_silico_size_selection(SSC.2_input,60,200)
+gc()
+SSC.3_in_silico <- in_silico_size_selection(SSC.3_input,60,200)
+gc()
+SSC.4_in_silico <- in_silico_size_selection(SSC.4_input,60,200)
+gc()
+
+setwd("C:/Users/Christoffer/OneDrive/1PhD/R files/Important excel and text documents")
+
+NAC.1_in_silico_enrichment <- in_silico_enrichment(NAC.1_in_silico,"NAC.1",NAC.1_input_count,grs)
+NAC.2_in_silico_enrichment <- in_silico_enrichment(NAC.2_in_silico,"NAC.2",NAC.2_input_count,grs)
+NAC.3_in_silico_enrichment <- in_silico_enrichment(NAC.3_in_silico,"NAC.3",NAC.3_input_count,grs)
+NAC.4_in_silico_enrichment <- in_silico_enrichment(NAC.4_in_silico,"NAC.4",NAC.4_input_count,grs)
+NSC.1_in_silico_enrichment <- in_silico_enrichment(NSC.1_in_silico,"NSC.1",NSC.1_input_count,grs)
+NSC.2_in_silico_enrichment <- in_silico_enrichment(NSC.2_in_silico,"NSC.2",NSC.2_input_count,grs)
+NSC.3_in_silico_enrichment <- in_silico_enrichment(NSC.3_in_silico,"NSC.3",NSC.3_input_count,grs)
+NSC.4_in_silico_enrichment <- in_silico_enrichment(NSC.4_in_silico,"NSC.4",NSC.4_input_count,grs)
+SSC.1_in_silico_enrichment <- in_silico_enrichment(SSC.1_in_silico,"SSC.1",SSC.1_input_count,grs)
+SSC.2_in_silico_enrichment <- in_silico_enrichment(SSC.2_in_silico,"SSC.2",SSC.2_input_count,grs)
+SSC.3_in_silico_enrichment <- in_silico_enrichment(SSC.3_in_silico,"SSC.3",SSC.3_input_count,grs)
+SSC.4_in_silico_enrichment <- in_silico_enrichment(SSC.4_in_silico,"SSC.4",SSC.4_input_count,grs)
+
+collected_in_silico_fraction <- NAC.1_in_silico_enrichment %>% 
+    left_join(NAC.2_in_silico_enrichment, by = "gene") %>% 
+    left_join(NAC.3_in_silico_enrichment, by = "gene") %>% 
+    left_join(NAC.4_in_silico_enrichment, by = "gene") %>%
+    left_join(NSC.1_in_silico_enrichment, by = "gene") %>% 
+    left_join(NSC.2_in_silico_enrichment, by = "gene") %>% 
+    left_join(NSC.3_in_silico_enrichment, by = "gene") %>% 
+    left_join(NSC.4_in_silico_enrichment, by = "gene") %>%
+    left_join(SSC.1_in_silico_enrichment, by = "gene") %>% 
+    left_join(SSC.2_in_silico_enrichment, by = "gene") %>% 
+    left_join(SSC.3_in_silico_enrichment, by = "gene") %>% 
+    left_join(SSC.4_in_silico_enrichment, by = "gene")
+
+
+write.table(collected_in_silico_fraction, file = "collected in silico fraction.txt", 
+            sep = "\t",col.names = T)
+setwd("D:/Lung cancer input/PosDeduped")
+
+NAC.1_input_count <- gene_count("PosDeduped-A-1279-input.bam",grs)
+NAC.2_input_count <- gene_count("PosDeduped-B-1288-input.bam",grs)
+NAC.3_input_count <- gene_count("PosDeduped-C-1475-input.bam",grs)
+NAC.4_input_count <- gene_count("PosDeduped-D-1578-input.bam",grs)
+NSC.1_input_count <- gene_count("PosDeduped-E-439-input.bam",grs)
+NSC.2_input_count <- gene_count("PosDeduped-F-1449-input.bam",grs)
+NSC.3_input_count <- gene_count("PosDeduped-I-645-input.bam",grs)
+NSC.4_input_count <- gene_count("PosDeduped-J-1663-input.bam",grs)
+SSC.1_input_count <- gene_count("PosDeduped-G-514-input.bam",grs)
+SSC.2_input_count <- gene_count("PosDeduped-H-1169-input.bam",grs)
+SSC.3_input_count <- gene_count("PosDeduped-K-440-input.bam",grs)
+SSC.4_input_count <- gene_count("PosDeduped-L-1100-input.bam",grs)
+
+
+exon_Sub150_NAC.1 <- sub150_in_exons(NAC.1_input,grs,coding_exons,"NAC.1")
+exon_Sub150_NAC.2 <- sub150_in_exons(NAC.2_input,grs,coding_exons,"NAC.2")
+exon_Sub150_NAC.3 <- sub150_in_exons(NAC.3_input,grs,coding_exons,"NAC.3")
+exon_Sub150_NAC.4 <- sub150_in_exons(NAC.4_input,grs,coding_exons,"NAC.4")
+exon_Sub150_NSC.1 <- sub150_in_exons(NSC.1_input,grs,coding_exons,"NSC.1")
+exon_Sub150_NSC.2 <- sub150_in_exons(NSC.2_input,grs,coding_exons,"NSC.2")
+exon_Sub150_NSC.3 <- sub150_in_exons(NSC.3_input,grs,coding_exons,"NSC.3")
+exon_Sub150_NSC.4 <- sub150_in_exons(NSC.4_input,grs,coding_exons,"NSC.4")
+exon_Sub150_SSC.1 <- sub150_in_exons(SSC.1_input,grs,coding_exons,"SSC.1")
+exon_Sub150_SSC.2 <- sub150_in_exons(SSC.2_input,grs,coding_exons,"SSC.2")
+exon_Sub150_SSC.3 <- sub150_in_exons(SSC.3_input,grs,coding_exons,"SSC.3")
+exon_Sub150_SSC.4 <- sub150_in_exons(SSC.4_input,grs,coding_exons,"SSC.4")
+
+exon_Sub150_collected <- rbind(exon_Sub150_NAC.1,
+                               exon_Sub150_NAC.2,
+                               exon_Sub150_NAC.3,
+                               exon_Sub150_NAC.4,
+                               exon_Sub150_NSC.1,
+                               exon_Sub150_NSC.2,
+                               exon_Sub150_NSC.3,
+                               exon_Sub150_NSC.4,
+                               exon_Sub150_SSC.1,
+                               exon_Sub150_SSC.2,
+                               exon_Sub150_SSC.3,
+                               exon_Sub150_SSC.4)
+
+setwd("C:/Users/chris/OneDrive/1PhD/Fragmentering/endemotiver")
+write.table(exon_Sub150_collected, file = "collected sub 150 in exons.txt", 
             sep = "\t",col.names = T)
