@@ -1083,3 +1083,29 @@ exon_Sub150_collected <- rbind(exon_Sub150_NAC.1,
 setwd("C:/Users/chris/OneDrive/1PhD/Fragmentering/endemotiver")
 write.table(exon_Sub150_collected, file = "collected sub 150 in exons.txt", 
             sep = "\t",col.names = T)
+NAC.1_frag_per_gene <- fragment_length_per_gene_df(NAC.1_input, "NAC.1")
+NAC.2_frag_per_gene <- fragment_length_per_gene_df(NAC.2_input, "NAC.2")
+NAC.3_frag_per_gene <- fragment_length_per_gene_df(NAC.3_input, "NAC.3")
+NAC.4_frag_per_gene <- fragment_length_per_gene_df(NAC.4_input, "NAC.4")
+NSC.1_frag_per_gene <- fragment_length_per_gene_df(NSC.1_input, "NSC.1")
+NSC.2_frag_per_gene <- fragment_length_per_gene_df(NSC.2_input, "NSC.2")
+NSC.3_frag_per_gene <- fragment_length_per_gene_df(NSC.3_input, "NSC.3")
+NSC.4_frag_per_gene <- fragment_length_per_gene_df(NSC.4_input, "NSC.4")
+SSC.1_frag_per_gene <- fragment_length_per_gene_df(SSC.1_input, "SSC.1")
+SSC.2_frag_per_gene <- fragment_length_per_gene_df(SSC.2_input, "SSC.2")
+SSC.3_frag_per_gene <- fragment_length_per_gene_df(SSC.3_input, "SSC.3")
+SSC.4_frag_per_gene <- fragment_length_per_gene_df(SSC.4_input, "SSC.4")
+frag_per_gene_collected <- rbind(NAC.1_frag_per_gene,
+                       NAC.2_frag_per_gene,
+                       NAC.3_frag_per_gene,
+                       NAC.4_frag_per_gene,
+                       NSC.1_frag_per_gene,
+                       NSC.2_frag_per_gene,
+                       NSC.3_frag_per_gene,
+                       NSC.4_frag_per_gene,
+                       SSC.1_frag_per_gene,
+                       SSC.2_frag_per_gene,
+                       SSC.3_frag_per_gene,
+                       SSC.4_frag_per_gene)
+write.table(frag_per_gene_collected, file = "collected fragment lengths per gene.txt", 
+            sep = "\t",col.names = T)

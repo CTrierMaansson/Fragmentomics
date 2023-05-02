@@ -2050,7 +2050,6 @@ active_motif_fraction_quartiles_plot <- function(x,a){
     
     return(gg)
 }
-active_motif_fraction_quartiles_plot(collected_inactive_inactive_cancer_fraction_quartiles, "Inactive")
 
 
 #a #Definition of whether "Active" or "Inactive" genes are analyzed
@@ -2985,7 +2984,7 @@ pippin_vs_cfChIP_correlation <- function(x,y){
     
     return(gg)
 }
-pippin_vs_cfChIP_correlation(enrichment_df,pippin_enrichment_df)
+
 
 pippin_vs_cfChIP_correlation_matrix <- function(x){
     df <- x %>% mutate(place = rep(1,nrow(x))) %>% 
@@ -3601,4 +3600,55 @@ fragment_endpoint_wt_ctdna_plot <- function(x,y = TRUE){
     return(gg) 
     
 }
+#x bamfile returned by BAMfile()
+#y Name of sample
+fragment_length_per_gene_df <- function(x,y){
+    library(GenomicFeatures)
+    subs <- as.data.frame(findOverlaps(grs,x))
+    for(i in 1:length(unique(subs$queryHits))){
+        gene <- mcols(grs)$SYMBOL[unique(subs$queryHits)[i]]
+        sub_subs <- subs %>% dplyr::filter(queryHits == unique(subs$queryHits)[i])
+        freq_len <- as.data.frame(proportions(table(abs(mcols(x)$isize[sub_subs$subjectHits])))) %>%
+            mutate(len = as.character(Var1)) %>%
+            mutate(len = as.numeric(len)) %>% 
+            filter(len > 0 & len < 401) %>% 
+            dplyr::select(-Var1) %>%
+            relocate(len,.before = "Freq")
+        colnames(freq_len) <- c("len",gene)
+        if(i == 1){
+            df <- freq_len
+        }
+        else{
+            df <- df %>% full_join(freq_len, by = "len")
+        }
+    }
+    df[is.na(df)] <- 0
+    df <- df %>% arrange(len)
+    df$sample <- rep(y,nrow(df))
+    return(df)
+}
+
+
+#x data.frame of genes and fragment lengths returned by fragment_length_per_gene_df()
+#y enrichment data.frame of all samples
+#z name of sample
+nmf_genes_lengths <- function(x,y,z){
+    set.seed(1)
+    x <- x %>% filter(sample == z)
+    rownames(x) <- x$len
+    df <- x %>% dplyr::select(-c(len,sample))
+    res <- nmf(df,2)
+    base <- basis(res)
+    coe <- coef(res)
+    coe_df <- data.frame(genes = colnames(coe),
+                         weight = coe[1,])
+    samp_df <- y[c("genes",z)]
+    colnames(samp_df) <- c("genes", "cfChIP")
+    ddf <- samp_df %>% left_join(coe_df)
+    return(plot(ddf$cfChIP,ddf$weight))
+    return(plot(as.numeric(rownames(base)),base[,1]))
+    
+    
+}
+
 
